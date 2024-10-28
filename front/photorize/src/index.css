@@ -1,0 +1,18 @@
+@layer tailwind-base, primereact, tailwind-utilities;
+
+@import "primereact/resources/themes/saga-blue/theme.css";
+
+/* PrimeReact 핵심 CSS */
+@import "primereact/resources/primereact.min.css";
+
+/* PrimeIcons CSS */
+@import "primeicons/primeicons.css";
+
+@layer tailwind-base {
+  @tailwind base;
+}
+
+@layer tailwind-utilities {
+  @tailwind components;
+  @tailwind utilities;
+}
