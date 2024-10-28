@@ -1,14 +1,14 @@
 import React from "react";
-import { Button } from "primereact/button";
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Loading from "./pages/Loading";
 
 function App() {
   return (
-    <>
-      <h1>Hi123</h1>
-      <div className="card flex justify-content-center">
-        <Button label="Submit" />
-      </div>
-    </>
+    <Routes>
+      <Route path="/" element={<Loading />} />
+      <Route path="/home" element={<Home />} />
+    </Routes>
   );
 }
 
