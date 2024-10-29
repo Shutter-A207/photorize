@@ -2,14 +2,14 @@ import React from "react";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 
-const Pose = () => {
+const Record = () => {
   return (
     <>
-      <Header title="포즈" />
-      <div>Pose</div>
+      <Header title="추억 기록" />
+      <div>Record</div>
       <Footer />
     </>
   );
 };
 
-export default Pose;
+export default Record;

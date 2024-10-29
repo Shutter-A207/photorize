@@ -2,14 +2,14 @@ import React from "react";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 
-const Pose = () => {
+const Spot = () => {
   return (
     <>
-      <Header title="포즈" />
-      <div>Pose</div>
+      <Header title="네컷 스팟" />
+      <div>Spot</div>
       <Footer />
     </>
   );
 };
 
-export default Pose;
+export default Spot;
