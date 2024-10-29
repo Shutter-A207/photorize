@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
     location.pathname === path ? "#FF93A5" : "#4D4D4D";
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-white shadow-md flex justify-between items-center px-7 py-3 rounded-t-3xl">
+    <footer className="fixed bottom-0 left-0 right-0 bg-white flex justify-between items-center px-7 py-3 rounded-t-3xl">
       <div className="flex space-x-8">
         {/* Home */}
         <div
@@ -27,7 +27,7 @@ const Footer: React.FC = () => {
             className="h-6"
           />
           <span
-            className="text-sm suit-font-bold"
+            className="text-sm font-bold"
             style={{
               color: getColor("/home"),
             }}
@@ -47,7 +47,7 @@ const Footer: React.FC = () => {
             className="h-6"
           />
           <span
-            className="text-sm suit-font-bold"
+            className="text-sm font-bold"
             style={{
               color: getColor("/album"),
             }}
@@ -59,7 +59,7 @@ const Footer: React.FC = () => {
 
       {/*Record 버튼 */}
       <div
-        className="absolute -top-6 left-1/2 transform -translate-x-1/2 flex items-center justify-center bg-[#FF93A5] rounded-full w-16 h-16 cursor-pointer shadow-lg"
+        className="absolute -top-6 left-1/2 transform -translate-x-1/2 flex items-center justify-center bg-[#FF93A5] rounded-full w-16 h-16 cursor-pointer"
         onClick={() => navigate("/record")}
       >
         <img
@@ -81,7 +81,7 @@ const Footer: React.FC = () => {
             className="h-6"
           />
           <span
-            className="text-sm suit-font-bold"
+            className="text-sm font-bold"
             style={{
               color: getColor("/pose"),
             }}
@@ -101,7 +101,7 @@ const Footer: React.FC = () => {
             className="h-6"
           />
           <span
-            className="text-sm suit-font-bold"
+            className="text-sm font-bold"
             style={{
               color: getColor("/spot"),
             }}

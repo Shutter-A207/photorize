@@ -7,6 +7,7 @@ import Album from "./pages/Album/Album";
 import Record from "./pages/Album/Record";
 import Pose from "./pages/Pose/Pose";
 import Spot from "./pages/Spot/Spot";
+import Login from "./pages/Login/Login";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Loading />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/notifications" element={<Alarm />} />
         <Route path="/record" element={<Record />} />
         <Route path="/album" element={<Album />} />

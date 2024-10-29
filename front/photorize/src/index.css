@@ -52,14 +52,3 @@
   @tailwind components;
   @tailwind utilities;
 }
-
-body {
-  background-color: #f9f9f9; /* 원하는 배경색으로 설정 */
-}
-
-.suit-font-bold {
-  font-family: "SUITE";
-  src: url("/font/SUITE-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-}
