@@ -53,7 +53,7 @@ const AlbumDetail: React.FC = () => {
   const rightColumnImages = imageData.filter((_, index) => index % 2 !== 0);
 
   const handleImageClick = (imageId: number) => {
-    navigate(`/record/${imageId}`);
+    navigate(`/memory/${imageId}`);
   };
 
   return (
