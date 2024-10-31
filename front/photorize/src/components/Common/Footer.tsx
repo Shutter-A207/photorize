@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
     location.pathname === path ? "#FF93A5" : "#4D4D4D";
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-white flex justify-between items-center px-7 py-3 rounded-t-3xl">
+    <footer className="fixed bottom-0 left-0 right-0 bg-white flex justify-between items-center px-7 py-3 rounded-t-3xl z-10">
       <div className="flex space-x-8">
         {/* Home */}
         <div

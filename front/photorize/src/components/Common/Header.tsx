@@ -18,7 +18,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0  flex items-center justify-between p-4 bg-[#F9F9F9] shadow">
+    <header className="fixed top-0 left-0 right-0  flex items-center justify-between p-4 bg-[#F9F9F9] shadow z-10">
       <div className="flex items-center">
         {location.pathname === "/home" ? (
           <img src="/assets/Logo1.png" alt="Photorize Logo" className="h-4" />

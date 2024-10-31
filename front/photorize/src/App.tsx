@@ -9,6 +9,7 @@ import Pose from "./pages/Pose/Pose";
 import Spot from "./pages/Spot/Spot";
 import Login from "./pages/Login/Login";
 import AlbumDetail from "./pages/Album/AlbumDetail";
+import Register from "./pages/Register/Register";
 
 function App() {
   return (
@@ -17,13 +18,13 @@ function App() {
         <Route path="/" element={<Loading />} />
         <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         <Route path="/notifications" element={<Alarm />} />
 
-        <Route path="/record" element={<Record />} />
-
         <Route path="/album" element={<Album />} />
         <Route path="/album/:id" element={<AlbumDetail />} />
+        <Route path="/record/:id" element={<Record />} />
 
         <Route path="/pose" element={<Pose />} />
 
