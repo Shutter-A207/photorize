@@ -1,6 +1,10 @@
 // tailwind.config.js
 module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}", "./index.html"],
+  content: [
+    "./src/**/*.{js,jsx,ts,tsx}",
+    "./index.html",
+    "./node_modules/react-tailwindcss-datepicker/dist/index.esm.{js,ts}",
+  ],
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
