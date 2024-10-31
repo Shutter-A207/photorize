@@ -55,7 +55,7 @@ const initialComments: Comment[] = [
   },
 ];
 
-const Record: React.FC = () => {
+const Memory: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
@@ -214,4 +214,4 @@ const Record: React.FC = () => {
   );
 };
 
-export default Record;
+export default Memory;
