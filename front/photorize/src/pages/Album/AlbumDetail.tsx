@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 
@@ -46,10 +46,15 @@ const memberData: MemberData[] = [
 
 const AlbumDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   // 열을 나누어 각각의 열에 이미지 할당
   const leftColumnImages = imageData.filter((_, index) => index % 2 === 0);
   const rightColumnImages = imageData.filter((_, index) => index % 2 !== 0);
+
+  const handleImageClick = (imageId: number) => {
+    navigate(`/record/${imageId}`);
+  };
 
   return (
     <div className="bg-[#F9F9F9] min-h-screen pt-14 pb-20">
@@ -81,7 +86,11 @@ const AlbumDetail: React.FC = () => {
           {/* 왼쪽 열 */}
           <div className="flex flex-col gap-4">
             {leftColumnImages.map((image) => (
-              <div key={image.id} className="flex flex-col items-center">
+              <div
+                key={image.id}
+                className="flex flex-col items-center"
+                onClick={() => handleImageClick(image.id)}
+              >
                 <img
                   src={image.src}
                   alt={`Album ${image.id}`}
@@ -109,7 +118,11 @@ const AlbumDetail: React.FC = () => {
           {/* 오른쪽 열 */}
           <div className="flex flex-col gap-4">
             {rightColumnImages.map((image) => (
-              <div key={image.id} className="flex flex-col items-center">
+              <div
+                key={image.id}
+                className="flex flex-col items-center"
+                onClick={() => handleImageClick(image.id)}
+              >
                 <img
                   src={image.src}
                   alt={`Album ${image.id}`}

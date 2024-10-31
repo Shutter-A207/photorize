@@ -1,6 +1,13 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
+
+  const handleRegisterClick = () => {
+    navigate("/register");
+  };
+
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">
       <img src="/assets/Logo1.png" alt="로고" className="w-[65%] mb-24" />
@@ -33,7 +40,10 @@ const Login = () => {
         <button className="w-full h-[50px] font-bold text-[18px] p-3 mb-4 bg-[#FF93A5] text-white rounded-2xl">
           로그인
         </button>
-        <div className="text-center text-[#686E74] mb-8 underline">
+        <div
+          className="text-center text-[#686E74] mb-8 underline"
+          onClick={handleRegisterClick}
+        >
           회원가입
         </div>
         <button className="relative mt-20 w-full h-[50px] font-bold text-[18px] p-3 bg-[#FEE500] rounded-2xl">
