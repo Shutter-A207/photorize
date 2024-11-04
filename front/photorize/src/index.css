@@ -59,6 +59,6 @@
   @tailwind components;
   @tailwind utilities;
   #root {
-    @apply max-w-sm mx-auto;
+    @apply max-w-lg mx-auto;
   }
 }
