@@ -11,6 +11,7 @@ import AlbumDetail from "./pages/Album/AlbumDetail";
 import Register from "./pages/Register/Register";
 import Memory from "./pages/Album/Memory";
 import Record from "./pages/Album/Record";
+import SpotDetail from "./pages/Spot/SpotDetail";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="/pose" element={<Pose />} />
 
         <Route path="/spot" element={<Spot />} />
+        <Route path="/spot/:id" element={<SpotDetail />} />
       </Routes>
     </>
   );

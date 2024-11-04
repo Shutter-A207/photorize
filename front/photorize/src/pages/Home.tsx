@@ -1,6 +1,12 @@
 import React from "react";
 import { Canvas, extend } from "@react-three/fiber";
-import { OrbitControls, useTexture } from "@react-three/drei";
+import {
+  OrbitControls,
+  useTexture,
+  Plane,
+  Points,
+  PointMaterial,
+} from "@react-three/drei";
 import * as THREE from "three";
 import Header from "../components/Common/Header";
 import Footer from "../components/Common/Footer";
@@ -16,6 +22,18 @@ const Album = ({ texturePath, position, rotation }) => {
       <boxBufferGeometry args={[1, 1.4, 0.1]} /> {/* 앨범 크기 조절 */}
       <meshStandardMaterial map={texture} />
     </mesh>
+  );
+};
+
+const Particles = () => {
+  const points = new Float32Array(500).map(() =>
+    THREE.MathUtils.randFloatSpread(5)
+  );
+  return (
+    <Points positions={points} stride={3} frustumCulled>
+      <PointMaterial size={0.03} color="#FF3E5E" transparent={true} />
+      {/* 반짝이는 색상 */}
+    </Points>
   );
 };
 
@@ -46,7 +64,7 @@ const Home = () => {
       <Header title="" />
       <div className="bg-[#F9F9F9] min-h-screen pt-14 pb-24">
         {/* 상단 프로필 정보 */}
-        <div className="flex items-center px-4 py-2">
+        <div className="flex items-center px-4 py-4">
           <img
             src={userProfile.profileImage}
             alt="Profile"
@@ -57,8 +75,8 @@ const Home = () => {
           </p>
         </div>
 
-        <Canvas className="mt-6" style={{ height: "70vh" }}>
-          <ambientLight intensity={1.5} />
+        <Canvas className="bg-[#F9F9F9]" style={{ height: "76vh" }}>
+          <ambientLight intensity={2.5} />
           <pointLight position={[10, 10, 10]} />
           <directionalLight intensity={0.7} position={[-5, 5, 5]} />
           {/* OrbitControls 설정: enablePan을 false로 설정하여 시점 고정 */}
@@ -69,6 +87,18 @@ const Home = () => {
             minDistance={5} // 초기 줌을 약간 축소한 거리 설정
             maxDistance={10} // 최대 줌 거리 설정
           />
+
+          {/* 바닥면 추가 */}
+          <Plane
+            args={[20, 20]}
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[0, -1, 0]}
+          >
+            <meshStandardMaterial color="#E0E0E0" />
+          </Plane>
+
+          {/* 꽃가루 효과 */}
+          <Particles />
 
           {albumTextures.map((texturePath, index) => {
             const angle = index * angleStep;
