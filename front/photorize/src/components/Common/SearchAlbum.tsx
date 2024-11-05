@@ -12,15 +12,11 @@ export default function Search({
   placeholder,
   onChange,
 }: SearchProps) {
-  const spots: string[] = [
-    "인생네컷 강남점",
-    "인생네컷 홍대점",
-    "포토이즘 홍대점",
-  ];
+  const spots: string[] = ["Shutter", "99즈"];
 
-  const [selectedSpot, setSelectedSpot] = useState<string | null>(null);
+  const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
 
-  const selectedSpotTemplate = (option: string) => {
+  const selectedAlbumTemplate = (option: string) => {
     if (option) {
       return (
         <div className="flex align-items-center">
@@ -38,7 +34,7 @@ export default function Search({
     );
   };
 
-  const spotOptionTemplate = (option: string) => {
+  const albumOptionTemplate = (option: string) => {
     return (
       <div className="flex align-items-cente">
         <div className="text-sm text-[#818181] ml-2">{option}</div>
@@ -47,19 +43,19 @@ export default function Search({
   };
 
   const handleDropdownChange = (e: DropdownChangeEvent) => {
-    setSelectedSpot(e.value);
+    setSelectedAlbum(e.value);
     onChange(e.value);
   };
 
   return (
     <Dropdown
-      value={selectedSpot}
+      value={selectedAlbum}
       onChange={handleDropdownChange}
       options={spots}
       placeholder={placeholder}
       filter
-      valueTemplate={selectedSpotTemplate}
-      itemTemplate={spotOptionTemplate}
+      valueTemplate={selectedAlbumTemplate}
+      itemTemplate={albumOptionTemplate}
       className="flex items-center bg-white rounded-lg p-2 w-full max-w-md mb-4 border border-[#B3B3B3] text-sm text-[#343434] outline-none"
     />
   );

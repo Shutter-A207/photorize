@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { photoState, videoState } from "../../recoil/fileAtoms";
 
-type UploadItemProps = {
+interface UploadItemProps {
   type: "photo" | "video";
-};
+  onUpload: (files: File[]) => void;
+}
 
-const UploadItem: React.FC<UploadItemProps> = ({ type }) => {
+const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
   const [file, setFile] = useRecoilState(
     type === "photo" ? photoState : videoState
   );
@@ -39,6 +40,7 @@ const UploadItem: React.FC<UploadItemProps> = ({ type }) => {
     }
 
     setFile(selectedFile);
+    onUpload([selectedFile]); // onUpload 호출로 파일을 외부로 전달
   };
 
   const handleRemoveFile = () => {
@@ -110,7 +112,7 @@ const UploadItem: React.FC<UploadItemProps> = ({ type }) => {
               onChange={handleFileChange}
               accept={
                 type === "photo"
-                  ? ".jpg,.jpeg,.png,.bmp,.webp,.heif,.heic,tiff,.tif"
+                  ? ".jpg,.jpeg,.png,.bmp,.webp,.heif,.heic,.tiff,.tif"
                   : ".mp4,.mov,.mpeg-4,.avi,.mkv,.webm,.wmv,.flv"
               }
               className="hidden"

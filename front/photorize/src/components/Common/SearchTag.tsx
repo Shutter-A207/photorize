@@ -4,9 +4,14 @@ import { MultiSelect, MultiSelectChangeEvent } from "primereact/multiselect";
 interface SearchTagProps {
   imageSrc: string;
   placeholder: string;
+  onChange: (value: string[]) => void;
 }
 
-export default function SearchTag({ imageSrc, placeholder }: SearchTagProps) {
+export default function SearchTag({
+  imageSrc,
+  placeholder,
+  onChange,
+}: SearchTagProps) {
   const tags: string[] = ["킹율", "한교동", "뽀로로"];
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
@@ -16,11 +21,17 @@ export default function SearchTag({ imageSrc, placeholder }: SearchTagProps) {
     </div>
   );
 
+  const handleTagChange = (e: MultiSelectChangeEvent) => {
+    const updatedTags = e.value;
+    setSelectedTags(updatedTags);
+    onChange(updatedTags); // 외부로 선택된 태그 전달
+  };
+
   return (
     <div className="relative w-full max-w-md mb-4">
       <MultiSelect
         value={selectedTags}
-        onChange={(e: MultiSelectChangeEvent) => setSelectedTags(e.value)}
+        onChange={handleTagChange} // 수정: onChange 핸들러 연결
         options={tags}
         filter
         display="chip"
@@ -30,8 +41,8 @@ export default function SearchTag({ imageSrc, placeholder }: SearchTagProps) {
       />
       {selectedTags.length === 0 && (
         <div className="absolute inset-0 flex items-center pl-2 pointer-events-none">
-          <img src={imageSrc} alt="icon" className="w-4 h-4 mr-2" />
-          <span className="text-sm text-[#BCBFC3] ml-2">{placeholder}</span>
+          <img src={imageSrc} alt="icon" className="w-5 h-5 ml-3.5" />
+          <span className="text-m text-[#BCBFC3] ml-2">{placeholder}</span>
         </div>
       )}
     </div>
