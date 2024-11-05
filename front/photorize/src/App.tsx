@@ -12,6 +12,7 @@ import Register from "./pages/Register/Register";
 import Memory from "./pages/Album/Memory";
 import Record from "./pages/Album/Record";
 import SpotDetail from "./pages/Spot/SpotDetail";
+import AlbumEdit from "./pages/Album/AlbumEdit";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
 
         <Route path="/album" element={<Album />} />
         <Route path="/album/:id" element={<AlbumDetail />} />
+        <Route path="/album/edit" element={<AlbumEdit />} />
         <Route path="/memory/:id" element={<Memory />} />
 
         <Route path="/record" element={<Record />} />

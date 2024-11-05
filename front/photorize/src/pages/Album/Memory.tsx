@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import ReactPlayer from "react-player";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
@@ -59,6 +59,8 @@ const Memory: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const scrollPosition = event.currentTarget.scrollLeft;
@@ -80,6 +82,10 @@ const Memory: React.FC = () => {
       setComments([...comments, newCommentData]);
       setNewComment("");
     }
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
   };
 
   return (
@@ -132,10 +138,8 @@ const Memory: React.FC = () => {
 
         {/* Memory Record Details */}
         <div
-          className="bg-white rounded-xl p-4 mb-4"
-          style={{
-            boxShadow: "0px 1px 1px rgba(0, 0, 0, 0.1)",
-          }}
+          className="bg-white rounded-xl p-4 mb-4 relative"
+          style={{ boxShadow: "0px 1px 1px rgba(0, 0, 0, 0.1)" }}
         >
           <div className="flex items-center mb-2">
             <img
@@ -157,9 +161,29 @@ const Memory: React.FC = () => {
                 <span className="mr-1">{memoryDetail.date}</span>
               </div>
             </div>
+            {/* 우측 상단 리스트 아이콘 */}
+            <div className="absolute top-4 right-5">
+              <img
+                src="/assets/listIcon.png"
+                className="w-5 cursor-pointer"
+                onClick={toggleMenu}
+              />
+              {menuOpen && (
+                <div
+                  ref={menuRef}
+                  className="absolute right-0 mt-2 bg-white shadow-lg rounded-md w-32"
+                >
+                  <button className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">
+                    추억 편집
+                  </button>
+                  <button className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">
+                    추억 삭제
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
           <div className="border-t border-gray-200 mt-3 mb-4"></div>
-
           <p className="text-sm font-medium text-[#343434] p-2">
             {memoryDetail.memo}
           </p>

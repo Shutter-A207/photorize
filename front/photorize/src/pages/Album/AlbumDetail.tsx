@@ -1,74 +1,82 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
+import { fetchAlbumDetails } from "../../api/AlbumAPI";
 
 interface ImageData {
-  id: number;
-  src: string;
-  location: string;
+  memoryId: number;
+  url: string;
+  spotName: string;
   date: string;
 }
 
 interface MemberData {
+  memberId: number;
   nickname: string;
-  profile: string;
+  img: string;
   status: boolean;
 }
 
-const imageData: ImageData[] = [
-  {
-    id: 1,
-    src: "/assets/test/test2.jpg",
-    location: "인생네컷 강남점",
-    date: "2024-10-18",
-  },
-  {
-    id: 2,
-    src: "/assets/test/test1.png",
-    location: "인생네컷 강남점",
-    date: "2024-10-15",
-  },
-  {
-    id: 3,
-    src: "/assets/test/test3.jpg",
-    location: "인생네컷 홍대입구점",
-    date: "2024-10-12",
-  },
-];
-
-const memberData: MemberData[] = [
-  { nickname: "조수연", profile: "/assets/test/member1.png", status: true },
-  { nickname: "최은혜", profile: "/assets/test/member1.png", status: true },
-  { nickname: "양지웅", profile: "/assets/test/member1.png", status: false },
-  { nickname: "이규빈", profile: "/assets/test/member1.png", status: false },
-];
+interface AlbumDetailData {
+  name: string;
+  members: MemberData[];
+  memories: ImageData[];
+}
 
 const AlbumDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [albumDetail, setAlbumDetail] = useState<AlbumDetailData | null>(null);
+
+  useEffect(() => {
+    const loadAlbumDetail = async () => {
+      if (id) {
+        try {
+          const response = await fetchAlbumDetails(Number(id));
+          if (response && response.status === 200) {
+            setAlbumDetail(response.data.content[0]); // 상세 데이터 설정
+
+            console.log(response);
+          }
+        } catch (error) {
+          console.error("앨범 상세 조회 중 오류 발생:", error);
+        }
+      }
+    };
+
+    loadAlbumDetail();
+  }, [id]);
+
+  const handleImageClick = (memoryId: number) => {
+    navigate(`/memory/${memoryId}`);
+  };
+
+  if (!albumDetail) {
+    return <div>Loading...</div>; // 로딩 중 표시
+  }
 
   // 열을 나누어 각각의 열에 이미지 할당
-  const leftColumnImages = imageData.filter((_, index) => index % 2 === 0);
-  const rightColumnImages = imageData.filter((_, index) => index % 2 !== 0);
-
-  const handleImageClick = (imageId: number) => {
-    navigate(`/memory/${imageId}`);
-  };
+  const leftColumnImages = albumDetail.memories.filter(
+    (_, index) => index % 2 === 0
+  );
+  const rightColumnImages = albumDetail.memories.filter(
+    (_, index) => index % 2 !== 0
+  );
 
   return (
     <div className="bg-[#F9F9F9] min-h-screen pt-14 pb-20">
-      <Header title="Shutter" />
+      <Header title={albumDetail.name} />
       <div className="p-4">
         {/* 유저 리스트 */}
         <div className="flex overflow-x-auto space-x-4">
-          {memberData.map((member, index) => (
+          {albumDetail.members.map((member) => (
             <div
-              key={index}
+              key={member.memberId}
               className={`flex flex-col items-center ${!member.status ? "opacity-40" : ""}`}
             >
               <img
-                src={member.profile}
+                src={member.img}
                 alt={member.nickname}
                 className="w-12 h-12 rounded-full object-cover"
               />
@@ -79,22 +87,24 @@ const AlbumDetail: React.FC = () => {
           ))}
         </div>
 
-        <div className="border-t border-gray-200 mt-2 mb-6"></div>
+        {albumDetail.members.length > 0 && (
+          <div className="border-t border-gray-200 mt-2 mb-6"></div>
+        )}
 
         {/* 두 열로 나누어진 Masonry 스타일 레이아웃 */}
         <div className="flex gap-4">
           {/* 왼쪽 열 */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 w-1/2">
             {leftColumnImages.map((image) => (
               <div
-                key={image.id}
+                key={image.memoryId}
                 className="flex flex-col items-center"
-                onClick={() => handleImageClick(image.id)}
+                onClick={() => handleImageClick(image.memoryId)}
               >
                 <img
-                  src={image.src}
-                  alt={`Album ${image.id}`}
-                  className="w-[154px] h-auto rounded-lg object-cover mb-1"
+                  src={image.url}
+                  alt={`Memory ${image.memoryId}`}
+                  className="w-full h-auto rounded-lg object-cover mb-1"
                 />
                 <div className="flex items-center justify-between w-full text-xs text-gray-500">
                   <div className="flex items-center">
@@ -104,7 +114,7 @@ const AlbumDetail: React.FC = () => {
                       className="w-2 h-3 mr-1"
                     />
                     <span className="text-[#343434] text-[10px] font-bold">
-                      {image.location}
+                      {image.spotName}
                     </span>
                   </div>
                   <span className="text-[#343434] text-[10px]">
@@ -116,17 +126,17 @@ const AlbumDetail: React.FC = () => {
           </div>
 
           {/* 오른쪽 열 */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 w-1/2">
             {rightColumnImages.map((image) => (
               <div
-                key={image.id}
+                key={image.memoryId}
                 className="flex flex-col items-center"
-                onClick={() => handleImageClick(image.id)}
+                onClick={() => handleImageClick(image.memoryId)}
               >
                 <img
-                  src={image.src}
-                  alt={`Album ${image.id}`}
-                  className="w-[154px] h-auto rounded-lg object-cover mb-1"
+                  src={image.url}
+                  alt={`Memory ${image.memoryId}`}
+                  className="w-full h-auto rounded-lg object-cover mb-1"
                 />
                 <div className="flex items-center justify-between w-full text-xs text-gray-500">
                   <div className="flex items-center">
@@ -136,7 +146,7 @@ const AlbumDetail: React.FC = () => {
                       className="w-2 h-3 mr-1"
                     />
                     <span className="text-[#343434] text-[10px] font-bold">
-                      {image.location}
+                      {image.spotName}
                     </span>
                   </div>
                   <span className="text-[#343434] text-[10px]">
