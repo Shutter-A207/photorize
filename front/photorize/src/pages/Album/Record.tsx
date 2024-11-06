@@ -11,16 +11,24 @@ import CreateAlbumModal from "../../components/Album/CreateAlbumModal";
 import SearchTag from "../../components/Common/SearchTag";
 import SearchAlbum from "../../components/Common/SearchAlbum";
 
+interface Spot {
+  id: number | null;
+  name: string | null;
+}
+
 const Record: React.FC = () => {
   const [shareSelection, setShareSelection] = useState<string>("내 앨범");
-  const [value, setValue] = useState<DateValueType>({
+  const [date, setDate] = useState<DateValueType>({
     startDate: null,
     endDate: null,
   });
-  const [location, setLocation] = useState<string>("");
+  const [spot, setSpot] = useState<Spot>({
+    id: null,
+    name: null,
+  });
   const [memo, setMemo] = useState<string>("");
-  const [photos, setPhotos] = useState<File[]>([]);
-  const [videos, setVideos] = useState<File[]>([]);
+  const [photo, setPhoto] = useState<File | null>();
+  const [video, setVideo] = useState<File | null>();
   const [tags, setTag] = useState<string[]>([]);
   const [album, setAlbum] = useState<string>("");
   const [isButtonEnabled, setIsButtonEnabled] = useState<boolean>(false);
@@ -30,10 +38,10 @@ const Record: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState<string>("");
 
   useEffect(() => {
-    const hasDate = value?.startDate !== null;
-    const hasLocation = location.trim() !== "";
+    const hasDate = date?.startDate !== null;
+    const hasLocation = spot.id !== null;
     const hasMemo = memo.trim() !== "";
-    const hasMediaContent = photos.length > 0 || videos.length > 0;
+    const hasMediaContent = photo !== null || video != null;
     const hasRequiredTag =
       shareSelection === "내 앨범" ||
       (shareSelection === "공유" && (tags.length > 0 || album !== ""));
@@ -41,17 +49,33 @@ const Record: React.FC = () => {
     setIsButtonEnabled(
       hasDate && hasLocation && hasMemo && hasMediaContent && hasRequiredTag
     );
-  }, [value, location, memo, photos, videos, tags, album, shareSelection]);
+  }, [date, spot, memo, photo, video, tags, album, shareSelection]);
+
+  // const handleCreate = () => {
+  //   if (date?.startDate && photos[0] && videos[0]) {
+  //     const memoryData = {
+  //       date: date.startDate.toISOString().split("T")[0],
+  //       spotId: spot.id,
+  //       content: memo,
+  //       albumIds: tags.map(Number),
+  //       type: shareSelection === "공유" ? "PUBLIC" : "PRIVATE",
+  //       photo: photos[0],
+  //       video: videos[0],
+  //     };
+  //     sendMemoryData(memoryData);
+  //   }
+  // };
 
   return (
     <>
       <Header title="추억 기록" />
       <div className="bg-[#F9F9F9] min-h-screen pt-20 pb-20 pl-6 pr-6 flex flex-col items-center">
-        <DatePicker value={value} onChange={(newValue) => setValue(newValue)} />
+        <DatePicker value={date} onChange={(newValue) => setDate(newValue)} />
         <SearchSpot
           imageSrc="/assets/map-icon.png"
           placeholder="장소"
-          onChange={setLocation}
+          onChange={setSpot}
+          selectedSpot={spot}
         />
         <MemoInput
           memo={memo}
@@ -59,10 +83,7 @@ const Record: React.FC = () => {
             setMemo(e.target.value)
           }
         />
-        <MediaUploadSection
-          onPhotoUpload={setPhotos}
-          onVideoUpload={setVideos}
-        />
+        <MediaUploadSection onPhotoUpload={setPhoto} onVideoUpload={setVideo} />
         <ShareSelectionToggle
           shareSelection={shareSelection}
           onToggle={setShareSelection}
@@ -107,7 +128,7 @@ const Record: React.FC = () => {
         <div className="flex items-center justify-end w-full max-w-md mt-4">
           {!isButtonEnabled && (
             <p className="text-sm text-[#FF4D4F] mr-4">
-              모든 필드를 입력해 주세요.
+              모든 값을 입력해 주세요.
             </p>
           )}
           <button

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import ReactPlayer from "react-player";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
@@ -56,6 +57,8 @@ const initialComments: Comment[] = [
 ];
 
 const Memory: React.FC = () => {
+  const navigate = useNavigate();
+  const { params } = useParams();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
@@ -86,6 +89,10 @@ const Memory: React.FC = () => {
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
+  };
+
+  const handleEditMemory = () => {
+    navigate(`/memory/${params}`);
   };
 
   return (
@@ -173,7 +180,10 @@ const Memory: React.FC = () => {
                   ref={menuRef}
                   className="absolute right-0 mt-2 bg-white shadow-lg rounded-md w-32"
                 >
-                  <button className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">
+                  <button
+                    className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                    onClick={handleEditMemory}
+                  >
                     추억 편집
                   </button>
                   <button className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">

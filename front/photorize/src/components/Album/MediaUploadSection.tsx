@@ -2,8 +2,8 @@ import React from "react";
 import UploadItem from "../../components/Album/UploadItem";
 
 interface MediaUploadSectionProps {
-  onPhotoUpload: (files: File[]) => void;
-  onVideoUpload: (files: File[]) => void;
+  onPhotoUpload: (file: File) => void;
+  onVideoUpload: (file: File) => void;
 }
 
 const MediaUploadSection: React.FC<MediaUploadSectionProps> = ({

@@ -4,7 +4,7 @@ import { photoState, videoState } from "../../recoil/fileAtoms";
 
 interface UploadItemProps {
   type: "photo" | "video";
-  onUpload: (files: File[]) => void;
+  onUpload: (file: File) => void;
 }
 
 const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
@@ -17,7 +17,6 @@ const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
     const selectedFile = event.target.files?.[0];
     if (!selectedFile) return;
 
-    // 파일 확장자 검증
     const validExtensions = {
       photo: [
         "jpg",
@@ -40,7 +39,7 @@ const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
     }
 
     setFile(selectedFile);
-    onUpload([selectedFile]); // onUpload 호출로 파일을 외부로 전달
+    onUpload(selectedFile); // onUpload 호출로 파일을 외부로 전달
   };
 
   const handleRemoveFile = () => {
@@ -61,7 +60,6 @@ const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
 
   return (
     <div className="flex flex-col bg-white rounded-lg p-3 w-1/2 border border-[#B3B3B3]">
-      {/* 아이콘과 텍스트 */}
       <div className="flex items-center mb-2">
         <img
           src={
@@ -77,7 +75,6 @@ const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
         </span>
       </div>
 
-      {/* 파일 미리보기 또는 추가 아이콘 */}
       <div className="flex items-center justify-center w-full h-28 border border-gray-300 rounded-lg relative">
         {file ? (
           <div className="relative w-full h-full">

@@ -7,11 +7,11 @@ interface SearchTagProps {
   onChange: (value: string[]) => void;
 }
 
-export default function SearchTag({
+const SearchSpot: React.FC<SearchTagProps> = ({
   imageSrc,
   placeholder,
   onChange,
-}: SearchTagProps) {
+}) => {
   const tags: string[] = ["킹율", "한교동", "뽀로로"];
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
@@ -24,14 +24,14 @@ export default function SearchTag({
   const handleTagChange = (e: MultiSelectChangeEvent) => {
     const updatedTags = e.value;
     setSelectedTags(updatedTags);
-    onChange(updatedTags); // 외부로 선택된 태그 전달
+    onChange(updatedTags);
   };
 
   return (
     <div className="relative w-full max-w-md mb-4">
       <MultiSelect
         value={selectedTags}
-        onChange={handleTagChange} // 수정: onChange 핸들러 연결
+        onChange={handleTagChange}
         options={tags}
         filter
         display="chip"
@@ -47,4 +47,6 @@ export default function SearchTag({
       )}
     </div>
   );
-}
+};
+
+export default SearchSpot;

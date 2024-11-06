@@ -79,6 +79,20 @@ export const checkNicknameAvailability = async (nickname: string) => {
     return response.data.data;
   } catch (error) {
     console.error("닉네임 중복 체크 중 오류 발생:", error);
+    throw error
+  }
+};
+
+export const fetchUsers = async () => {
+  try {
+    const response = await axios.get("/members/search");
+
+    if (response.status === 200) {
+      return response.data;
+      console.log(response.data);
+    }
+  } catch (error) {
+    console.error("유저 전체 조회 중 오류 발생:", error);
     throw error;
   }
 };

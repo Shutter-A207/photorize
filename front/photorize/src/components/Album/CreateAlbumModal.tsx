@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import SearchTag from "../../components/Common/SearchTag";
+import { fetchColors } from "../../api/AlbumAPI";
 
 interface CreateAlbumModalProps {
   isOpen: boolean;
@@ -13,19 +14,6 @@ interface CreateAlbumModalProps {
   tags: string[];
 }
 
-const COLORS = [
-  "#f16f74",
-  "#ff924a",
-  "#f4d35e",
-  "#a4c19e",
-  "#4A90E2",
-  "#425577",
-  "#835f94",
-  "#f78fb3",
-  "#a6d5ff",
-  "#b0b0b0",
-];
-
 const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({
   isOpen,
   onClose,
@@ -37,9 +25,26 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({
   onTagChange,
   tags,
 }) => {
-  // 모든 필수 입력 항목이 입력되었는지 확인하는 변수
+  const [colors, setColors] = useState<string[]>([]);
   const isFormValid =
     albumName.trim() !== "" && selectedColor !== "" && tags.length > 0;
+
+  useEffect(() => {
+    const loadColors = async () => {
+      try {
+        const response = await fetchColors();
+        if (response && response.status == 200) {
+          const colorData = response.data.colors.map(
+            (color: { colorCode: string }) => color.colorCode
+          );
+          setColors(colorData);
+        }
+      } catch (error) {
+        console.error("컬러를 불러오는 중 오류가 발생했습니다:", error);
+      }
+    };
+    loadColors();
+  }, []);
 
   return (
     isOpen && (
@@ -66,7 +71,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({
           />
           <p className="text-[#818181] mb-3 text-sm">앨범 색</p>
           <div className="flex justify-around mb-4 mt-4">
-            {COLORS.map((color) => (
+            {colors.map((color) => (
               <div
                 key={color}
                 className="w-6 h-6 rounded-full cursor-pointer"

@@ -1,24 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
+import { fetchSpots } from "../../api/AlbumAPI";
 
-interface SearchProps {
-  imageSrc: string;
-  placeholder: string;
-  onChange: (value: string) => void;
+interface Spot {
+  id: number | null;
+  name: string | null;
 }
 
-export default function Search({
+interface SearchSpotProps {
+  imageSrc: string;
+  placeholder: string;
+  onChange: (value: Spot) => void;
+  selectedSpot: Spot | null;
+}
+
+const SearchSpot: React.FC<SearchSpotProps> = ({
   imageSrc,
   placeholder,
   onChange,
-}: SearchProps) {
-  const spots: string[] = [
-    "인생네컷 강남점",
-    "인생네컷 홍대점",
-    "포토이즘 홍대점",
-  ];
-
-  const [selectedSpot, setSelectedSpot] = useState<string | null>(null);
+}) => {
+  const [spots, setSpots] = useState<Spot[]>([]);
+  const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
 
   const selectedSpotTemplate = (option: string) => {
     if (option) {
@@ -51,6 +53,24 @@ export default function Search({
     onChange(e.value);
   };
 
+  useEffect(() => {
+    const loadColors = async () => {
+      try {
+        const response = await fetchSpots();
+        if (response && response.status == 200) {
+          console.log(response.data);
+          const spotNames = response.data.map(
+            (data: { spotName: string }) => data.spotName
+          );
+          setSpots(spotNames);
+        }
+      } catch (error) {
+        console.error("스팟을 불러오는 중 오류가 발생했습니다:", error);
+      }
+    };
+    loadColors();
+  }, []);
+
   return (
     <Dropdown
       value={selectedSpot}
@@ -63,4 +83,6 @@ export default function Search({
       className="flex items-center bg-white rounded-lg p-2 w-full max-w-md mb-4 border border-[#B3B3B3] text-sm text-[#343434] outline-none"
     />
   );
-}
+};
+
+export default SearchSpot;
