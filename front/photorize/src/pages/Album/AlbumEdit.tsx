@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 import AlbumItem from "../../components/Common/AlbumItem";
-import { fetchAlbums } from "../../api/AlbumAPI";
-import { deleteAlbum } from "../../api/AlbumAPI"; // 앨범 삭제 API 함수
+import { fetchAlbums, deleteAlbum } from "../../api/AlbumAPI";
+import ConfirmationModal from "../../components/Common/ConfirmationModal"; // import the modal
 
 interface AlbumData {
   albumId: number;
@@ -18,6 +18,7 @@ const AlbumEdit = () => {
   const [albums, setAlbums] = useState<AlbumData[]>([]);
   const [pageNumber, setPageNumber] = useState(0);
   const [hasNext, setHasNext] = useState(true);
+  const [albumToDelete, setAlbumToDelete] = useState<number | null>(null); // Track album to delete
   const observerRef = useRef<IntersectionObserver | null>(null);
   const navigate = useNavigate();
 
@@ -54,17 +55,18 @@ const AlbumEdit = () => {
 
   const handleDeleteAlbum = async (albumId: number) => {
     try {
-      await deleteAlbum(albumId); // 삭제 API 호출
+      await deleteAlbum(albumId);
       setAlbums((prevAlbums) =>
         prevAlbums.filter((album) => album.albumId !== albumId)
       );
+      setAlbumToDelete(null); // Close the modal after deletion
     } catch (error) {
       console.error("앨범 삭제 중 오류 발생:", error);
     }
   };
 
   const handleCompleteEdit = () => {
-    navigate("/album"); // 앨범 목록 페이지로 이동
+    navigate("/album");
   };
 
   return (
@@ -88,21 +90,28 @@ const AlbumEdit = () => {
               isEditable={false}
               ref={index === albums.length - 1 ? lastAlbumElementRef : null}
             />
-            {/* 앨범 삭제 버튼 */}
             <button
-              onClick={() => handleDeleteAlbum(album.albumId)}
+              onClick={() => setAlbumToDelete(album.albumId)} // Set album ID for deletion
               className="absolute top-1 right-2 rounded-full w-6 h-6 flex items-center justify-center"
             >
               <img
                 src="/assets/remove-icon.png"
                 alt="Remove icon"
-                className="w-5 h-5" // 아이콘 크기 조정
+                className="w-5 h-5"
               />
             </button>
           </div>
         ))}
       </div>
       <Footer />
+
+      {albumToDelete !== null && (
+        <ConfirmationModal
+          message="정말로 앨범을 삭제하시겠습니까?"
+          onConfirm={() => handleDeleteAlbum(albumToDelete)}
+          onCancel={() => setAlbumToDelete(null)} // Close modal on cancel
+        />
+      )}
     </div>
   );
 };

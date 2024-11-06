@@ -1,8 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Header from "../../components/Common/Header";
+import { loginUser } from "../../api/UserAPI";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    try {
+      const token = await loginUser({ email, password });
+      if (token) {
+        localStorage.setItem("token", token); // JWT 토큰 저장
+        alert("로그인 성공");
+        navigate("/home"); // 로그인 성공 후 홈 페이지로 이동
+      } else {
+        alert("로그인에 실패했습니다.");
+      }
+    } catch (error) {
+      alert("로그인 중 오류가 발생했습니다.");
+    }
+  };
 
   const handleRegisterClick = () => {
     navigate("/register");
@@ -10,6 +29,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">
+      <Header title="로그인" />
       <img src="/assets/Logo1.png" alt="로고" className="w-[65%] mb-24" />
       <div className="w-[80%] max-w-md mx-auto">
         <div className="relative mb-3">
@@ -22,6 +42,8 @@ const Login = () => {
             type="text"
             placeholder="아이디 입력"
             className="w-full h-[56px] pl-12 pr-3 py-3 text-[14px] border border-gray-400 rounded-2xl placeholder-[#BCBFC3] focus:outline-none"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="relative mb-3">
@@ -35,9 +57,14 @@ const Login = () => {
             placeholder="영문자, 숫자, 특수문자 혼용(8~15자)"
             className="w-full h-[56px] pl-12 pr-3 py-3 text-[14px] border border-gray-400 rounded-2xl placeholder-[#BCBFC3] focus:outline-none"
             style={{ color: "#000" }}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button className="w-full h-[50px] font-bold text-[18px] p-3 mb-4 bg-[#FF93A5] text-white rounded-2xl">
+        <button
+          onClick={handleLogin}
+          className="w-full h-[50px] font-bold text-[18px] p-3 mb-4 bg-[#FF93A5] text-white rounded-2xl"
+        >
           로그인
         </button>
         <div
