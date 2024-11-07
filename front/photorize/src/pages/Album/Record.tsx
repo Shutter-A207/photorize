@@ -34,12 +34,12 @@ const Record: React.FC = () => {
   const [isButtonEnabled, setIsButtonEnabled] = useState<boolean>(false);
   const [isAlbumModalOpen, setIsAlbumModalOpen] = useState<boolean>(false);
   const [newAlbumName, setNewAlbumName] = useState<string>("");
-  const [selectedAlbum, setSelectedAlbum] = useState<string>("개인");
+  const [selectedAlbum, setSelectedAlbum] = useState<string>("personal");
   const [selectedColor, setSelectedColor] = useState<string>("");
 
   useEffect(() => {
     const hasDate = date?.startDate !== null;
-    const hasLocation = spot.id !== null;
+    const hasSpot = spot.id !== null;
     const hasMemo = memo.trim() !== "";
     const hasMediaContent = photo !== null || video != null;
     const hasRequiredTag =
@@ -47,7 +47,7 @@ const Record: React.FC = () => {
       (shareSelection === "공유" && (tags.length > 0 || album !== ""));
 
     setIsButtonEnabled(
-      hasDate && hasLocation && hasMemo && hasMediaContent && hasRequiredTag
+      hasDate && hasSpot && hasMemo && hasMediaContent && hasRequiredTag
     );
   }, [date, spot, memo, photo, video, tags, album, shareSelection]);
 

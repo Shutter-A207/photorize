@@ -13,7 +13,6 @@ export default function Search({
   onChange,
 }: SearchProps) {
   const spots: string[] = ["Shutter", "99즈"];
-
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
 
   const selectedAlbumTemplate = (option: string) => {
