@@ -31,7 +31,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
           />
         )}
       </div>
-      <h1 className="absolute left-1/2 transform -translate-x-1/2 text-lg font-semibold">
+      <h1 className="absolute left-1/2 transform -translate-x-1/2 text-lg font-semibold truncate max-w-[60%] text-center whitespace-nowrap overflow-hidden text-ellipsis">
         {title}
       </h1>
       {location.pathname !== "/notifications" && (

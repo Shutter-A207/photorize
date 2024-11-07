@@ -36,3 +36,23 @@ export const deleteAlbum = async (albumId: number) => {
     throw error;
   }
 };
+
+export const updateAlbum = async (
+  albumId: number,
+  name: string,
+  colorId: number
+) => {
+  try {
+    const response = await axios.post(`/albums/${albumId}`, {
+      name,
+      colorId,
+    });
+
+    if (response.status === 200 || response.status === 201) {
+      return response.data || { status: 201 };
+    }
+  } catch (error) {
+    console.error("앨범 수정 중 오류 발생:", error);
+    throw error;
+  }
+};

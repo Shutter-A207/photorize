@@ -29,7 +29,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">
-      <Header title="로그인" />
       <img src="/assets/Logo1.png" alt="로고" className="w-[65%] mb-24" />
       <div className="w-[80%] max-w-md mx-auto">
         <div className="relative mb-3">

@@ -36,8 +36,6 @@ const AlbumDetail: React.FC = () => {
           const response = await fetchAlbumDetails(Number(id));
           if (response && response.status === 200) {
             setAlbumDetail(response.data.content[0]); // 상세 데이터 설정
-
-            console.log(response);
           }
         } catch (error) {
           console.error("앨범 상세 조회 중 오류 발생:", error);
@@ -94,7 +92,7 @@ const AlbumDetail: React.FC = () => {
         {/* 두 열로 나누어진 Masonry 스타일 레이아웃 */}
         <div className="flex gap-4">
           {/* 왼쪽 열 */}
-          <div className="flex flex-col gap-4 w-1/2">
+          <div className="flex flex-col gap-4 w-[48%]">
             {leftColumnImages.map((image) => (
               <div
                 key={image.memoryId}
@@ -107,18 +105,18 @@ const AlbumDetail: React.FC = () => {
                   className="w-full h-auto rounded-lg object-cover mb-1"
                 />
                 <div className="flex items-center justify-between w-full text-xs text-gray-500">
-                  <div className="flex items-center">
+                  <div className="flex items-center flex-1 overflow-hidden">
                     <img
                       src="/assets/locationIcon.png"
                       alt="location icon"
                       className="w-2 h-3 mr-1"
                     />
-                    <span className="text-[#343434] text-[10px] font-bold">
+                    <span className="text-[#343434] text-[10px] font-bold overflow-hidden whitespace-nowrap text-ellipsis">
                       {image.spotName}
                     </span>
                   </div>
-                  <span className="text-[#343434] text-[10px]">
-                    {image.date}
+                  <span className="text-[#343434] text-[10px] w-16 text-right">
+                    {image.date.slice(0, 10)}
                   </span>
                 </div>
               </div>
@@ -126,7 +124,7 @@ const AlbumDetail: React.FC = () => {
           </div>
 
           {/* 오른쪽 열 */}
-          <div className="flex flex-col gap-4 w-1/2">
+          <div className="flex flex-col gap-4 w-[48%]">
             {rightColumnImages.map((image) => (
               <div
                 key={image.memoryId}
@@ -139,18 +137,18 @@ const AlbumDetail: React.FC = () => {
                   className="w-full h-auto rounded-lg object-cover mb-1"
                 />
                 <div className="flex items-center justify-between w-full text-xs text-gray-500">
-                  <div className="flex items-center">
+                  <div className="flex items-center flex-1 overflow-hidden">
                     <img
                       src="/assets/locationIcon.png"
                       alt="location icon"
                       className="w-2 h-3 mr-1"
                     />
-                    <span className="text-[#343434] text-[10px] font-bold">
+                    <span className="text-[#343434] text-[10px] font-bold overflow-hidden whitespace-nowrap text-ellipsis">
                       {image.spotName}
                     </span>
                   </div>
-                  <span className="text-[#343434] text-[10px]">
-                    {image.date}
+                  <span className="text-[#343434] text-[10px] w-16 text-right">
+                    {image.date.slice(0, 10)}
                   </span>
                 </div>
               </div>
