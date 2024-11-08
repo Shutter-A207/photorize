@@ -59,3 +59,33 @@ export const getUserInfo = async (): Promise<UserInfo> => {
     throw error;
   }
 };
+
+export const updateNickname = async (nickname: string) => {
+  try {
+    const response = await axios.post("/members/updateNickname", { nickname });
+    if (response.status === 200) {
+      return response.data.data;
+    }
+  } catch (error) {
+    console.error("닉네임 업데이트 중 오류 발생:", error);
+    throw error;
+  }
+};
+
+export const checkNicknameAvailability = async (nickname: string) => {
+  try {
+    const formData = new FormData();
+    formData.append("nickname", nickname);
+
+    const response = await axios.post("/members/checkNickname", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data", // FormData 전송을 위해 Content-Type 설정
+      },
+    });
+
+    return response.data.data; // 서버 응답에서 사용 가능 여부 반환
+  } catch (error) {
+    console.error("닉네임 중복 체크 중 오류 발생:", error);
+    throw error;
+  }
+};

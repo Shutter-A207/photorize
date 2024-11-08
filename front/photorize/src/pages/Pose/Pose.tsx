@@ -63,8 +63,7 @@ const Pose: React.FC = () => {
       }
     } catch (error) {
       console.error("좋아요 상태 변경 중 오류 발생:", error);
-      // 실패 시 원래 상태로 복구
-      setPoseData(poseData);
+      setPoseData(poseData); // 실패 시 원래 상태로 복구
     }
   };
 
@@ -82,13 +81,21 @@ const Pose: React.FC = () => {
       if (!selectedPeople) return true;
       if (selectedPeople === "1인" && pose.headcount === "ONE") return true;
       if (selectedPeople === "2인" && pose.headcount === "TWO") return true;
-      if (selectedPeople === "3~4인" && pose.headcount === "THREE_FOUR")
+      if (selectedPeople === "3~4인" && pose.headcount === "THREE_OR_FOUR")
         return true;
       if (selectedPeople === "5인 이상" && pose.headcount === "FIVE_OR_MORE")
         return true;
       return false;
     })
     .filter((pose) => (showLikedOnly ? pose.liked : true));
+
+  // 왼쪽과 오른쪽 열로 이미지 나누기
+  const leftColumnImages = filteredPoseData.filter(
+    (_, index) => index % 2 === 0
+  );
+  const rightColumnImages = filteredPoseData.filter(
+    (_, index) => index % 2 !== 0
+  );
 
   return (
     <>
@@ -139,33 +146,66 @@ const Pose: React.FC = () => {
         </div>
 
         {/* 이미지 Masonry 레이아웃 */}
-        <div className="grid grid-cols-2 gap-4">
-          {filteredPoseData.map((pose) => (
-            <div key={pose.poseId} className="relative">
-              <img
-                src={pose.img}
-                alt={`Pose ${pose.poseId}`}
-                className="w-full h-auto rounded-lg object-cover mb-1 cursor-pointer"
-                onClick={() => openModal(pose.img)}
-              />
-              <div className="flex items-center justify-end mt-1 text-gray-500">
-                <span className="text-[#818181] font-bold mr-2">
-                  {pose.likeCount}
-                </span>
-                <button onClick={() => handleLikeToggle(pose.poseId)}>
-                  <img
-                    src={
-                      pose.liked
-                        ? "/assets/heartIcon2.png" // 좋아요 한 하트
-                        : "/assets/heartIcon1.png" // 빈 하트
-                    }
-                    alt="heart icon"
-                    className="w-[20px] h-[18px]"
-                  />
-                </button>
+        <div className="flex gap-4">
+          {/* 왼쪽 열 */}
+          <div className="flex flex-col gap-4 w-[48%]">
+            {leftColumnImages.map((pose) => (
+              <div key={pose.poseId} className="relative">
+                <img
+                  src={pose.img}
+                  alt={`Pose ${pose.poseId}`}
+                  className="w-full h-auto rounded-lg object-cover mb-1 cursor-pointer"
+                  onClick={() => openModal(pose.img)}
+                />
+                <div className="flex items-center justify-end mt-1 text-gray-500">
+                  <span className="text-[#818181] font-bold mr-2">
+                    {pose.likeCount}
+                  </span>
+                  <button onClick={() => handleLikeToggle(pose.poseId)}>
+                    <img
+                      src={
+                        pose.liked
+                          ? "/assets/heartIcon2.png" // 좋아요 한 하트
+                          : "/assets/heartIcon1.png" // 빈 하트
+                      }
+                      alt="heart icon"
+                      className="w-[20px] h-[18px]"
+                    />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* 오른쪽 열 */}
+          <div className="flex flex-col gap-4 w-[48%]">
+            {rightColumnImages.map((pose) => (
+              <div key={pose.poseId} className="relative">
+                <img
+                  src={pose.img}
+                  alt={`Pose ${pose.poseId}`}
+                  className="w-full h-auto rounded-lg object-cover mb-1 cursor-pointer"
+                  onClick={() => openModal(pose.img)}
+                />
+                <div className="flex items-center justify-end mt-1 text-gray-500">
+                  <span className="text-[#818181] font-bold mr-2">
+                    {pose.likeCount}
+                  </span>
+                  <button onClick={() => handleLikeToggle(pose.poseId)}>
+                    <img
+                      src={
+                        pose.liked
+                          ? "/assets/heartIcon2.png" // 좋아요 한 하트
+                          : "/assets/heartIcon1.png" // 빈 하트
+                      }
+                      alt="heart icon"
+                      className="w-[20px] h-[18px]"
+                    />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* 모달 컴포넌트 */}
