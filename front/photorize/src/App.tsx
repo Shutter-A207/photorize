@@ -13,6 +13,7 @@ import Memory from "./pages/Album/Memory";
 import Record from "./pages/Album/Record";
 import SpotDetail from "./pages/Spot/SpotDetail";
 import AlbumEdit from "./pages/Album/AlbumEdit";
+import Home2 from "./pages/Home2";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Loading />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/home2" element={<Home2 />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 

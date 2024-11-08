@@ -13,6 +13,7 @@ const KakaoMap = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [showSearchButton, setShowSearchButton] = useState(false);
+  const [showMarkers, setShowMarkers] = useState(true); // 마커 표시 여부
   const [mapInstance, setMapInstance] = useState<any>(null);
   const [spots, setSpots] = useState([]);
   const [markers, setMarkers] = useState<any[]>([]); // 마커와 오버레이 상태 저장
@@ -41,8 +42,10 @@ const KakaoMap = () => {
         window.kakao.maps.event.addListener(map, "zoom_changed", () => {
           const currentLevel = map.getLevel();
           if (currentLevel > 5) {
-            map.setLevel(5); // 축소 시 레벨이 5 이상으로 증가하지 않도록 설정
-            showToast("더이상 축소를 할 수 없습니다.", "warning");
+            setShowMarkers(false); // 지도 레벨이 6 이상일 때 마커 숨기기
+            showToast("지도를 확대해야 검색할 수 있어요!", "warning");
+          } else {
+            setShowMarkers(true); // 지도 레벨이 5 이하일 때 마커 표시
           }
         });
 
@@ -70,6 +73,14 @@ const KakaoMap = () => {
       overlay.setMap(null);
     });
     setMarkers([]);
+  };
+
+  // 마커 표시/숨김 함수
+  const toggleMarkers = (show) => {
+    markers.forEach(({ marker, overlay }) => {
+      marker.setMap(show ? mapInstance : null);
+      overlay.setMap(show ? mapInstance : null);
+    });
   };
 
   // 버튼 클릭 시 현재 지도 경계 내 스팟 검색
@@ -109,7 +120,7 @@ const KakaoMap = () => {
         position: markerPosition,
         image: markerImage,
       });
-      marker.setMap(map);
+      marker.setMap(showMarkers ? map : null); // showMarkers에 따라 표시
 
       window.kakao.maps.event.addListener(marker, "click", () => {
         navigate(`/spot/${spot.spotId}`);
@@ -131,13 +142,20 @@ const KakaoMap = () => {
         content: content,
         yAnchor: 1,
       });
-      customOverlay.setMap(map);
+      customOverlay.setMap(showMarkers ? map : null); // showMarkers에 따라 표시
 
       return { marker, overlay: customOverlay };
     });
 
     setMarkers(newMarkers);
   };
+
+  // showMarkers 변경 시 마커 표시/숨김 업데이트
+  useEffect(() => {
+    if (mapInstance) {
+      toggleMarkers(showMarkers);
+    }
+  }, [showMarkers, mapInstance]);
 
   return (
     <div style={{ position: "relative" }}>
@@ -150,7 +168,7 @@ const KakaoMap = () => {
       ></div>
 
       {/* 이 지역 재검색 버튼 */}
-      {showSearchButton && (
+      {showSearchButton && showMarkers && (
         <div
           onClick={() => searchSpotsWithinBounds(mapInstance)}
           className="fixed bottom-20 right-5 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md cursor-pointer z-50"

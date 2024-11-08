@@ -1,41 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getAllPoses, likePose, unlikePose } from "../../api/PoseAPI";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 
-const Pose = () => {
-  const [selectedPeople, setSelectedPeople] = useState("2인");
+interface PoseData {
+  poseId: number;
+  img: string;
+  headcount: string;
+  likeCount: number;
+  liked: boolean;
+}
+
+const Pose: React.FC = () => {
+  const [selectedPeople, setSelectedPeople] = useState("");
   const [showLikedOnly, setShowLikedOnly] = useState(false);
-  const [poseData, setPoseData] = useState([
-    { id: 1, image: "/assets/test/pose1.jpg", likes: 89, liked: false },
-    { id: 2, image: "/assets/test/pose2.jpg", likes: 52, liked: true },
-    { id: 3, image: "/assets/test/pose3.jpg", likes: 31, liked: false },
-    { id: 4, image: "/assets/test/pose4.jpg", likes: 17, liked: true },
-    { id: 5, image: "/assets/test/pose5.jpg", likes: 5, liked: false },
-    { id: 6, image: "/assets/test/pose6.jpg", likes: 2, liked: true },
-  ]);
+  const [poseData, setPoseData] = useState<PoseData[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImage, setModalImage] = useState("");
 
+  useEffect(() => {
+    const fetchPoses = async () => {
+      try {
+        const response = await getAllPoses();
+        setPoseData(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error("포즈 데이터를 가져오는 중 오류 발생:", error);
+      }
+    };
+
+    fetchPoses();
+  }, []);
+
   const handlePeopleSelect = (people: string) => {
-    setSelectedPeople(people);
+    setSelectedPeople(people === selectedPeople ? "" : people);
   };
 
   const handleToggleLiked = () => {
     setShowLikedOnly(!showLikedOnly);
   };
 
-  const handleLikeToggle = (id: number) => {
-    setPoseData((prevPoseData) =>
-      prevPoseData.map((pose) =>
-        pose.id === id
-          ? {
-              ...pose,
-              liked: !pose.liked,
-              likes: pose.liked ? pose.likes - 1 : pose.likes + 1,
-            }
-          : pose
-      )
-    );
+  const handleLikeToggle = async (poseId: number) => {
+    const updatedPoseData = poseData.map((pose) => {
+      if (pose.poseId === poseId) {
+        return {
+          ...pose,
+          liked: !pose.liked,
+          likeCount: pose.liked ? pose.likeCount - 1 : pose.likeCount + 1,
+        };
+      }
+      return pose;
+    });
+
+    setPoseData(updatedPoseData); // Optimistic update for immediate feedback
+
+    try {
+      const pose = poseData.find((p) => p.poseId === poseId);
+      if (pose?.liked) {
+        await unlikePose(poseId); // 좋아요 취소 API 호출
+      } else {
+        await likePose(poseId); // 좋아요 API 호출
+      }
+    } catch (error) {
+      console.error("좋아요 상태 변경 중 오류 발생:", error);
+      // 실패 시 원래 상태로 복구
+      setPoseData(poseData);
+    }
   };
 
   const openModal = (image: string) => {
@@ -47,9 +77,18 @@ const Pose = () => {
     setIsModalOpen(false);
   };
 
-  const filteredPoseData = showLikedOnly
-    ? poseData.filter((pose) => pose.liked)
-    : poseData;
+  const filteredPoseData = poseData
+    .filter((pose) => {
+      if (!selectedPeople) return true;
+      if (selectedPeople === "1인" && pose.headcount === "ONE") return true;
+      if (selectedPeople === "2인" && pose.headcount === "TWO") return true;
+      if (selectedPeople === "3~4인" && pose.headcount === "THREE_FOUR")
+        return true;
+      if (selectedPeople === "5인 이상" && pose.headcount === "FIVE_OR_MORE")
+        return true;
+      return false;
+    })
+    .filter((pose) => (showLikedOnly ? pose.liked : true));
 
   return (
     <>
@@ -102,18 +141,18 @@ const Pose = () => {
         {/* 이미지 Masonry 레이아웃 */}
         <div className="grid grid-cols-2 gap-4">
           {filteredPoseData.map((pose) => (
-            <div key={pose.id} className="relative">
+            <div key={pose.poseId} className="relative">
               <img
-                src={pose.image}
-                alt={`Pose ${pose.id}`}
+                src={pose.img}
+                alt={`Pose ${pose.poseId}`}
                 className="w-full h-auto rounded-lg object-cover mb-1 cursor-pointer"
-                onClick={() => openModal(pose.image)}
+                onClick={() => openModal(pose.img)}
               />
               <div className="flex items-center justify-end mt-1 text-gray-500">
                 <span className="text-[#818181] font-bold mr-2">
-                  {pose.likes}
+                  {pose.likeCount}
                 </span>
-                <button onClick={() => handleLikeToggle(pose.id)}>
+                <button onClick={() => handleLikeToggle(pose.poseId)}>
                   <img
                     src={
                       pose.liked

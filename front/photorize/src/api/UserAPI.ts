@@ -12,6 +12,12 @@ interface LoginData {
   password: string;
 }
 
+interface UserInfo {
+  memberId: number;
+  nickname: string;
+  img: string;
+}
+
 export const registerUser = async (data: RegisterData) => {
   try {
     const response = await axios.post("/auth/join", data);
@@ -40,6 +46,16 @@ export const loginUser = async (data: LoginData) => {
     return token ? token.replace("Bearer ", "") : null; // 토큰 반환
   } catch (error) {
     console.error("로그인 중 오류 발생:", error);
+    throw error;
+  }
+};
+
+export const getUserInfo = async (): Promise<UserInfo> => {
+  try {
+    const response = await axios.get("/members");
+    return response.data.data;
+  } catch (error) {
+    console.error("유저 정보 조회 중 오류 발생:", error);
     throw error;
   }
 };
