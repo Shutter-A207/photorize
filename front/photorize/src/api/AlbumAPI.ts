@@ -80,16 +80,37 @@ export const fetchColors = async () => {
   }
 };
 
-export const fetchSpots = async () => {
+export const searchAlbums = async (keyword: string) => {
   try {
-    const response = await axios.get("/spots/all");
+    const response = await axios.get("/albums/search", {
+      params: { keyword },
+    });
+    if (response.status === 200) {
+      return response.data;
+    }
+  } catch (error) {
+    console.error("앨범 상세 조회 중 오류 발생:", error);
+    throw error;
+  }
+};
+
+export const createAlbum = async (
+  name: string,
+  colorId: number,
+  members: number[]
+) => {
+  try {
+    const response = await axios.post("/albums", {
+      name,
+      colorId,
+      members,
+    });
 
     if (response.status === 200) {
       return response.data;
-      console.log(response.data);
     }
   } catch (error) {
-    console.error("Spot 전체 조회 중 오류 발생:", error);
+    console.error("앨범 생성 중 오류 발생:", error);
     throw error;
   }
 };

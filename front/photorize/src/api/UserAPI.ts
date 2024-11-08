@@ -83,13 +83,14 @@ export const checkNicknameAvailability = async (nickname: string) => {
   }
 };
 
-export const fetchUsers = async () => {
+export const fetchUsers = async (keyword: string) => {
   try {
-    const response = await axios.get("/members/search");
+    const response = await axios.get("/members/search", {
+      params: { keyword },
+    });
 
     if (response.status === 200) {
       return response.data;
-      console.log(response.data);
     }
   } catch (error) {
     console.error("유저 전체 조회 중 오류 발생:", error);

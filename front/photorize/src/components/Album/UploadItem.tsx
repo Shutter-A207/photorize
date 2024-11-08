@@ -70,7 +70,7 @@ const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
           alt={`${type} Icon`}
           className="h-4"
         />
-        <span className="text-[#BCBFC3] text-xs font-medium ml-1">
+        <span className="pl-1 text-[#BCBFC3] text-xs font-medium ml-1">
           {type === "photo" ? "사진" : "동영상"}
         </span>
       </div>

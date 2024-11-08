@@ -1,41 +1,54 @@
 import React, { useState, useEffect } from "react";
 import SearchTag from "../../components/Common/SearchTag";
-import { fetchColors } from "../../api/AlbumAPI";
+import { fetchColors, createAlbum } from "../../api/AlbumAPI";
+
+interface AlbumData {
+  albumId: number;
+  name: string;
+  type: string;
+  colorId: number;
+  colorCode: string;
+}
+
+interface User {
+  id: number;
+  name: string;
+}
+
+interface Color {
+  id: number;
+  code: string;
+}
 
 interface CreateAlbumModalProps {
   isOpen: boolean;
   onClose: () => void;
-  albumName: string;
-  onNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onCreate: () => void;
-  selectedColor: string;
-  onSelectColor: (color: string) => void;
-  onTagChange: (tags: string[]) => void;
-  tags: string[];
+  onSuccess?: (albumData: AlbumData) => void;
 }
 
 const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({
   isOpen,
   onClose,
-  albumName,
-  onNameChange,
-  onCreate,
-  selectedColor,
-  onSelectColor,
-  onTagChange,
-  tags,
+  onSuccess,
 }) => {
-  const [colors, setColors] = useState<string[]>([]);
-  const isFormValid =
-    albumName.trim() !== "" && selectedColor !== "" && tags.length > 0;
+  const [albumName, setAlbumName] = useState("");
+  const [selectedColor, setSelectedColor] = useState<Color>({
+    id: 1,
+    code: "#f16f74",
+  });
+  const [tags, setTags] = useState<User[]>([]);
+  const [colors, setColors] = useState<Color[]>([]);
 
   useEffect(() => {
     const loadColors = async () => {
       try {
         const response = await fetchColors();
-        if (response && response.status == 200) {
+        if (response && response.status === 200) {
           const colorData = response.data.colors.map(
-            (color: { colorCode: string }) => color.colorCode
+            (data: { id: number; colorCode: string }) => ({
+              id: data.id,
+              code: data.colorCode,
+            })
           );
           setColors(colorData);
         }
@@ -43,14 +56,43 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({
         console.error("컬러를 불러오는 중 오류가 발생했습니다:", error);
       }
     };
-    loadColors();
-  }, []);
+    if (isOpen) {
+      loadColors();
+    }
+  }, [isOpen]);
+
+  const handleCreate = async () => {
+    try {
+      const response = await createAlbum(
+        albumName,
+        selectedColor.id,
+        tags.map((tag) => tag.id)
+      );
+      console.log(response);
+      if (response) {
+        onSuccess?.(response.data);
+        handleClose();
+      }
+    } catch (error) {
+      console.error("앨범 생성 중 오류가 발생했습니다:", error);
+    }
+  };
+
+  const handleClose = () => {
+    setAlbumName("");
+    setSelectedColor({ id: 1, code: "#f16f74" });
+    setTags([]);
+    onClose();
+  };
+
+  const isFormValid =
+    albumName.trim() !== "" && selectedColor.id !== 0 && tags.length > 0;
 
   return (
     isOpen && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 w-full">
         <div className="bg-white rounded-lg p-6 w-full max-w-lg relative">
-          <button onClick={onClose} className="absolute top-4 right-4">
+          <button onClick={handleClose} className="absolute top-4 right-4">
             <img src="/assets/XIcon.png" alt="Close Icon" className="h-4" />
           </button>
           <h2 className="text-base text-[#818181] font-bold mb-4">
@@ -60,32 +102,33 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({
             type="text"
             placeholder="앨범 이름 입력"
             value={albumName}
-            onChange={onNameChange}
+            onChange={(e) => setAlbumName(e.target.value)}
             className="w-full border border-[#B3B3B3] rounded-lg p-2 mb-4 text-sm text-[#818181] placeholder-[#BCBFC3] outline-none"
           />
           <p className="text-[#818181] mb-3 text-sm">함께 할 친구</p>
           <SearchTag
             imageSrc="/assets/tag-icon.png"
             placeholder="태그"
-            onChange={onTagChange}
+            onChange={setTags}
           />
-          <p className="text-[#818181] mb-3 text-sm">앨범 색</p>
+          <p className="text-[#818181] my-3 text-sm">앨범 색</p>
           <div className="flex justify-around mb-4 mt-4">
             {colors.map((color) => (
               <div
-                key={color}
+                key={color.id}
                 className="w-6 h-6 rounded-full cursor-pointer"
                 style={{
-                  backgroundColor: color,
-                  border: selectedColor === color ? "2px solid #000" : "none",
+                  backgroundColor: color.code,
+                  border:
+                    selectedColor.id === color.id ? "2px solid #000" : "none",
                 }}
-                onClick={() => onSelectColor(color)}
+                onClick={() => setSelectedColor(color)}
               ></div>
             ))}
           </div>
           <div className="flex justify-end">
             <button
-              onClick={onCreate}
+              onClick={handleCreate}
               className={`${
                 isFormValid
                   ? "bg-[#FF93A5] text-white"

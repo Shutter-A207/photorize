@@ -51,21 +51,6 @@ const Record: React.FC = () => {
     );
   }, [date, spot, memo, photo, video, tags, album, shareSelection]);
 
-  // const handleCreate = () => {
-  //   if (date?.startDate && photos[0] && videos[0]) {
-  //     const memoryData = {
-  //       date: date.startDate.toISOString().split("T")[0],
-  //       spotId: spot.id,
-  //       content: memo,
-  //       albumIds: tags.map(Number),
-  //       type: shareSelection === "공유" ? "PUBLIC" : "PRIVATE",
-  //       photo: photos[0],
-  //       video: videos[0],
-  //     };
-  //     sendMemoryData(memoryData);
-  //   }
-  // };
-
   return (
     <>
       <Header title="추억 기록" />
