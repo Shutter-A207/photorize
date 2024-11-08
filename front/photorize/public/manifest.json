@@ -1,0 +1,16 @@
+{
+    "short_name": "Photorize",
+    "name": "Photorize",
+    "description": "Photorize - make your memory",
+    "icons": [
+      {
+        "src": "assets/pineapple-icon.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "start_url": "/",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "theme_color": "#000000"
+}
