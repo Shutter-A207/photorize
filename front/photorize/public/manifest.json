@@ -4,7 +4,7 @@
     "description": "Photorize - make your memory",
     "icons": [
       {
-        "src": "assets/pineapple-icon.png",
+        "src": "assets/pineapple.png",
         "type": "image/png",
         "sizes": "512x512"
       }
