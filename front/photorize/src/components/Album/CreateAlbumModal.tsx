@@ -2,12 +2,10 @@ import React, { useState, useEffect } from "react";
 import SearchTag from "../../components/Common/SearchTag";
 import { fetchColors, createAlbum } from "../../api/AlbumAPI";
 
-interface AlbumData {
-  albumId: number;
-  name: string;
-  type: string;
-  colorId: number;
-  colorCode: string;
+interface Album {
+  id: number | null;
+  name: string | null;
+  members: string[] | null;
 }
 
 interface User {
@@ -23,7 +21,7 @@ interface Color {
 interface CreateAlbumModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: (albumData: AlbumData) => void;
+  onSuccess?: (album: Album) => void;
 }
 
 const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({
@@ -68,9 +66,13 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({
         selectedColor.id,
         tags.map((tag) => tag.id)
       );
-      console.log(response);
       if (response) {
-        onSuccess?.(response.data);
+        const newAlbum: Album = {
+          id: response.data.albumId,
+          name: response.data.name,
+          members: response.data.members,
+        };
+        onSuccess?.(newAlbum);
         handleClose();
       }
     } catch (error) {

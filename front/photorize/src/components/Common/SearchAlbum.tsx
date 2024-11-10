@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { searchAlbums } from "../../api/AlbumAPI";
@@ -20,13 +20,19 @@ const SearchAlbum: React.FC<SearchAlbumProps> = ({
   imageSrc,
   placeholder,
   onChange,
+  selectedAlbum: externalSelectedAlbum,
 }) => {
   const [keyword, setKeyword] = useState<string>("");
   const [albums, setAlbums] = useState<Album[]>([]);
-  const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
+  const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(externalSelectedAlbum);
   const [loading, setLoading] = useState<boolean>(false);
   const [isResultsVisible, setIsResultsVisible] = useState<boolean>(false);
   const [isFocused, setIsFocused] = useState<boolean>(false);
+
+  // Sync external selectedAlbum with local state
+  useEffect(() => {
+    setSelectedAlbum(externalSelectedAlbum);
+  }, [externalSelectedAlbum]);
 
   const handleSearch = async () => {
     if (!keyword.trim()) return;
@@ -62,7 +68,7 @@ const SearchAlbum: React.FC<SearchAlbumProps> = ({
     setSelectedAlbum(album);
     setIsResultsVisible(false);
     setKeyword("");
-    onChange(album);
+    onChange(album); // 부모 컴포넌트로 선택된 앨범 전달
   };
 
   return (
@@ -80,6 +86,7 @@ const SearchAlbum: React.FC<SearchAlbumProps> = ({
                 onClick={() => {
                   setSelectedAlbum(null);
                   setKeyword("");
+                  onChange({ id: null, name: null, members: null }); // 부모 상태 초기화
                 }}
                 className="p-button-text p-button-rounded ml-auto"
               />

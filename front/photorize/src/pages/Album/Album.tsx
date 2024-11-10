@@ -41,9 +41,10 @@ const Album = () => {
     navigate("/album/edit");
   };
 
-  const handleModalSuccess = (newAlbumData: AlbumData) => {
-    setAlbums((prevAlbums) => [newAlbumData, ...prevAlbums]);
+  const handleModalSuccess = () => {
     alert("앨범 생성에 성공했습니다!");
+    setIsModalOpen(false);
+    window.location.reload();
   };
 
   useEffect(() => {

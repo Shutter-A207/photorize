@@ -1,15 +1,5 @@
 import axios from "./axiosConfig";
 
-interface CreateMemoryData {
-  date: string;
-  spotId: number;
-  content: string;
-  albumIds: number[];
-  type: "PRIVATE" | "PUBLIC";
-  photo: File;
-  video: File;
-}
-
 export const fetchAlbums = async (pageNumber = 0) => {
   try {
     const response = await axios.get("/albums", {
@@ -111,30 +101,6 @@ export const createAlbum = async (
     }
   } catch (error) {
     console.error("앨범 생성 중 오류 발생:", error);
-    throw error;
-  }
-};
-
-export const sendMemoryData = async (data: CreateMemoryData) => {
-  const formData = new FormData();
-
-  formData.append("date", data.date);
-  formData.append("spotId", data.spotId.toString());
-  formData.append("content", data.content);
-  data.albumIds.forEach((id) => formData.append("albumIds[]", id.toString()));
-  formData.append("type", data.type);
-  formData.append("photo", data.photo);
-  formData.append("video", data.video);
-
-  try {
-    const response = await axios.post("/api/v1/memories", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    console.log("앨범 등록 성공:", response.data);
-  } catch (error) {
-    console.error("앨범 등록 중 오류 발생:", error);
     throw error;
   }
 };

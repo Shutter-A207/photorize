@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 import DatePicker from "../../components/Album/DatePicker";
@@ -10,10 +11,22 @@ import ShareSelectionToggle from "../../components/Album/ShareSelectionToggle";
 import CreateAlbumModal from "../../components/Album/CreateAlbumModal";
 import SearchTag from "../../components/Common/SearchTag";
 import SearchAlbum from "../../components/Common/SearchAlbum";
+import { sendMemoryData } from "../../api/MemoryAPI";
 
 interface Spot {
   id: number | null;
   name: string | null;
+}
+
+interface User {
+  id: number;
+  name: string;
+}
+
+interface Album {
+  id: number | null;
+  name: string | null;
+  members: string[] | null;
 }
 
 const Record: React.FC = () => {
@@ -29,13 +42,14 @@ const Record: React.FC = () => {
   const [memo, setMemo] = useState<string>("");
   const [photo, setPhoto] = useState<File | null>();
   const [video, setVideo] = useState<File | null>();
-  const [tags, setTag] = useState<string[]>([]);
-  const [album, setAlbum] = useState<string>("");
+  const [tags, setTags] = useState<User[]>([]);
+  const [album, setAlbum] = useState<Album | null>(null);
   const [isButtonEnabled, setIsButtonEnabled] = useState<boolean>(false);
   const [isAlbumModalOpen, setIsAlbumModalOpen] = useState<boolean>(false);
-  const [newAlbumName, setNewAlbumName] = useState<string>("");
   const [selectedAlbum, setSelectedAlbum] = useState<string>("personal");
-  const [selectedColor, setSelectedColor] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const hasDate = date?.startDate !== null;
@@ -44,12 +58,54 @@ const Record: React.FC = () => {
     const hasMediaContent = photo !== null || video != null;
     const hasRequiredTag =
       shareSelection === "내 앨범" ||
-      (shareSelection === "공유" && (tags.length > 0 || album !== ""));
+      (shareSelection === "공유" && (tags.length > 0 || album !== null));
 
     setIsButtonEnabled(
       hasDate && hasSpot && hasMemo && hasMediaContent && hasRequiredTag
     );
   }, [date, spot, memo, photo, video, tags, album, shareSelection]);
+
+  const handleModalSuccess = (newAlbum: Album) => {
+    alert("앨범 생성에 성공했습니다!");
+    setAlbum(newAlbum);
+    setSelectedAlbum("album");
+    setIsAlbumModalOpen(false);
+  };
+
+  const handleRegister = async () => {
+    if (!date || !date.startDate || !isButtonEnabled || isLoading) return;
+  
+    const formattedDate = new Date(date.startDate).toISOString().split("T")[0];
+  
+    const memoryData = {
+      date: formattedDate,
+      spotId: spot.id!,
+      content: memo,
+      albumIds: album ? [album.id!] : [],
+      type: shareSelection === "공유" ? "PUBLIC" : "PRIVATE",
+    };
+  
+    const formData = new FormData();
+    formData.append(
+      "memory",
+      new Blob([JSON.stringify(memoryData)], { type: "application/json" })
+    );
+    if (photo) formData.append("photo", photo);
+    if (video) formData.append("video", video);
+  
+    setIsLoading(true);
+  
+    try {
+      await sendMemoryData(formData);
+      alert("추억이 성공적으로 등록되었습니다!");
+      navigate("/home");
+    } catch (error) {
+      alert("추억 등록 중 오류가 발생했습니다. 다시 시도해주세요.");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -98,13 +154,14 @@ const Record: React.FC = () => {
               <SearchTag
                 imageSrc="/assets/tag-icon.png"
                 placeholder="태그"
-                onChange={setTag}
+                onChange={setTags}
               />
             ) : (
               <SearchAlbum
                 imageSrc="/assets/tag-icon.png"
                 placeholder="태그"
                 onChange={setAlbum}
+                selectedAlbum={album}
               />
             )}
           </>
@@ -118,36 +175,21 @@ const Record: React.FC = () => {
           )}
           <button
             className={`text-white text-sm font-medium py-2 px-4 rounded-full ${
-              isButtonEnabled
+              isButtonEnabled && !isLoading
                 ? "bg-[#FF93A5] cursor-pointer"
                 : "bg-[#CCCCCC] cursor-not-allowed"
             }`}
-            disabled={!isButtonEnabled}
+            disabled={!isButtonEnabled || isLoading}
+            onClick={handleRegister}
           >
-            등록
+            {isLoading ? "등록 중..." : "등록"}
           </button>
         </div>
 
         <CreateAlbumModal
           isOpen={isAlbumModalOpen}
-          onClose={() => {
-            setSelectedAlbum("album");
-            setIsAlbumModalOpen(false);
-          }}
-          albumName={newAlbumName}
-          onNameChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setNewAlbumName(e.target.value)
-          }
-          onCreate={() => {
-            setAlbum(newAlbumName);
-            setSelectedAlbum("album");
-            setIsAlbumModalOpen(false);
-            setNewAlbumName("");
-          }}
-          selectedColor={selectedColor}
-          onSelectColor={setSelectedColor}
-          onTagChange={setTag}
-          tags={tags}
+          onClose={() => setIsAlbumModalOpen(false)}
+          onSuccess={handleModalSuccess}
         />
       </div>
       <Footer />
