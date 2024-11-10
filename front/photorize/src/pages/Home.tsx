@@ -4,6 +4,7 @@ import Header from "../components/Common/Header";
 import Footer from "../components/Common/Footer";
 import { getUserInfo } from "../api/UserAPI";
 import EditNicknameModal from "../components/EditNicknameModal"; // 모달 컴포넌트 임포트
+import EditProfileModal from "../components/EditProfileModal";
 
 interface Memory {
   id: number;
@@ -26,6 +27,7 @@ const Home = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isEditNicknameModalOpen, setIsEditNicknameModalOpen] = useState(false);
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -115,6 +117,13 @@ const Home = () => {
     }
   };
 
+  const handleProfileUpdate = (newProfileImg: string) => {
+    if (userProfile) {
+      console.log(newProfileImg)
+      setUserProfile({ ...userProfile, img: newProfileImg });
+    }
+  };
+
   return (
     <>
       <Header title="" />
@@ -146,7 +155,7 @@ const Home = () => {
                 ref={menuRef}
                 className="absolute top-11 left-0 bg-white shadow-lg rounded-md w-32 z-10 mt-2"
               >
-                <button className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">
+                <button className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100" onClick={() => setIsEditProfileModalOpen(true)}>
                   프로필 편집
                 </button>
                 <button
@@ -216,6 +225,13 @@ const Home = () => {
         </div>
       </div>
       <Footer />
+
+      <EditProfileModal
+          isOpen={isEditProfileModalOpen}
+          onClose={() => setIsEditProfileModalOpen(false)}
+          currentProfileImg={userProfile?.img || ""}
+          onProfileUpdate={handleProfileUpdate}
+        />
 
       {/* Edit Nickname Modal */}
       <EditNicknameModal

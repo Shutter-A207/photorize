@@ -74,18 +74,31 @@ export const updateNickname = async (nickname: string) => {
 
 export const checkNicknameAvailability = async (nickname: string) => {
   try {
-    const formData = new FormData();
-    formData.append("nickname", nickname);
+    const response = await axios.get("/members/checkNickname", { nickname });
 
-    const response = await axios.post("/members/checkNickname", formData, {
+    return response.data.data;
+  } catch (error) {
+    console.error("닉네임 중복 체크 중 오류 발생:", error);
+    throw error;
+  }
+};
+
+export const updateProfileImage = async (imageFile: File) => {
+  try {
+    const formData = new FormData();
+    formData.append("profileImage", imageFile);
+
+    const response = await axios.post("/members/updateImg", formData, {
       headers: {
-        "Content-Type": "multipart/form-data", // FormData 전송을 위해 Content-Type 설정
+        "Content-Type": "multipart/form-data",
       },
     });
 
-    return response.data.data; // 서버 응답에서 사용 가능 여부 반환
+    if (response.status === 200) {
+      return response.data.data.img;
+    }
   } catch (error) {
-    console.error("닉네임 중복 체크 중 오류 발생:", error);
+    console.error("프로필 이미지 업데이트 중 오류 발생:", error);
     throw error;
   }
 };
