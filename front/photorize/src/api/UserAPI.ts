@@ -74,12 +74,12 @@ export const updateNickname = async (nickname: string) => {
 
 export const checkNicknameAvailability = async (nickname: string) => {
   try {
-    const response = await axios.get("/members/checkNickname", { nickname });
+    const response = await axios.post("/members/checkNickname", { nickname });
 
     return response.data.data;
   } catch (error) {
     console.error("닉네임 중복 체크 중 오류 발생:", error);
-    throw error
+    throw error;
   }
 };
 

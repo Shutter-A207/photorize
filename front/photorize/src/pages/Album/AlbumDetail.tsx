@@ -46,8 +46,8 @@ const AlbumDetail: React.FC = () => {
     loadAlbumDetail();
   }, [id]);
 
-  const handleImageClick = (memoryId: number) => {
-    navigate(`/memory/${memoryId}`);
+  const handleImageClick = (id: number) => {
+    navigate(`/memory/${id}`);
   };
 
   if (!albumDetail) {

@@ -1,90 +1,136 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactPlayer from "react-player";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
+import { useRecoilValue } from "recoil";
+import { userData } from "../../recoil/userAtoms";
+import { fetchReviews } from "../../api/MemoryAPI"; 
+import { fetchMemory } from "../../api/MemoryAPI";
+import { createComment } from "../../api/CommentAPI";
 
 interface CarouselItem {
-  id: number;
-  src: string;
-  type: "image" | "video";
+  // id: number;
+  url: string;
+  type: "PHOTO" | "VIDEO";
+}
+
+interface MemoryDetail {
+  writerId: string;
+  nickname: string;
+  writerImg: string;
+  date: string;
+  spotName: string;
+  content: string;
 }
 
 interface Comment {
-  id: number;
-  profile: string;
-  name: string;
+  commentId: number;
+  writerImg: string;
+  nickname: string;
   content: string;
   date: string;
 }
 
-interface MemoryDetail {
-  profile: string;
-  name: string;
-  location: string;
-  date: string;
-  memo: string;
-}
-
-const carouselData: CarouselItem[] = [
-  { id: 1, src: "/assets/test/test2.jpg", type: "image" },
-  { id: 2, src: "/videos/movie1.mp4", type: "video" },
-];
-
-const memoryDetail: MemoryDetail = {
-  profile: "/assets/test/member1.png",
-  name: "조수연",
-  location: "인생네컷 역삼점",
-  date: "2024-10-12",
-  memo: "팀원들과 친해질 수 있었던 Field Trip 너무너무 재미있었다 ~~",
-};
-
-const initialComments: Comment[] = [
-  {
-    id: 1,
-    profile: "/assets/test/member1.png",
-    name: "최은혜",
-    content: "다음에도 또 놀러가자!!!",
-    date: "2024-10-13 12:11:39",
-  },
-  {
-    id: 2,
-    profile: "/assets/test/member1.png",
-    name: "이규빈",
-    content: "좋아~ 너무 재밌었다!! 진짜 ㅎㅎ 굿굿~!",
-    date: "2024-10-13 12:12:39",
-  },
-];
-
 const Memory: React.FC = () => {
+  console.log("Memory 컴포넌트 렌더링됨");
   const navigate = useNavigate();
-  const { params } = useParams();
+  const { id } = useParams<{ id: string }>();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [comments, setComments] = useState<Comment[]>(initialComments);
+  const [carouselData, setCarouselData] = useState<CarouselItem[]>([]);
+  const [memoryDetail, setMemoryDetail] = useState<MemoryDetail>();
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const user = useRecoilValue(userData);
+
+  useEffect(() => {
+    console.log("useEffect 호출됨");
+    const loadMemory = async () => {
+      try {
+        setLoading(true);
+        if (id) {
+          const response = await fetchMemory(Number(id));
+
+          console.log(response);
+          if (response) {
+            setMemoryDetail({
+              writerId: response.writerId,
+              nickname: response.nickname,
+              writerImg: response.writerImg,
+              date: response.date,
+              spotName: response.spotName,
+              content: response.content,
+            });
+  
+            setCarouselData(response.files.map((file: { url: string; type: string }) => ({
+              url: file.url,
+              type: file.type === "PHOTO" ? "PHOTO" : "VIDEO",
+            })));
+          }
+        }
+      } catch (err) {
+        setError("추억 데이터를 불러오는 중 오류가 발생했습니다.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    loadMemory();
+  }, []);
+
+  useEffect(() => {
+    const loadReviews = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchReviews(0, Number(id));
+        setComments(data.content || []);
+      } catch (err) {
+        setError("리뷰 데이터를 불러오는 중 오류가 발생했습니다.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadReviews();
+  }, [id]);
+
+  useEffect(() => {}, [comments]);
+
+  const handleAddComment = async () => {
+    if (newComment.trim() && id) {
+      try {
+        const commentResponse = await createComment(Number(id), newComment);
+  
+        const newCommentData: Comment = {
+          commentId: commentResponse.id,
+          writerImg: user.img || "/assets/default-profile.png",
+          nickname: user.nickname || "익명",
+          content: commentResponse.content,
+          date: new Date(commentResponse.createdAt).toISOString().split("T")[0],
+        };
+
+        console.log(commentResponse)
+  
+        setComments((prevComments) => [...prevComments, newCommentData]);
+        setNewComment("");
+      } catch (error) {
+        console.error("댓글 등록 중 오류 발생:", error);
+      }
+    }
+  };
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const scrollPosition = event.currentTarget.scrollLeft;
     const totalWidth = event.currentTarget.scrollWidth;
-    const itemWidth = totalWidth / carouselData.length;
+    const itemWidth = totalWidth / carouselData!.length;
     const newIndex = Math.round(scrollPosition / itemWidth);
     setCurrentIndex(newIndex);
-  };
-
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      const newCommentData: Comment = {
-        id: comments.length + 1,
-        profile: "/assets/test/member1.png",
-        name: "조수연",
-        content: newComment,
-        date: new Date().toLocaleString(),
-      };
-      setComments([...comments, newCommentData]);
-      setNewComment("");
-    }
   };
 
   const toggleMenu = () => {
@@ -92,8 +138,16 @@ const Memory: React.FC = () => {
   };
 
   const handleEditMemory = () => {
-    navigate(`/memory/${params}`);
+    navigate(`/memory/${id}`);
   };
+
+  if (loading) {
+    return <div>로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div className="bg-[#F9F9F9] min-h-screen pt-14 pb-20">
@@ -110,17 +164,19 @@ const Memory: React.FC = () => {
             className="flex overflow-x-auto snap-x snap-mandatory"
             onScroll={handleScroll}
           >
-            {carouselData.map((item, index) => (
-              <div key={item.id} className="snap-center w-full flex-shrink-0">
-                {item.type === "image" ? (
+            {carouselData!.map((item, index) => (
+              <div className="snap-center w-full flex-shrink-0">
+              {/* <div key={item.id} className="snap-center w-full flex-shrink-0"> */}
+                {item.type === "PHOTO" ? (
                   <img
-                    src={item.src}
-                    alt={`Carousel item ${item.id}`}
+                    src={item.url}
+                    alt={`Carousel item`}
+                    // alt={`Carousel item ${item.id}`}
                     className="w-full h-auto object-cover"
                   />
                 ) : (
                   <ReactPlayer
-                    url={item.src}
+                    url={item.url}
                     controls
                     width="100%"
                     height="auto"
@@ -132,7 +188,7 @@ const Memory: React.FC = () => {
           </div>
           {/* Carousel indicators */}
           <div className="flex justify-center py-3">
-            {carouselData.map((_, index) => (
+            {carouselData!.map((_, index) => (
               <div
                 key={index}
                 className={`h-2 w-2 rounded-full mx-2 ${
@@ -148,14 +204,16 @@ const Memory: React.FC = () => {
           className="bg-white rounded-xl p-4 mb-4 relative"
           style={{ boxShadow: "0px 1px 1px rgba(0, 0, 0, 0.1)" }}
         >
+          {memoryDetail && (
+            <>
           <div className="flex items-center mb-2">
             <img
-              src={memoryDetail.profile}
-              alt={memoryDetail.name}
+              src={memoryDetail!.writerImg}
+              alt={memoryDetail!.nickname}
               className="w-12 h-12 rounded-full object-cover"
             />
             <div className="ml-3 w-full">
-              <p className="font-bold text-[#343434]">{memoryDetail.name}</p>
+              <p className="font-bold text-[#343434]">{memoryDetail?.nickname}</p>
               <div className="flex items-center justify-between font-bold text-xs text-[#A19791] w-full">
                 <div className="flex items-center">
                   <img
@@ -163,9 +221,9 @@ const Memory: React.FC = () => {
                     alt="location icon"
                     className="w-[9.6px] h-[12px] mr-1"
                   />
-                  <span>{memoryDetail.location}</span>
+                  <span>{memoryDetail!.spotName}</span>
                 </div>
-                <span className="mr-1">{memoryDetail.date}</span>
+                <span className="mr-1">{memoryDetail!.date}</span>
               </div>
             </div>
             {/* 우측 상단 리스트 아이콘 */}
@@ -195,8 +253,10 @@ const Memory: React.FC = () => {
           </div>
           <div className="border-t border-gray-200 mt-3 mb-4"></div>
           <p className="text-sm font-medium text-[#343434] p-2">
-            {memoryDetail.memo}
+            {memoryDetail!.content}
           </p>
+          </>
+  )}
         </div>
 
         <div className="border-t border-gray-200 mt-6 mb-2"></div>
@@ -221,15 +281,15 @@ const Memory: React.FC = () => {
         {/* Comments Section */}
         <div className="p-3">
           {comments.map((comment) => (
-            <div key={comment.id} className="flex items-start mb-4">
+            <div key={comment.commentId} className="flex items-start mb-4">
               <img
-                src={comment.profile}
-                alt={comment.name}
+                src={comment.writerImg}
+                alt={comment.nickname}
                 className="w-12 h-12 rounded-full object-cover mr-3 mt-3"
               />
               <div>
                 <p className="text-sm font-bold text-[#343434] mb-1">
-                  {comment.name}
+                  {comment.nickname}
                 </p>
                 <div
                   className="bg-[#FFFFFF] border border-[#FFD2D2] rounded-xl p-2 mb-[1px]"

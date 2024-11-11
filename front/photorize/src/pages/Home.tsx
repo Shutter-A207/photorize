@@ -5,6 +5,8 @@ import Footer from "../components/Common/Footer";
 import { getUserInfo } from "../api/UserAPI";
 import EditNicknameModal from "../components/EditNicknameModal"; // 모달 컴포넌트 임포트
 import EditProfileModal from "../components/EditProfileModal";
+import { useSetRecoilState } from "recoil";
+import { userData } from "../recoil/userAtoms";
 
 interface Memory {
   id: number;
@@ -30,12 +32,18 @@ const Home = () => {
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const setUserData = useSetRecoilState(userData);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const userData = await getUserInfo();
         setUserProfile(userData);
+        setUserData({
+          id: userData.memberId,
+          nickname: userData.nickname,
+          img: userData.img,
+        });
       } catch (error) {
         console.error("유저 정보 가져오기 중 오류 발생:", error);
       }
@@ -119,7 +127,7 @@ const Home = () => {
 
   const handleProfileUpdate = (newProfileImg: string) => {
     if (userProfile) {
-      console.log(newProfileImg)
+      console.log(newProfileImg);
       setUserProfile({ ...userProfile, img: newProfileImg });
     }
   };
@@ -155,7 +163,10 @@ const Home = () => {
                 ref={menuRef}
                 className="absolute top-11 left-0 bg-white shadow-lg rounded-md w-32 z-10 mt-2"
               >
-                <button className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100" onClick={() => setIsEditProfileModalOpen(true)}>
+                <button
+                  className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                  onClick={() => setIsEditProfileModalOpen(true)}
+                >
                   프로필 편집
                 </button>
                 <button
@@ -193,7 +204,7 @@ const Home = () => {
             ref={carouselRef}
             className="relative flex overflow-x-auto snap-x snap-mandatory w-full px-1 scrollbar-hidden"
           >
-            {memories.map((memory, index) => (
+            {memories.map((memory) => (
               <div
                 key={memory.id}
                 className="snap-center w-full flex-shrink-0 flex justify-center items-center px-4"
@@ -227,11 +238,11 @@ const Home = () => {
       <Footer />
 
       <EditProfileModal
-          isOpen={isEditProfileModalOpen}
-          onClose={() => setIsEditProfileModalOpen(false)}
-          currentProfileImg={userProfile?.img || ""}
-          onProfileUpdate={handleProfileUpdate}
-        />
+        isOpen={isEditProfileModalOpen}
+        onClose={() => setIsEditProfileModalOpen(false)}
+        currentProfileImg={userProfile?.img || ""}
+        onProfileUpdate={handleProfileUpdate}
+      />
 
       {/* Edit Nickname Modal */}
       <EditNicknameModal
