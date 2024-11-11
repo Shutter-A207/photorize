@@ -4,14 +4,6 @@ import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 
 interface PoseData {
-  id: number;
-  headCount: string;
-  image: string;
-  likes: number;
-  liked: boolean;
-}
-
-interface PoseData {
   poseId: number;
   img: string;
   headcount: string;
@@ -104,35 +96,6 @@ const Pose: React.FC = () => {
   const rightColumnImages = filteredPoseData.filter(
     (_, index) => index % 2 !== 0
   );
-
-  useEffect(() => {
-    const loadPoses = async () => {
-      try {
-        const response = await getAllPoses();
-        if (response && response.status == 200) {
-          const pose = response.data.map(
-            (data: {
-              id: number;
-              headCount: string;
-              img: string;
-              likeCount: number;
-              liked: boolean;
-            }) => ({
-              id: data.id,
-              headCount: data.headCount,
-              image: data.img,
-              likes: data.likeCount,
-              liked: data.liked,
-            })
-          );
-          setPoseData(pose);
-        }
-      } catch (error) {
-        console.error("포즈를 불러오는 중 오류가 발생했습니다:", error);
-      }
-    };
-    loadPoses();
-  }, []);
 
   return (
     <>

@@ -5,10 +5,10 @@ const Loading = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 3초 후에 /login으로 이동
+    // 1초 후에 /login으로 이동
     const timer = setTimeout(() => {
       navigate("/login");
-    }, 3000);
+    }, 1000);
 
     // 컴포넌트 언마운트 시 타이머 정리
     return () => clearTimeout(timer);

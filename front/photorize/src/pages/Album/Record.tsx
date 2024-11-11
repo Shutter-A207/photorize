@@ -74,9 +74,9 @@ const Record: React.FC = () => {
 
   const handleRegister = async () => {
     if (!date || !date.startDate || !isButtonEnabled || isLoading) return;
-  
+
     const formattedDate = new Date(date.startDate).toISOString().split("T")[0];
-  
+
     const memoryData = {
       date: formattedDate,
       spotId: spot.id!,
@@ -84,7 +84,7 @@ const Record: React.FC = () => {
       albumIds: album ? [album.id!] : [],
       type: shareSelection === "공유" ? "PUBLIC" : "PRIVATE",
     };
-  
+
     const formData = new FormData();
     formData.append(
       "memory",
@@ -92,9 +92,11 @@ const Record: React.FC = () => {
     );
     if (photo) formData.append("photo", photo);
     if (video) formData.append("video", video);
-  
+
     setIsLoading(true);
-  
+    setPhoto(null);
+    setVideo(null);
+
     try {
       await sendMemoryData(formData);
       alert("추억이 성공적으로 등록되었습니다!");

@@ -5,7 +5,7 @@ import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 import { useRecoilValue } from "recoil";
 import { userData } from "../../recoil/userAtoms";
-import { fetchReviews } from "../../api/MemoryAPI"; 
+import { fetchReviews } from "../../api/MemoryAPI";
 import { fetchMemory } from "../../api/MemoryAPI";
 import { createComment } from "../../api/CommentAPI";
 
@@ -33,7 +33,6 @@ interface Comment {
 }
 
 const Memory: React.FC = () => {
-  console.log("Memory 컴포넌트 렌더링됨");
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -48,7 +47,6 @@ const Memory: React.FC = () => {
   const user = useRecoilValue(userData);
 
   useEffect(() => {
-    console.log("useEffect 호출됨");
     const loadMemory = async () => {
       try {
         setLoading(true);
@@ -65,11 +63,13 @@ const Memory: React.FC = () => {
               spotName: response.spotName,
               content: response.content,
             });
-  
-            setCarouselData(response.files.map((file: { url: string; type: string }) => ({
-              url: file.url,
-              type: file.type === "PHOTO" ? "PHOTO" : "VIDEO",
-            })));
+
+            setCarouselData(
+              response.files.map((file: { url: string; type: string }) => ({
+                url: file.url,
+                type: file.type === "PHOTO" ? "PHOTO" : "VIDEO",
+              }))
+            );
           }
         }
       } catch (err) {
@@ -79,9 +79,9 @@ const Memory: React.FC = () => {
         setLoading(false);
       }
     };
-  
+
     loadMemory();
-  }, []);
+  }, [id]);
 
   useEffect(() => {
     const loadReviews = async () => {
@@ -106,17 +106,17 @@ const Memory: React.FC = () => {
     if (newComment.trim() && id) {
       try {
         const commentResponse = await createComment(Number(id), newComment);
-  
         const newCommentData: Comment = {
-          commentId: commentResponse.id,
+          commentId: commentResponse.commentId,
           writerImg: user.img || "/assets/default-profile.png",
           nickname: user.nickname || "익명",
-          content: commentResponse.content,
-          date: new Date(commentResponse.createdAt).toISOString().split("T")[0],
+          content: newComment,
+          date: new Date().toISOString().split("T")[0],
+          // date: new Date(commentResponse.createdAt).toISOString().split("T")[0],
         };
 
-        console.log(commentResponse)
-  
+        console.log(commentResponse);
+
         setComments((prevComments) => [...prevComments, newCommentData]);
         setNewComment("");
       } catch (error) {
@@ -164,9 +164,9 @@ const Memory: React.FC = () => {
             className="flex overflow-x-auto snap-x snap-mandatory"
             onScroll={handleScroll}
           >
-            {carouselData!.map((item, index) => (
+            {carouselData!.map((item) => (
               <div className="snap-center w-full flex-shrink-0">
-              {/* <div key={item.id} className="snap-center w-full flex-shrink-0"> */}
+                {/* <div key={item.id} className="snap-center w-full flex-shrink-0"> */}
                 {item.type === "PHOTO" ? (
                   <img
                     src={item.url}
@@ -206,57 +206,59 @@ const Memory: React.FC = () => {
         >
           {memoryDetail && (
             <>
-          <div className="flex items-center mb-2">
-            <img
-              src={memoryDetail!.writerImg}
-              alt={memoryDetail!.nickname}
-              className="w-12 h-12 rounded-full object-cover"
-            />
-            <div className="ml-3 w-full">
-              <p className="font-bold text-[#343434]">{memoryDetail?.nickname}</p>
-              <div className="flex items-center justify-between font-bold text-xs text-[#A19791] w-full">
-                <div className="flex items-center">
+              <div className="flex items-center mb-2">
+                <img
+                  src={memoryDetail!.writerImg}
+                  alt={memoryDetail!.nickname}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div className="ml-3 w-full">
+                  <p className="font-bold text-[#343434]">
+                    {memoryDetail?.nickname}
+                  </p>
+                  <div className="flex items-center justify-between font-bold text-xs text-[#A19791] w-full">
+                    <div className="flex items-center">
+                      <img
+                        src="/assets/locationIcon2.png"
+                        alt="location icon"
+                        className="w-[9.6px] h-[12px] mr-1"
+                      />
+                      <span>{memoryDetail!.spotName}</span>
+                    </div>
+                    <span className="mr-1">{memoryDetail!.date}</span>
+                  </div>
+                </div>
+                {/* 우측 상단 리스트 아이콘 */}
+                <div className="absolute top-4 right-5">
                   <img
-                    src="/assets/locationIcon2.png"
-                    alt="location icon"
-                    className="w-[9.6px] h-[12px] mr-1"
+                    src="/assets/listIcon.png"
+                    className="w-5 cursor-pointer"
+                    onClick={toggleMenu}
                   />
-                  <span>{memoryDetail!.spotName}</span>
+                  {menuOpen && (
+                    <div
+                      ref={menuRef}
+                      className="absolute right-0 mt-2 bg-white shadow-lg rounded-md w-32"
+                    >
+                      <button
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        onClick={handleEditMemory}
+                      >
+                        추억 편집
+                      </button>
+                      <button className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">
+                        추억 삭제
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <span className="mr-1">{memoryDetail!.date}</span>
               </div>
-            </div>
-            {/* 우측 상단 리스트 아이콘 */}
-            <div className="absolute top-4 right-5">
-              <img
-                src="/assets/listIcon.png"
-                className="w-5 cursor-pointer"
-                onClick={toggleMenu}
-              />
-              {menuOpen && (
-                <div
-                  ref={menuRef}
-                  className="absolute right-0 mt-2 bg-white shadow-lg rounded-md w-32"
-                >
-                  <button
-                    className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                    onClick={handleEditMemory}
-                  >
-                    추억 편집
-                  </button>
-                  <button className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">
-                    추억 삭제
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="border-t border-gray-200 mt-3 mb-4"></div>
-          <p className="text-sm font-medium text-[#343434] p-2">
-            {memoryDetail!.content}
-          </p>
-          </>
-  )}
+              <div className="border-t border-gray-200 mt-3 mb-4"></div>
+              <p className="text-sm font-medium text-[#343434] p-2">
+                {memoryDetail!.content}
+              </p>
+            </>
+          )}
         </div>
 
         <div className="border-t border-gray-200 mt-6 mb-2"></div>
