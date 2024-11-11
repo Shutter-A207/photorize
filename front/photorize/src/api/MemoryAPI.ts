@@ -8,6 +8,7 @@ export const fetchMemory = async (memoryId: number) => {
       return response.data.data;
     }
   } catch (error) {
+    console.error("추억 조회 중 오류 발생:", error);
     throw error;
   }
 };
@@ -22,7 +23,7 @@ export const sendMemoryData = async (formData: FormData) => {
   }
 };
 
-export const fetchReviews = async (pageNumber:Number, memoryId: number) => {
+export const fetchReviews = async (pageNumber: number, memoryId: number) => {
   try {
     const response = await axios.get(`/memories/${memoryId}/comments`, {
       params: { pageNumber },
@@ -34,5 +35,13 @@ export const fetchReviews = async (pageNumber:Number, memoryId: number) => {
   } catch (error) {
     console.error("리뷰 조회 중 오류 발생:", error);
     throw error;
+  }
+};
+
+export const deleteMemory = async (memoryId: number): Promise<void> => {
+  try {
+    await axios.delete(`/memories/${memoryId}`);
+  } catch (error) {
+    console.error("추억 삭제 중 오류 발생: ", error);
   }
 };

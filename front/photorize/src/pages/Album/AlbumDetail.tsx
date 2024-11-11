@@ -46,8 +46,12 @@ const AlbumDetail: React.FC = () => {
     loadAlbumDetail();
   }, [id]);
 
-  const handleImageClick = (id: number) => {
-    navigate(`/memory/${id}`);
+  const handleImageClick = (memoryId: number) => {
+    navigate(`/memory/${memoryId}`, {
+      state: {
+        albumId: Number(id),
+      },
+    });
   };
 
   if (!albumDetail) {
@@ -71,7 +75,9 @@ const AlbumDetail: React.FC = () => {
           {albumDetail.members.map((member) => (
             <div
               key={member.memberId}
-              className={`flex flex-col items-center ${!member.status ? "opacity-40" : ""}`}
+              className={`flex flex-col items-center ${
+                !member.status ? "opacity-40" : ""
+              }`}
             >
               <img
                 src={member.img}

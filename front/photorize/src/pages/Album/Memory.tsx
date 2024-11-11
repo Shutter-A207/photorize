@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import ReactPlayer from "react-player";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 import { useRecoilValue } from "recoil";
 import { userData } from "../../recoil/userAtoms";
 import { fetchReviews } from "../../api/MemoryAPI";
-import { fetchMemory } from "../../api/MemoryAPI";
+import { fetchMemory, deleteMemory } from "../../api/MemoryAPI";
 import { createComment } from "../../api/CommentAPI";
+import ConfirmationModal from "../../components/Common/ConfirmationModal";
 
 interface CarouselItem {
   // id: number;
@@ -16,7 +17,7 @@ interface CarouselItem {
 }
 
 interface MemoryDetail {
-  writerId: string;
+  writerId: number;
   nickname: string;
   writerImg: string;
   date: string;
@@ -34,7 +35,9 @@ interface Comment {
 
 const Memory: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams<{ id: string }>();
+  const { albumId } = location.state || {};
   const [currentIndex, setCurrentIndex] = useState(0);
   const [carouselData, setCarouselData] = useState<CarouselItem[]>([]);
   const [memoryDetail, setMemoryDetail] = useState<MemoryDetail>();
@@ -43,6 +46,7 @@ const Memory: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const user = useRecoilValue(userData);
 
@@ -121,6 +125,21 @@ const Memory: React.FC = () => {
         setNewComment("");
       } catch (error) {
         console.error("댓글 등록 중 오류 발생:", error);
+      }
+    }
+  };
+
+  const handleDeleteMemory = async () => {
+    if (id) {
+      try {
+        await deleteMemory(Number(id));
+        alert("추억이 성공적으로 삭제되었습니다.");
+        navigate(`/album/${albumId}`);
+      } catch (error) {
+        console.error("추억 삭제 중 오류 발생:", error);
+        alert("추억 삭제에 실패했습니다.");
+      } finally {
+        setDeleteModalOpen(false);
       }
     }
   };
@@ -228,28 +247,34 @@ const Memory: React.FC = () => {
                     <span className="mr-1">{memoryDetail!.date}</span>
                   </div>
                 </div>
-                {/* 우측 상단 리스트 아이콘 */}
                 <div className="absolute top-4 right-5">
-                  <img
-                    src="/assets/listIcon.png"
-                    className="w-5 cursor-pointer"
-                    onClick={toggleMenu}
-                  />
-                  {menuOpen && (
-                    <div
-                      ref={menuRef}
-                      className="absolute right-0 mt-2 bg-white shadow-lg rounded-md w-32"
-                    >
-                      <button
-                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                        onClick={handleEditMemory}
-                      >
-                        추억 편집
-                      </button>
-                      <button className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">
-                        추억 삭제
-                      </button>
-                    </div>
+                  {user.id === memoryDetail?.writerId && (
+                    <>
+                      <img
+                        src="/assets/listIcon.png"
+                        className="w-5 cursor-pointer"
+                        onClick={toggleMenu}
+                      />
+                      {menuOpen && (
+                        <div
+                          ref={menuRef}
+                          className="absolute right-0 mt-2 bg-white shadow-lg rounded-md w-32"
+                        >
+                          <button
+                            className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                            onClick={handleEditMemory}
+                          >
+                            추억 편집
+                          </button>
+                          <button
+                            className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                            onClick={() => setDeleteModalOpen(true)} // 모달 열기
+                          >
+                            추억 삭제
+                          </button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -305,6 +330,13 @@ const Memory: React.FC = () => {
           ))}
         </div>
       </div>
+      {deleteModalOpen && (
+        <ConfirmationModal
+          message="정말로 이 추억을 삭제하시겠습니까?"
+          onConfirm={handleDeleteMemory}
+          onCancel={() => setDeleteModalOpen(false)}
+        />
+      )}
       <Footer />
     </div>
   );

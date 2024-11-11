@@ -117,3 +117,15 @@ export const updateProfileImage = async (imageFile: File) => {
     throw error;
   }
 };
+
+export const createEmailCode = async (email: string, authType: string) => {
+  try {
+    const response = await axios.post("/auth/email/code", { email, authType });
+    if (response.status === 200) {
+      return response.data.data;
+    }
+  } catch (error) {
+    console.error("이메일 코드 생성 중 오류 발생:", error);
+    throw error;
+  }
+};
