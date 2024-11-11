@@ -71,27 +71,27 @@ const AlbumDetail: React.FC = () => {
       <Header title={albumDetail.name} />
       <div className="p-4">
         {/* 유저 리스트 */}
-        <div className="flex overflow-x-auto space-x-4">
-          {albumDetail.members.map((member) => (
-            <div
-              key={member.memberId}
-              className={`flex flex-col items-center ${
-                !member.status ? "opacity-40" : ""
-              }`}
-            >
-              <img
-                src={member.img}
-                alt={member.nickname}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-              <p className="text-sm mt-1 font-bold text-[#343434]">
-                {member.nickname}
-              </p>
-            </div>
-          ))}
-        </div>
+        {albumDetail.members.length > 1 && (
+          <div className="flex overflow-x-auto space-x-4">
+            {albumDetail.members.map((member) => (
+              <div
+                key={member.memberId}
+                className={`flex flex-col items-center ${!member.status ? "opacity-40" : ""}`}
+              >
+                <img
+                  src={member.img}
+                  alt={member.nickname}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <p className="text-sm mt-1 font-bold text-[#343434]">
+                  {member.nickname}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
 
-        {albumDetail.members.length > 0 && (
+        {albumDetail.members.length > 1 && (
           <div className="border-t border-gray-200 mt-2 mb-6"></div>
         )}
 

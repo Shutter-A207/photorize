@@ -67,11 +67,11 @@ const SearchSpot: React.FC<SearchSpotProps> = ({
   return (
     <div className="relative w-full max-w-md">
       <div className="p-fluid">
-        <div className="flex bg-white mb-4 rounded-lg px-4 py-3 w-full border border-[#B3B3B3]">
+        <div className="flex bg-white mb-4 rounded-lg px-4 py-1 w-full border border-[#B3B3B3]">
           {selectedSpot ? (
             <div className="flex items-center flex-1">
               <img src={imageSrc} className="h-5" alt="spot icon" />
-              <div className="pl-3 text-sm text-[#818181] ml-">
+              <div className="pl-3 text-sm text-[#818181]">
                 {selectedSpot.name}
               </div>
               <Button
@@ -86,7 +86,7 @@ const SearchSpot: React.FC<SearchSpotProps> = ({
           ) : (
             <>
               <div className="flex items-center">
-                <img src={imageSrc} className="h-5" alt="spot icon" />
+                <img src={imageSrc} className="h-5 w-6" alt="spot icon" />
               </div>
               <InputText
                 value={searchTerm}

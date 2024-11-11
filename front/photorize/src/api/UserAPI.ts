@@ -18,6 +18,17 @@ interface UserInfo {
   img: string;
 }
 
+interface EmailCodeData {
+  email: string;
+  authType: "SIGNUP" | "PASSWORD_CHANGE";
+}
+
+interface VerifyCodeData {
+  email: string;
+  authCode: string;
+  authType: "SIGNUP" | "PASSWORD_CHANGE";
+}
+
 export const registerUser = async (data: RegisterData) => {
   try {
     const response = await axios.post("/auth/join", data);
@@ -118,14 +129,26 @@ export const updateProfileImage = async (imageFile: File) => {
   }
 };
 
-export const createEmailCode = async (email: string, authType: string) => {
+export const generateAuthCode = async (data: EmailCodeData) => {
   try {
-    const response = await axios.post("/auth/email/code", { email, authType });
+    const response = await axios.post("/auth/email/code", data);
     if (response.status === 200) {
-      return response.data.data;
+      return response.data.data; // true 반환
     }
   } catch (error) {
-    console.error("이메일 코드 생성 중 오류 발생:", error);
+    console.error("인증번호 생성 중 오류 발생:", error);
+    throw error;
+  }
+};
+
+export const verifyAuthCode = async (data: VerifyCodeData) => {
+  try {
+    const response = await axios.post("/auth/email/verifyCode", data);
+    if (response.status === 200) {
+      return response.data.data; // true 반환
+    }
+  } catch (error) {
+    console.error("인증번호 검증 중 오류 발생:", error);
     throw error;
   }
 };

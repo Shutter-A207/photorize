@@ -34,14 +34,15 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
       <h1 className="absolute left-1/2 transform -translate-x-1/2 text-lg font-semibold truncate max-w-[60%] text-center whitespace-nowrap overflow-hidden text-ellipsis">
         {title}
       </h1>
-      {location.pathname !== "/notifications" && (
-        <img
-          src="/assets/notification-icon.png"
-          alt="Notification Icon"
-          onClick={handleNotificationClick}
-          className="h-6"
-        />
-      )}
+      {location.pathname !== "/notifications" &&
+        location.pathname !== "/register" && (
+          <img
+            src="/assets/notification-icon.png"
+            alt="Notification Icon"
+            onClick={handleNotificationClick}
+            className="h-6"
+          />
+        )}
     </header>
   );
 };
