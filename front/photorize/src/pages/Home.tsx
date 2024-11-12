@@ -6,8 +6,6 @@ import { getUserInfo } from "../api/UserAPI";
 import { fetchMainPageMemories } from "../api/MemoryAPI";
 import EditNicknameModal from "../components/EditNicknameModal";
 import EditProfileModal from "../components/EditProfileModal";
-import { useSetRecoilState } from "recoil";
-import { userData } from "../recoil/userAtoms";
 
 interface Memory {
   memoryId: number;
@@ -18,7 +16,6 @@ interface Memory {
 }
 
 interface UserProfile {
-  memberId: number;
   nickname: string;
   img: string;
 }
@@ -33,18 +30,14 @@ const Home = () => {
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const setUserData = useSetRecoilState(userData);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const userData = await getUserInfo();
+        localStorage.setItem("nickname", userData.nickname);
+        localStorage.setItem("img", userData.img);
         setUserProfile(userData);
-        setUserData({
-          id: userData.memberId,
-          nickname: userData.nickname,
-          img: userData.img,
-        });
       } catch (error) {
         console.error("유저 정보 가져오기 중 오류 발생:", error);
       }

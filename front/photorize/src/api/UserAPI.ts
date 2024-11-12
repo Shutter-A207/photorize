@@ -125,6 +125,7 @@ export const fetchUsers = async (keyword: string) => {
       params: { keyword },
     });
 
+    console.log(response.data);
     if (response.status === 200) {
       return response.data;
     }

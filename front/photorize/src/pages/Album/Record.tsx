@@ -21,6 +21,7 @@ interface Spot {
 interface User {
   id: number;
   name: string;
+  privateAlbumId: number;
 }
 
 interface Album {
@@ -44,12 +45,20 @@ const Record: React.FC = () => {
   const [video, setVideo] = useState<File | null>();
   const [tags, setTags] = useState<User[]>([]);
   const [album, setAlbum] = useState<Album | null>(null);
+  const [selectedPrivateAlbumIds, setSelectedPrivateAlbumIds] = useState<
+    number[]
+  >([]);
   const [isButtonEnabled, setIsButtonEnabled] = useState<boolean>(false);
   const [isAlbumModalOpen, setIsAlbumModalOpen] = useState<boolean>(false);
   const [selectedAlbum, setSelectedAlbum] = useState<string>("personal");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setPhoto(null);
+    setVideo(null);
+  }, []);
 
   useEffect(() => {
     const hasDate = date?.startDate !== null;
@@ -64,6 +73,15 @@ const Record: React.FC = () => {
       hasDate && hasSpot && hasMemo && hasMediaContent && hasRequiredTag
     );
   }, [date, spot, memo, photo, video, tags, album, shareSelection]);
+
+  useEffect(() => {
+    if (tags.length > 0) {
+      const privateAlbumIds = tags.map((tag) => tag.privateAlbumId);
+      setSelectedPrivateAlbumIds(privateAlbumIds);
+    } else {
+      setSelectedPrivateAlbumIds([]);
+    }
+  }, [tags]);
 
   const handleModalSuccess = (newAlbum: Album) => {
     alert("앨범 생성에 성공했습니다!");
@@ -81,8 +99,18 @@ const Record: React.FC = () => {
       date: formattedDate,
       spotId: spot.id!,
       content: memo,
-      albumIds: album ? [album.id!] : [],
-      type: shareSelection === "공유" ? "PUBLIC" : "PRIVATE",
+      albumIds:
+        shareSelection === "내 앨범"
+          ? []
+          : selectedAlbum === "personal"
+          ? selectedPrivateAlbumIds
+          : album
+          ? [album.id!]
+          : [],
+      type:
+        shareSelection !== "내 앨범" && selectedAlbum === "album"
+          ? "PUBLIC"
+          : "PRIVATE",
     };
 
     const formData = new FormData();
@@ -94,8 +122,6 @@ const Record: React.FC = () => {
     if (video) formData.append("video", video);
 
     setIsLoading(true);
-    setPhoto(null);
-    setVideo(null);
 
     try {
       await sendMemoryData(formData);

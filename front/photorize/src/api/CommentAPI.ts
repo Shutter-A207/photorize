@@ -16,3 +16,12 @@ export const createComment = async (memoryId: number, content: string) => {
     throw error;
   }
 };
+
+export const deleteComment = async (commentId: number) => {
+  try {
+    await axios.delete(`/comments/${commentId}`);
+  } catch (error) {
+    console.error("댓글 삭제 중 오류 발생:", error);
+    throw error;
+  }
+};

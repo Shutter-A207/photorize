@@ -6,6 +6,7 @@ import { fetchUsers } from "../../api/UserAPI";
 interface User {
   id: number;
   name: string;
+  privateAlbumId: number;
 }
 
 interface SearchTagProps {
@@ -36,9 +37,14 @@ const SearchTag: React.FC<SearchTagProps> = ({
       if (response) {
         console.log(response);
         const userData = response.data.map(
-          (data: { memberId: number; nickname: string }) => ({
+          (data: {
+            memberId: number;
+            nickname: string;
+            privateAlbumId: number;
+          }) => ({
             id: data.memberId,
             name: data.nickname,
+            privateAlbumId: data.privateAlbumId,
           })
         );
         setSpots(userData);

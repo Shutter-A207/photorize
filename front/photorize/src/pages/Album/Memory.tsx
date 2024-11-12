@@ -3,11 +3,9 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import ReactPlayer from "react-player";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
-import { useRecoilValue } from "recoil";
-import { userData } from "../../recoil/userAtoms";
 import { fetchReviews } from "../../api/MemoryAPI";
 import { fetchMemory, deleteMemory } from "../../api/MemoryAPI";
-import { createComment } from "../../api/CommentAPI";
+import { createComment, deleteComment } from "../../api/CommentAPI";
 import ConfirmationModal from "../../components/Common/ConfirmationModal";
 
 interface CarouselItem {
@@ -46,9 +44,12 @@ const Memory: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteMemoryModalOpen, setDeleteMemoryModalOpen] = useState(false);
+  const [deleteCommentModalOpen, setDeleteCommentModalOpen] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const user = useRecoilValue(userData);
+  const nickname = localStorage.getItem("nickname");
+  const img = localStorage.getItem("img");
 
   useEffect(() => {
     const loadMemory = async () => {
@@ -112,16 +113,19 @@ const Memory: React.FC = () => {
         const commentResponse = await createComment(Number(id), newComment);
         const newCommentData: Comment = {
           commentId: commentResponse.commentId,
-          writerImg: user.img || "/assets/default-profile.png",
-          nickname: user.nickname || "익명",
-          content: newComment,
-          date: new Date().toISOString().split("T")[0],
-          // date: new Date(commentResponse.createdAt).toISOString().split("T")[0],
+          writerImg: img || "/assets/default-profile.png",
+          nickname: nickname || "익명",
+          content: commentResponse.content,
+          // date: new Date().toISOString().split("T")[0],
+          date: new Date(commentResponse.date)
+            .toISOString()
+            .replace("T", " ")
+            .slice(0, 19),
         };
 
         console.log(commentResponse);
 
-        setComments((prevComments) => [...prevComments, newCommentData]);
+        setComments((prevComments) => [newCommentData, ...prevComments]);
         setNewComment("");
       } catch (error) {
         console.error("댓글 등록 중 오류 발생:", error);
@@ -139,7 +143,25 @@ const Memory: React.FC = () => {
         console.error("추억 삭제 중 오류 발생:", error);
         alert("추억 삭제에 실패했습니다.");
       } finally {
-        setDeleteModalOpen(false);
+        setDeleteMemoryModalOpen(false);
+      }
+    }
+  };
+
+  const handleDeleteComment = async () => {
+    if (commentToDelete !== null) {
+      try {
+        await deleteComment(commentToDelete);
+        setComments((prev) =>
+          prev.filter((comment) => comment.commentId !== commentToDelete)
+        );
+        alert("댓글이 삭제되었습니다.");
+      } catch (error) {
+        console.error("댓글 삭제 중 오류 발생:", error);
+        alert("댓글 삭제에 실패했습니다.");
+      } finally {
+        setCommentToDelete(null);
+        setDeleteCommentModalOpen(false);
       }
     }
   };
@@ -152,12 +174,37 @@ const Memory: React.FC = () => {
     setCurrentIndex(newIndex);
   };
 
+  const formatDate = (inputDate: string): string => {
+    const date = new Date(inputDate);
+    const now = new Date();
+    const diffInMilliseconds = now.getTime() - date.getTime();
+    const diffInMinutes = Math.floor(diffInMilliseconds / (1000 * 60));
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+    const diffInMonths = Math.floor(diffInDays / 30);
+    const diffInYears = Math.floor(diffInMonths / 12);
+
+    if (diffInYears >= 1) {
+      return diffInYears === 1 ? "1년 전" : `${diffInYears}년 전`;
+    } else if (diffInMonths >= 1) {
+      return diffInMonths === 1 ? "1개월 전" : `${diffInMonths}개월 전`;
+    } else if (diffInDays >= 1) {
+      return diffInDays === 1 ? "1일 전" : `${diffInDays}일 전`;
+    } else if (diffInHours >= 1) {
+      return diffInHours === 1 ? "1시간 전" : `${diffInHours}시간 전`;
+    } else if (diffInMinutes >= 1) {
+      return diffInMinutes === 1 ? "1분 전" : `${diffInMinutes}분 전`;
+    } else {
+      return "방금 전";
+    }
+  };
+
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
 
   const handleEditMemory = () => {
-    navigate(`/memory/${id}`);
+    navigate(`/modify-memory/${id}`, { state: memoryDetail });
   };
 
   if (loading) {
@@ -248,7 +295,7 @@ const Memory: React.FC = () => {
                   </div>
                 </div>
                 <div className="absolute top-4 right-5">
-                  {user.id === memoryDetail?.writerId && (
+                  {nickname === memoryDetail?.nickname && (
                     <>
                       <img
                         src="/assets/listIcon.png"
@@ -268,7 +315,7 @@ const Memory: React.FC = () => {
                           </button>
                           <button
                             className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                            onClick={() => setDeleteModalOpen(true)} // 모달 열기
+                            onClick={() => setDeleteMemoryModalOpen(true)} // 모달 열기
                           >
                             추억 삭제
                           </button>
@@ -324,17 +371,39 @@ const Memory: React.FC = () => {
                 >
                   <p className="text-sm text-[#343434]">{comment.content}</p>
                 </div>
-                <p className="text-[10px] text-[#A19791]">{comment.date}</p>
+                <div className="flex">
+                  <p className="text-[10px] text-[#A19791] mr-2">
+                    {formatDate(comment.date)}
+                  </p>
+                  {comment.nickname === nickname && (
+                    <button
+                      onClick={() => {
+                        setCommentToDelete(comment.commentId);
+                        setDeleteCommentModalOpen(true);
+                      }}
+                      className="text-red-500 text-[10px]"
+                    >
+                      삭제
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
-      {deleteModalOpen && (
+      {deleteMemoryModalOpen && (
         <ConfirmationModal
           message="정말로 이 추억을 삭제하시겠습니까?"
           onConfirm={handleDeleteMemory}
-          onCancel={() => setDeleteModalOpen(false)}
+          onCancel={() => setDeleteMemoryModalOpen(false)}
+        />
+      )}
+      {deleteCommentModalOpen && (
+        <ConfirmationModal
+          message="정말로 이 댓글을 삭제하시겠습니까?"
+          onConfirm={handleDeleteComment}
+          onCancel={() => setDeleteCommentModalOpen(false)}
         />
       )}
       <Footer />

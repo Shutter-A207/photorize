@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation, useParams } from "react-router-dom";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 import DatePicker from "../../components/Album/DatePicker";
@@ -6,29 +7,84 @@ import { DateValueType } from "react-tailwindcss-datepicker";
 import SearchSpot from "../../components/Common/SearchSpot";
 import MemoInput from "../../components/Album/MemoInput";
 import MediaUploadSection from "../../components/Album/MediaUploadSection";
+import { fetchMemory } from "../../api/MemoryAPI";
+
+interface Spot {
+  id: number | null;
+  name: string | null;
+}
 
 const ModifyMemory: React.FC = () => {
-  // 기존 정보를 기본값으로 설정
+  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const memoryDetail = location.state;
+
   const [value, setValue] = useState<DateValueType>({
-    startDate: null, // 기존 날짜
+    startDate: null,
     endDate: null,
   });
-  const [location, setLocation] = useState<string>("인생네컷 역삼점"); // 기존 장소
-  const [memo, setMemo] = useState<string>(
-    "팀원들과 친해질 수 있었던 Field Trip 너무너무 재미있었다 ~~"
-  ); // 기존 메모
-  const [photos, setPhotos] = useState<File[]>([]); // 기존 사진 데이터 설정
-  const [videos, setVideos] = useState<File[]>([]); // 기존 동영상 데이터 설정
+  const [locationName, setLocationName] = useState<Spot>({
+    id: null,
+    name: "",
+  });
+  const [memo, setMemo] = useState<string>("");
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [videos, setVideos] = useState<File[]>([]);
   const [isButtonEnabled, setIsButtonEnabled] = useState<boolean>(false);
 
+  // 기존 데이터를 설정
+  useEffect(() => {
+    if (memoryDetail) {
+      setValue({
+        startDate: memoryDetail.date ? new Date(memoryDetail.date) : null,
+        endDate: null,
+      });
+      setLocationName({
+        id: null,
+        name: memoryDetail.spotName || "",
+      });
+      setMemo(memoryDetail.content || "");
+    } else if (id) {
+      // 서버에서 데이터 가져오기
+      fetchMemory(Number(id))
+        .then((response) => {
+          setValue({
+            startDate: response.date ? new Date(response.date) : null,
+            endDate: null,
+          });
+          setLocationName({
+            id: null,
+            name: response.spotName || "",
+          });
+          setMemo(response.content || "");
+        })
+        .catch((error) => {
+          console.error("Failed to fetch memory details:", error);
+        });
+    }
+  }, [memoryDetail, id]);
+
+  // 유효성 검사
   useEffect(() => {
     const hasDate = value?.startDate !== null;
-    const hasLocation = location.trim() !== "";
+    const hasLocation = locationName.name!.trim() !== "";
     const hasMemo = memo.trim() !== "";
     const hasMediaContent = photos.length > 0 || videos.length > 0;
 
     setIsButtonEnabled(hasDate && hasLocation && hasMemo && hasMediaContent);
-  }, [value, location, memo, photos, videos]);
+  }, [value, locationName, memo, photos, videos]);
+
+  const handlePhotoUpload = (file: File | null) => {
+    setPhotos(file ? [file] : []);
+  };
+
+  const handleVideoUpload = (file: File | null) => {
+    setVideos(file ? [file] : []);
+  };
+
+  const handleLocationChange = (spot: Spot) => {
+    setLocationName(spot);
+  };
 
   return (
     <>
@@ -38,7 +94,8 @@ const ModifyMemory: React.FC = () => {
         <SearchSpot
           imageSrc="/assets/map-icon.png"
           placeholder="장소"
-          onChange={setLocation}
+          onChange={handleLocationChange}
+          selectedSpot={locationName}
         />
         <MemoInput
           memo={memo}
@@ -47,8 +104,8 @@ const ModifyMemory: React.FC = () => {
           }
         />
         <MediaUploadSection
-          onPhotoUpload={setPhotos}
-          onVideoUpload={setVideos}
+          onPhotoUpload={handlePhotoUpload}
+          onVideoUpload={handleVideoUpload}
         />
 
         <div className="flex items-center justify-end w-full max-w-md mt-4">

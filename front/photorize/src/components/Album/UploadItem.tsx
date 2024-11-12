@@ -39,7 +39,7 @@ const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
     }
 
     setFile(selectedFile);
-    onUpload(selectedFile); // onUpload 호출로 파일을 외부로 전달
+    onUpload(selectedFile);
   };
 
   const handleRemoveFile = () => {
@@ -57,6 +57,13 @@ const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
       };
     }
   }, [file]);
+
+  useEffect(() => {
+    return () => {
+      setFile(null);
+      setFileUrl(undefined);
+    };
+  }, [setFile]);
 
   return (
     <div className="flex flex-col bg-white rounded-lg p-3 w-1/2 border border-[#B3B3B3]">
