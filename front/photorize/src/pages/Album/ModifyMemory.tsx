@@ -23,9 +23,10 @@ const ModifyMemory: React.FC = () => {
     startDate: null,
     endDate: null,
   });
-  const [locationName, setLocationName] = useState<Spot>({
+  const [locationName, setLocationName] = useState<string>("");
+  const [selectedSpot, setSelectedSpot] = useState<Spot>({
     id: null,
-    name: "",
+    name: null,
   });
   const [memo, setMemo] = useState<string>("");
   const [photos, setPhotos] = useState<File[]>([]);
@@ -35,27 +36,44 @@ const ModifyMemory: React.FC = () => {
   // 기존 데이터를 설정
   useEffect(() => {
     if (memoryDetail) {
+      // 날짜 설정
+      const date = memoryDetail.date ? new Date(memoryDetail.date) : null;
       setValue({
-        startDate: memoryDetail.date ? new Date(memoryDetail.date) : null,
-        endDate: null,
+        startDate: date,
+        endDate: date,
       });
-      setLocationName({
-        id: null,
-        name: memoryDetail.spotName || "",
-      });
+
+      // spotId가 존재하는 경우에만 spot 정보 설정
+      if (memoryDetail.spotId) {
+        const spotData = {
+          id: memoryDetail.spotId,
+          name: memoryDetail.spotName || "",
+        };
+        setSelectedSpot(spotData);
+        setLocationName(memoryDetail.spotName || "");
+      }
+
       setMemo(memoryDetail.content || "");
     } else if (id) {
-      // 서버에서 데이터 가져오기
       fetchMemory(Number(id))
         .then((response) => {
+          // 날짜 설정
+          const date = response.date ? new Date(response.date) : null;
           setValue({
-            startDate: response.date ? new Date(response.date) : null,
-            endDate: null,
+            startDate: date,
+            endDate: date,
           });
-          setLocationName({
-            id: null,
-            name: response.spotName || "",
-          });
+
+          // spotId가 존재하는 경우에만 spot 정보 설정
+          if (response.spotId) {
+            const spotData = {
+              id: response.spotId,
+              name: response.spotName || "",
+            };
+            setSelectedSpot(spotData);
+            setLocationName(response.spotName || "");
+          }
+
           setMemo(response.content || "");
         })
         .catch((error) => {
@@ -64,27 +82,21 @@ const ModifyMemory: React.FC = () => {
     }
   }, [memoryDetail, id]);
 
+  // spot 변경 핸들러
+  const handleSpotChange = (spot: Spot) => {
+    setSelectedSpot(spot);
+    setLocationName(spot.name || "");
+  };
+
   // 유효성 검사
   useEffect(() => {
     const hasDate = value?.startDate !== null;
-    const hasLocation = locationName.name!.trim() !== "";
+    const hasLocation = locationName.trim() !== "";
     const hasMemo = memo.trim() !== "";
     const hasMediaContent = photos.length > 0 || videos.length > 0;
 
     setIsButtonEnabled(hasDate && hasLocation && hasMemo && hasMediaContent);
   }, [value, locationName, memo, photos, videos]);
-
-  const handlePhotoUpload = (file: File | null) => {
-    setPhotos(file ? [file] : []);
-  };
-
-  const handleVideoUpload = (file: File | null) => {
-    setVideos(file ? [file] : []);
-  };
-
-  const handleLocationChange = (spot: Spot) => {
-    setLocationName(spot);
-  };
 
   return (
     <>
@@ -94,8 +106,8 @@ const ModifyMemory: React.FC = () => {
         <SearchSpot
           imageSrc="/assets/map-icon.png"
           placeholder="장소"
-          onChange={handleLocationChange}
-          selectedSpot={locationName}
+          onChange={handleSpotChange}
+          selectedSpot={selectedSpot}
         />
         <MemoInput
           memo={memo}
@@ -104,8 +116,8 @@ const ModifyMemory: React.FC = () => {
           }
         />
         <MediaUploadSection
-          onPhotoUpload={handlePhotoUpload}
-          onVideoUpload={handleVideoUpload}
+          onPhotoUpload={(file) => setPhotos(file ? [file] : [])}
+          onVideoUpload={(file) => setVideos(file ? [file] : [])}
         />
 
         <div className="flex items-center justify-end w-full max-w-md mt-4">
