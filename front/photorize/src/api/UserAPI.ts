@@ -1,4 +1,5 @@
 import axios from "./axiosConfig";
+import { requestFcmToken } from "../firebaseConfig";
 
 interface RegisterData {
   email: string;
@@ -49,12 +50,36 @@ export const loginUser = async (data: LoginData) => {
 
     const response = await axios.post("/auth/login", formData, {
       headers: {
-        "Content-Type": "multipart/form-data", // FormData 전송을 위해 Content-Type 설정
+        "Content-Type": "multipart/form-data",
       },
     });
-
     const token = response.headers["authorization"];
-    return token ? token.replace("Bearer ", "") : null; // 토큰 반환
+    if (token) {
+      const jwtToken = token.replace("Bearer ", "");
+      localStorage.setItem("token", jwtToken);
+
+      // 로그인 후 FCM 토큰 발급 및 서버에 저장
+      await requestFcmToken(async (fcmToken) => {
+        if (fcmToken) {
+          console.log("FCM 토큰 발급 성공:", fcmToken);
+
+          // 서버에 FCM 토큰 저장 요청 (POST 방식, body에 token 포함)
+          await axios.post(
+            "/fcm",
+            { token: fcmToken },
+            {
+              headers: {
+                Authorization: `Bearer ${jwtToken}`,
+              },
+            }
+          );
+        }
+      });
+
+      return jwtToken;
+    } else {
+      return null;
+    }
   } catch (error) {
     console.error("로그인 중 오류 발생:", error);
     throw error;

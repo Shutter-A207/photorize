@@ -1,45 +1,69 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 import AlarmItem from "../../components/AlarmItem"; // AlarmItem 컴포넌트를 불러옵니다
+import { fetchAlarms } from "../../api/AlarmAPI";
 
-const alarmData = [
-  {
-    profileImage: "/assets/test/member1.png",
-    type: "초대장",
-    inviter: "조수연",
-    inviteAlbum: "99z",
-  },
-  {
-    profileImage: "/assets/test/member1.png",
-    type: "일기",
-    sender: "조수연",
-    diaryDate: "2024-10-12",
-  },
-  {
-    profileImage: "/assets/test/member1.png",
-    type: "초대장",
-    inviter: "조수연",
-    inviteAlbum: "99z",
-  },
-];
+// Alarm 인터페이스 정의
+interface Alarm {
+  alarmId: number;
+  profileImage: string;
+  url: string;
+  type: "PRIVATE" | "PUBLIC";
+  sender?: string;
+  inviter?: string;
+  albumName?: string;
+  date?: string;
+}
 
 const Alarm: React.FC = () => {
+  const [alarmData, setAlarmData] = useState<Alarm[]>([]); // alarmData 타입 지정
+
+  useEffect(() => {
+    const loadAlarms = async () => {
+      try {
+        const data = await fetchAlarms(0); // 첫 페이지의 알람 데이터를 불러옵니다.
+        console.log(data);
+
+        // data가 존재하고 content가 배열인지 확인 후 설정
+        setAlarmData(data.content || []);
+      } catch (error) {
+        console.error("알람 데이터를 불러오는 중 오류 발생:", error);
+      }
+    };
+
+    loadAlarms();
+  }, []);
+
+  const handleStatusChange = (alarmId: number) => {
+    setAlarmData((prevData) =>
+      prevData.filter((item) => item.alarmId !== alarmId)
+    );
+  };
+
   return (
     <>
       <Header title="알림" />
       <div className="p-4 bg-[#F9F9F9] min-h-screen pt-20 pb-20">
-        {alarmData.map((item, index) => (
-          <AlarmItem
-            key={index}
-            profileImage={item.profileImage}
-            type={item.type as "초대장" | "일기"}
-            inviter={item.inviter}
-            inviteAlbum={item.inviteAlbum}
-            sender={item.sender}
-            diaryDate={item.diaryDate}
-          />
-        ))}
+        {alarmData.length > 0 ? (
+          alarmData.map((item) => (
+            <AlarmItem
+              key={item.alarmId}
+              alarmId={item.alarmId}
+              profileImage={item.url} // 프로필 이미지 (예시)
+              type={item.type === "PRIVATE" ? "일기" : "초대장"} // 타입을 텍스트로 변환
+              inviter={item.type === "PUBLIC" ? item.inviter : undefined}
+              inviteAlbum={item.type === "PUBLIC" ? item.albumName : undefined}
+              sender={item.type === "PRIVATE" ? item.sender : undefined}
+              diaryDate={
+                item.type === "PRIVATE" ? item.date?.split("T")[0] : undefined
+              } // 날짜 포맷 변환
+              onStatusChange={() => handleStatusChange(item.alarmId)}
+            />
+          ))
+        ) : (
+          <div>알림이 없습니다.</div> // 알림 데이터가 없을 때 표시할 내용
+        )}
       </div>
       <Footer />
     </>

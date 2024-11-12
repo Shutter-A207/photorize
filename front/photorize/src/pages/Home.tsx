@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Common/Header";
 import Footer from "../components/Common/Footer";
 import { getUserInfo } from "../api/UserAPI";
-import EditNicknameModal from "../components/EditNicknameModal"; // 모달 컴포넌트 임포트
+import { fetchMainPageMemories } from "../api/MemoryAPI";
+import EditNicknameModal from "../components/EditNicknameModal";
 import EditProfileModal from "../components/EditProfileModal";
 import { useSetRecoilState } from "recoil";
 import { userData } from "../recoil/userAtoms";
 
 interface Memory {
-  id: number;
+  memoryId: number;
   url: string;
   date: string;
   albumId: number;
@@ -49,31 +50,18 @@ const Home = () => {
       }
     };
 
-    const fetchedMemories = [
-      {
-        id: 1,
-        url: "/assets/test/test2.jpg",
-        date: "2023-01-01",
-        albumId: 1,
-        albumName: "Shutter",
-      },
-      {
-        id: 2,
-        url: "/assets/test/pose8.jpg",
-        date: "2023-02-15",
-        albumId: 2,
-        albumName: "sooyeon의 앨범",
-      },
-      {
-        id: 3,
-        url: "/assets/test/pose1.jpg",
-        date: "2023-03-10",
-        albumId: 3,
-        albumName: "욘두",
-      },
-    ];
+    const fetchMemories = async () => {
+      try {
+        const data = await fetchMainPageMemories(); // 8개의 랜덤 추억을 가져오는 API 호출
+        console.log(data);
+        setMemories(data.data); // API 응답에서 memories 데이터 설정
+      } catch (error) {
+        console.error("메인 페이지 앨범 조회 중 오류 발생:", error);
+      }
+    };
+
     fetchUserProfile();
-    setMemories(fetchedMemories);
+    fetchMemories(); // 메모리 데이터 가져오기 호출
   }, []);
 
   useEffect(() => {
@@ -136,7 +124,6 @@ const Home = () => {
     <>
       <Header title="" />
       <div className="bg-[#F9F9F9] min-h-screen pt-14 pb-24 overflow-hidden">
-        {/* 상단 프로필 정보 */}
         <div className="flex items-center justify-between px-4 py-4">
           <div className="relative flex items-center">
             <div className="relative" onClick={toggleMenu}>
@@ -189,9 +176,7 @@ const Home = () => {
           />
         </div>
 
-        {/* Snap Carousel */}
         <div className="flex justify-center items-center h-[calc(90vh-160px)] relative">
-          {/* Previous Button */}
           <button
             onClick={handlePrev}
             className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full z-10"
@@ -199,26 +184,24 @@ const Home = () => {
             {"<"}
           </button>
 
-          {/* Carousel Items */}
           <div
             ref={carouselRef}
             className="relative flex overflow-x-auto snap-x snap-mandatory w-full px-1 scrollbar-hidden"
           >
             {memories.map((memory) => (
               <div
-                key={memory.id}
+                key={memory.memoryId}
                 className="snap-center w-full flex-shrink-0 flex justify-center items-center px-4"
                 style={{ minWidth: "100%" }}
               >
                 <div className="relative w-full max-w-lg">
                   <img
                     src={memory.url}
-                    alt={`Memory ${memory.id}`}
+                    alt={`Memory ${memory.memoryId}`}
                     className="w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
                   />
-                  {/* 왼쪽 아래 텍스트 */}
                   <div className="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white p-2 rounded">
-                    <p className="text-sm">{memory.date}</p>
+                    <p className="text-sm">{memory.date.split(" ")[0]}</p>
                     <p className="text-lg font-semibold">#{memory.albumName}</p>
                   </div>
                 </div>
@@ -226,7 +209,6 @@ const Home = () => {
             ))}
           </div>
 
-          {/* Next Button */}
           <button
             onClick={handleNext}
             className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full z-10"
@@ -244,7 +226,6 @@ const Home = () => {
         onProfileUpdate={handleProfileUpdate}
       />
 
-      {/* Edit Nickname Modal */}
       <EditNicknameModal
         isOpen={isEditNicknameModalOpen}
         onClose={() => setIsEditNicknameModalOpen(false)}

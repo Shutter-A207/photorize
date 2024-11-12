@@ -4,7 +4,6 @@ import { Canvas, extend, useFrame } from "@react-three/fiber";
 import {
   OrbitControls,
   useTexture,
-  Plane,
   Points,
   PointMaterial,
   Stars,
@@ -13,11 +12,18 @@ import * as THREE from "three";
 import Header from "../components/Common/Header";
 import Footer from "../components/Common/Footer";
 import { getUserInfo } from "../api/UserAPI";
+import { fetchMainPageMemories } from "../api/MemoryAPI";
 
 interface UserProfile {
   memberId: number;
   nickname: string;
   img: string;
+}
+
+interface Memory {
+  memoryId: number;
+  url: string;
+  albumName: string;
 }
 
 // Extend Three.js objects
@@ -71,20 +77,9 @@ const ShootingStar = ({ initialPosition, direction }) => {
 };
 
 const Home2 = () => {
-  const albumTextures = [
-    "/assets/test/test1.png",
-    "/assets/test/test2.jpg",
-    "/assets/test/test3.jpg",
-    "/assets/test/pose1.jpg",
-    "/assets/test/pose2.jpg",
-    "/assets/test/pose3.jpg",
-    "/assets/test/pose4.jpg",
-    "/assets/test/pose5.jpg",
-    // 필요한 만큼 추가
-  ];
-
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [memories, setMemories] = useState<Memory[]>([]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -95,10 +90,21 @@ const Home2 = () => {
         console.error("유저 정보 가져오기 중 오류 발생:", error);
       }
     };
+
+    const fetchMemories = async () => {
+      try {
+        const data = await fetchMainPageMemories(); // 8개의 랜덤 추억을 가져오는 API 호출
+        setMemories(data.data); // API 응답에서 memories 데이터 설정
+      } catch (error) {
+        console.error("추억 데이터 가져오기 중 오류 발생:", error);
+      }
+    };
+
     fetchUserProfile();
+    fetchMemories();
   }, []);
   const radius = 3; // 원형 배치의 반지름
-  const angleStep = (2 * Math.PI) / albumTextures.length;
+  const angleStep = memories.length ? (2 * Math.PI) / memories.length : 0;
 
   const shootingStars = Array.from({ length: 15 }, () => {
     const direction = [
@@ -163,15 +169,6 @@ const Home2 = () => {
             maxDistance={7} // 최대 줌 거리 설정
           />
 
-          {/* 바닥면 추가
-          <Plane
-            args={[20, 20]}
-            rotation={[-Math.PI / 2, 0, 0]}
-            position={[0, -1, 0]}
-          >
-            <meshStandardMaterial color="#000000" />
-          </Plane> */}
-
           {/* 꽃가루 효과 */}
           <Particles />
           <Stars
@@ -192,20 +189,22 @@ const Home2 = () => {
             />
           ))}
 
-          {albumTextures.map((texturePath, index) => {
-            const angle = index * angleStep;
-            const x = radius * Math.cos(angle);
-            const z = radius * Math.sin(angle);
-            const rotation = [0, -angle + 33, 0]; // 앨범이 바깥쪽을 향하도록 회전
-            return (
-              <Album
-                key={index}
-                texturePath={texturePath}
-                position={[x, 0, z]}
-                rotation={rotation}
-              />
-            );
-          })}
+          {memories
+            .filter((memory) => memory.url) // url이 존재하는 항목만 렌더링
+            .map((memory, index) => {
+              const angle = index * angleStep;
+              const x = radius * Math.cos(angle);
+              const z = radius * Math.sin(angle);
+              const rotation = [0, -angle + 33, 0];
+              return (
+                <Album
+                  key={memory.memoryId}
+                  texturePath={memory.url}
+                  position={[x, 0, z]}
+                  rotation={rotation}
+                />
+              );
+            })}
         </Canvas>
       </div>
       <Footer />

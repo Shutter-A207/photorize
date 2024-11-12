@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Loading from "./pages/Loading";
@@ -15,8 +15,18 @@ import SpotDetail from "./pages/Spot/SpotDetail";
 import AlbumEdit from "./pages/Album/AlbumEdit";
 import Home2 from "./pages/Home2";
 import ModifyMemory from "./pages/Album/ModifyMemory";
+import { onMessageListener } from "./firebaseConfig";
 
 function App() {
+  useEffect(() => {
+    // 메시지 수신 시 알림 표시
+    onMessageListener((payload) => {
+      console.log("포그라운드 메시지 수신 성공:", payload);
+      alert(
+        `알림 제목: ${payload.notification?.title}, 메시지: ${payload.notification?.body}`
+      );
+    });
+  }, []);
   return (
     <>
       <Routes>

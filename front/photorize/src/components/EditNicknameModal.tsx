@@ -49,7 +49,7 @@ const EditNicknameModal: React.FC<EditNicknameModalProps> = ({
 
   const handleUpdate = async () => {
     if (
-      nickname.length > 2 &&
+      nickname.length >= 2 &&
       nickname.length <= 8 &&
       isDuplicateChecked &&
       !isDuplicate

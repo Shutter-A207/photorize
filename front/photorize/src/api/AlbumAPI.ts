@@ -53,7 +53,7 @@ export const updateAlbum = async (
     }
   } catch (error) {
     console.error("앨범 수정 중 오류 발생:", error);
-    throw error
+    throw error;
   }
 };
 

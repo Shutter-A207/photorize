@@ -45,3 +45,16 @@ export const deleteMemory = async (memoryId: number): Promise<void> => {
     console.error("추억 삭제 중 오류 발생: ", error);
   }
 };
+
+export const fetchMainPageMemories = async () => {
+  try {
+    const response = await axios.get("/memories/mainpage");
+    console.log(response);
+    if (response.status === 200) {
+      return response.data;
+    }
+  } catch (error) {
+    console.error("메인 페이지 앨범 조회 중 오류 발생:", error);
+    throw error;
+  }
+};
