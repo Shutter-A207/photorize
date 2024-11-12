@@ -18,7 +18,7 @@ export const fetchAlarms = async (pageNumber = 0) => {
 export const updateAlarmStatus = async (alarmId: number, accepted: boolean) => {
   try {
     const response = await axios.post(`/alarms/${alarmId}`, {
-      params: { accepted }, // accepted 상태를 true 또는 false로 전달
+      accepted, // accepted 상태를 body로 전달
     });
 
     if (response.status === 200) {
