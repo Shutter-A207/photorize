@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../../components/Common/Header";
 import { loginUser } from "../../api/UserAPI";
 import { useToast } from "../../components/Common/ToastProvider";
 
@@ -15,8 +14,8 @@ const Login = () => {
     try {
       const token = await loginUser({ email, password });
       if (token) {
-        localStorage.setItem("token", token); // JWT 토큰 저장
-        navigate("/home"); // 로그인 성공 후 홈 페이지로 이동
+        localStorage.setItem("token", token);
+        navigate("/home");
       } else {
         showToast("로그인에 실패하였습니다.", "warning");
       }
@@ -74,14 +73,14 @@ const Login = () => {
         >
           회원가입
         </div>
-        <button className="relative mt-20 w-full h-[50px] font-bold text-[18px] p-3 bg-[#FEE500] rounded-2xl">
+        {/* <button className="relative mt-20 w-full h-[50px] font-bold text-[18px] p-3 bg-[#FEE500] rounded-2xl">
           <img
             src="/assets/KakaoIcon.png"
             alt="카카오 아이콘"
             className="absolute left-[18px] top-1/2 transform -translate-y-1/2 w-7 h-6"
           />
           카카오로 로그인 하기
-        </button>
+        </button> */}
       </div>
     </div>
   );
