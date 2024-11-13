@@ -15,6 +15,9 @@ module.exports = {
         "custom-top": "#FFD6D7",
         "custom-bottom": "#FF7E95",
       },
+      animation: {
+        'spin-slow': 'spin 5s linear infinite',
+      },
     },
   },
   variants: {

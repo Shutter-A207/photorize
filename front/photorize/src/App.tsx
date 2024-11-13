@@ -16,6 +16,7 @@ import AlbumEdit from "./pages/Album/AlbumEdit";
 import Home2 from "./pages/Home2";
 import ModifyMemory from "./pages/Album/ModifyMemory";
 import { onMessageListener } from "./firebaseConfig";
+import NotFound from "./pages/NotFound";
 
 function App() {
   useEffect(() => {
@@ -49,6 +50,7 @@ function App() {
 
         <Route path="/spot" element={<Spot />} />
         <Route path="/spot/:id" element={<SpotDetail />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );
