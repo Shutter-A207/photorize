@@ -153,7 +153,7 @@ const Pose: React.FC = () => {
 
           <div className="flex justify-end items-center space-x-2 mt-3">
             <span className="text-[#818181] font-bold text-sm">
-              내가 좋아요 한 사진
+              내가 좋아요 한 포즈
             </span>
             <label className="relative inline-block w-11 h-6">
               <input
@@ -245,6 +245,10 @@ const Pose: React.FC = () => {
               className="relative bg-white rounded-lg p-4"
               onClick={(e) => e.stopPropagation()}
             >
+              {" "}
+              <button onClick={closeModal} className="absolute top-2 right-2">
+                <img src="/assets/XIcon.png" alt="Close" className="w-6 h-6" />
+              </button>
               <img
                 src={modalImage}
                 alt="Enlarged Pose"
