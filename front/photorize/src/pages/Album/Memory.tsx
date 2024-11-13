@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import ReactPlayer from "react-player";
 import Header from "../../components/Common/Header";
@@ -50,6 +50,10 @@ const Memory: React.FC = () => {
   const menuRef = useRef<HTMLDivElement>(null);
   const nickname = localStorage.getItem("nickname");
   const img = localStorage.getItem("img");
+  const [pageNumber, setPageNumber] = useState(0);
+  const [hasNext, setHasNext] = useState(true);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const loadMemory = async () => {
@@ -90,45 +94,60 @@ const Memory: React.FC = () => {
 
   useEffect(() => {
     const loadReviews = async () => {
+      if (!hasNext) return;
+
       try {
-        setLoading(true);
-        const data = await fetchReviews(0, Number(id));
-        setComments(data.content || []);
+        const data = await fetchReviews(pageNumber, Number(id));
+        setComments((prevComments) => [...prevComments, ...data.content]);
+        setHasNext(data.hasNext);
       } catch (err) {
-        setError("리뷰 데이터를 불러오는 중 오류가 발생했습니다.");
-        console.error(err);
-      } finally {
-        setLoading(false);
+        console.error("리뷰 데이터를 불러오는 중 오류가 발생했습니다.", err);
       }
     };
 
     loadReviews();
-  }, [id]);
+  }, [pageNumber, hasNext, id]);
 
   useEffect(() => {}, [comments]);
+
+  const lastCommentRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (observerRef.current) observerRef.current.disconnect();
+
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNext) {
+          setPageNumber((prevPageNumber) => prevPageNumber + 1);
+        }
+      });
+
+      if (node) observerRef.current.observe(node);
+    },
+    [hasNext]
+  );
 
   const handleAddComment = async () => {
     if (newComment.trim() && id) {
       try {
+        setIsLoading(true);
         const commentResponse = await createComment(Number(id), newComment);
         const newCommentData: Comment = {
           commentId: commentResponse.commentId,
           writerImg: img || "/assets/default-profile.png",
           nickname: nickname || "익명",
           content: commentResponse.content,
-          // date: new Date().toISOString().split("T")[0],
           date: new Date(commentResponse.date)
-            .toISOString()
-            .replace("T", " ")
+            .toLocaleString("en-CA", { hour12: false })
             .slice(0, 19),
         };
 
-        console.log(commentResponse);
+        console.log(newCommentData.date);
 
         setComments((prevComments) => [newCommentData, ...prevComments]);
         setNewComment("");
       } catch (error) {
         console.error("댓글 등록 중 오류 발생:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -341,55 +360,76 @@ const Memory: React.FC = () => {
             type="text"
             placeholder="댓글 작성"
             value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            className="border border-[#FFD2D2] rounded-full pl-4 pt-2 pb-2 pr-4 text-sm text-gray-500 focus:outline-none mb-2"
+            onChange={(e) => {
+              if (e.target.value.length <= 100) {
+                setNewComment(e.target.value);
+              }
+            }}
+            className="border border-[#FFD2D2] rounded-full pl-4 py-2 text-sm text-gray-500 focus:outline-none mb-2"
           />
-          <button
-            onClick={handleAddComment}
-            className="bg-[#FF93A5] text-white rounded-full px-[20px] py-[6px] text-sm font-bold self-end"
-          >
-            등록
-          </button>
+          {/* 글자 수 표시와 등록 버튼 */}
+          <div className="flex items-center justify-end">
+            <div
+              className={`text-xs font-bold mr-2 ${
+                newComment.length <= 0 || newComment.length >= 100
+                  ? "text-red-500"
+                  : "text-gray-500"
+              }`}
+            >
+              {newComment.length}/100
+            </div>
+            <button
+              onClick={handleAddComment}
+              className={`rounded-full px-4 py-2 text-white text-sm font-bold ${
+                isLoading ||
+                newComment.trim().length < 1 ||
+                newComment.length > 100
+                  ? "bg-[#CCCCCC]"
+                  : "bg-[#FF93A5]"
+              }`}
+              disabled={
+                isLoading ||
+                newComment.trim().length < 1 ||
+                newComment.length > 100
+              }
+            >
+              {isLoading ? "등록 중..." : "등록"}
+            </button>
+          </div>
         </div>
 
         {/* Comments Section */}
         <div className="p-3">
-          {comments.map((comment) => (
-            <div key={comment.commentId} className="flex items-start mb-4">
-              <img
-                src={comment.writerImg}
-                alt={comment.nickname}
-                className="w-12 h-12 rounded-full object-cover mr-3 mt-3"
-              />
-              <div>
-                <p className="text-sm font-bold text-[#343434] mb-1">
-                  {comment.nickname}
-                </p>
-                <div
-                  className="bg-[#FFFFFF] border border-[#FFD2D2] rounded-xl p-2 mb-[1px]"
-                  style={{ borderRadius: "5px 15px 15px 15px" }}
-                >
-                  <p className="text-sm text-[#343434]">{comment.content}</p>
-                </div>
-                <div className="flex">
-                  <p className="text-[10px] text-[#A19791] mr-2">
+          {comments.map((comment, index) => {
+            const isLastComment = index === comments.length - 1;
+            return (
+              <div
+                key={comment.commentId}
+                ref={isLastComment ? lastCommentRef : null}
+                className="flex items-start mb-4"
+              >
+                <img
+                  src={comment.writerImg}
+                  alt={comment.nickname}
+                  className="w-12 h-12 rounded-full object-cover mr-3 mt-3"
+                />
+                <div>
+                  <p className="text-sm font-bold text-[#343434] mb-1">
+                    {comment.nickname}
+                  </p>
+                  <div
+                    className="bg-[#FFFFFF] border border-[#FFD2D2] rounded-xl p-2 mb-[1px]"
+                    style={{ borderRadius: "5px 15px 15px 15px" }}
+                  >
+                    <p className="text-sm text-[#343434]">{comment.content}</p>
+                  </div>
+                  <p className="text-[10px] text-[#A19791]">
                     {formatDate(comment.date)}
                   </p>
-                  {comment.nickname === nickname && (
-                    <button
-                      onClick={() => {
-                        setCommentToDelete(comment.commentId);
-                        setDeleteCommentModalOpen(true);
-                      }}
-                      className="text-red-500 text-[10px]"
-                    >
-                      삭제
-                    </button>
-                  )}
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
       {deleteMemoryModalOpen && (
