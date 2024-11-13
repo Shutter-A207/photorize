@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 import { fetchAlbumDetails } from "../../api/AlbumAPI";
+import { useToast } from "../../components/Common/ToastProvider";
 
 interface ImageData {
   memoryId: number;
@@ -25,29 +26,54 @@ interface AlbumDetailData {
 }
 
 const AlbumDetail: React.FC = () => {
+  const { showToast } = useToast();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [albumDetail, setAlbumDetail] = useState<AlbumDetailData | null>(null);
+  const [pageNumber, setPageNumber] = useState(0);
+  const [hasNext, setHasNext] = useState(true);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
     const loadAlbumDetail = async () => {
-      if (id) {
+      if (id && hasNext) {
         try {
-          const response = await fetchAlbumDetails(Number(id));
+          const response = await fetchAlbumDetails(Number(id), pageNumber);
           if (response && response.status === 200) {
-            setAlbumDetail(response.data.content[0]); // 상세 데이터 설정
+            setAlbumDetail((prevDetail) => {
+              const newMemories = response.data.content[0].memories;
+              return {
+                ...response.data.content[0],
+                memories: prevDetail
+                  ? [...prevDetail.memories, ...newMemories]
+                  : newMemories,
+              };
+            });
+            setHasNext(response.data.hasNext);
           }
-          if (response === null) {
-            console.log("nothing");
-          }
-        } catch (error) {
-          console.error("앨범 상세 조회 중 오류 발생:", error);
+        } catch {
+          showToast("추억 리스트 조회 중 오류 발생", "warning");
         }
       }
     };
 
     loadAlbumDetail();
-  }, [id]);
+  }, [id, pageNumber, hasNext]);
+
+  const lastMemoryElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (observerRef.current) observerRef.current.disconnect();
+
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNext) {
+          setPageNumber((prevPageNumber) => prevPageNumber + 1);
+        }
+      });
+
+      if (node) observerRef.current.observe(node);
+    },
+    [hasNext]
+  );
 
   const handleImageClick = (memoryId: number) => {
     navigate(`/memory/${memoryId}`, {
@@ -100,56 +126,21 @@ const AlbumDetail: React.FC = () => {
           <div className="border-t border-gray-200 mt-2 mb-6"></div>
         )}
 
-        {albumDetail.memories.length === 0 ? (
-          <div className="flex flex-col items-center justify-center mt-32">
-            <img
-              src="/assets/no-memories.png"
-              alt="No memories"
-              className="w-32 h-32 mb-4"
-            />
-            <p className="text-gray-500 text-base">추억이 아직 없어요!</p>
-          </div>
-        ) : (
-          // 두 열로 나누어진 Masonry 스타일 레이아웃
-          <div className="flex gap-4">
-            {/* 왼쪽 열 */}
-            <div className="flex flex-col gap-4 w-[48%]">
-              {leftColumnImages.map((image) => (
-                <div
-                  key={image.memoryId}
-                  className="flex flex-col items-center"
-                  onClick={() => handleImageClick(image.memoryId)}
-                >
-                  <img
-                    src={image.url}
-                    alt={`Memory ${image.memoryId}`}
-                    className="w-full h-auto rounded-lg object-cover mb-1"
-                  />
-                  <div className="flex items-center justify-between w-full text-xs text-gray-500">
-                    <div className="flex items-center flex-1 overflow-hidden">
-                      <img
-                        src="/assets/locationIcon.png"
-                        alt="location icon"
-                        className="w-2 h-3 mr-1"
-                      />
-                      <span className="text-[#343434] text-[10px] font-bold overflow-hidden whitespace-nowrap text-ellipsis">
-                        {image.spotName}
-                      </span>
-                    </div>
-                    <span className="text-[#343434] text-[10px] w-16 text-right">
-                      {image.date.slice(0, 10)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+        {/* 두 열로 나누어진 Masonry 스타일 레이아웃 */}
+        <div className="flex gap-4">
+          {/* 왼쪽 열 */}
+          <div className="flex flex-col gap-4 w-[48%]">
+            {leftColumnImages.map((image, index) => {
+              // 왼쪽 열의 마지막 요소인지 확인
+              const isLastElement =
+                index === leftColumnImages.length - 1 &&
+                rightColumnImages.length === 0; // 오른쪽 열이 비었을 경우도 고려
 
-            {/* 오른쪽 열 */}
-            <div className="flex flex-col gap-4 w-[48%]">
-              {rightColumnImages.map((image) => (
+              return (
                 <div
                   key={image.memoryId}
                   className="flex flex-col items-center"
+                  ref={isLastElement ? lastMemoryElementRef : null} // 마지막 요소에 ref 추가
                   onClick={() => handleImageClick(image.memoryId)}
                 >
                   <img
@@ -173,10 +164,46 @@ const AlbumDetail: React.FC = () => {
                     </span>
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        )}
+
+          {/* 오른쪽 열 */}
+          <div className="flex flex-col gap-4 w-[48%]">
+            {rightColumnImages.map((image, index) => {
+              const isLastElement = index === rightColumnImages.length - 1;
+              return (
+                <div
+                  key={image.memoryId}
+                  className="flex flex-col items-center"
+                  ref={isLastElement ? lastMemoryElementRef : null}
+                  onClick={() => handleImageClick(image.memoryId)}
+                >
+                  <img
+                    src={image.url}
+                    alt={`Memory ${image.memoryId}`}
+                    className="w-full h-auto rounded-lg object-cover mb-1"
+                  />
+                  <div className="flex items-center justify-between w-full text-xs text-gray-500">
+                    <div className="flex items-center flex-1 overflow-hidden">
+                      <img
+                        src="/assets/locationIcon.png"
+                        alt="location icon"
+                        className="w-2 h-3 mr-1"
+                      />
+                      <span className="text-[#343434] text-[10px] font-bold overflow-hidden whitespace-nowrap text-ellipsis">
+                        {image.spotName}
+                      </span>
+                    </div>
+                    <span className="text-[#343434] text-[10px] w-16 text-right">
+                      {image.date.slice(0, 10)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
       <Footer />
     </div>

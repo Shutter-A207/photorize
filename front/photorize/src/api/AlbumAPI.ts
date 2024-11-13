@@ -15,9 +15,14 @@ export const fetchAlbums = async (pageNumber = 0) => {
   }
 };
 
-export const fetchAlbumDetails = async (albumId: number) => {
+export const fetchAlbumDetails = async (
+  albumId: number,
+  pageNumber: number
+) => {
   try {
-    const response = await axios.get(`/albums/${albumId}`);
+    const response = await axios.get(`/albums/${albumId}`, {
+      params: { pageNumber },
+    });
 
     if (response.status === 200) {
       return response.data;
