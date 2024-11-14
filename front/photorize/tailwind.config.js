@@ -15,8 +15,15 @@ module.exports = {
         "custom-top": "#FFD6D7",
         "custom-bottom": "#FF7E95",
       },
+      keyframes: {
+        wiggle: {
+          "0%, 100%": { transform: "rotate(0deg)" },
+          "50%": { transform: "rotate(3deg)" },
+        },
+      },
       animation: {
-        'spin-slow': 'spin 5s linear infinite',
+        wiggle: "wiggle 3s ease-in-out infinite",
+        "spin-slow": "spin 5s linear infinite",
       },
     },
   },

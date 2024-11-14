@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import useEmblaCarousel from "embla-carousel-react";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 import AlbumItem from "../../components/Common/AlbumItem";
@@ -16,26 +17,25 @@ interface AlbumData {
 
 const Album = () => {
   const [albums, setAlbums] = useState<AlbumData[]>([]);
-  const [pageNumber, setPageNumber] = useState(0);
-  const [hasNext, setHasNext] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-
   const navigate = useNavigate();
 
-  const loadAlbums = useCallback(async () => {
-    if (hasNext) {
-      try {
-        const response = await fetchAlbums(pageNumber);
-        if (response && response.status === 200) {
-          setAlbums((prevAlbums) => [...prevAlbums, ...response.data.content]);
-          setHasNext(response.data.hasNext);
-        }
-      } catch (error) {
-        console.error("앨범 목록을 가져오는 중 오류가 발생했습니다.", error);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+
+  const loadAlbums = async () => {
+    try {
+      const response = await fetchAlbums(0);
+      if (response && response.status === 200) {
+        setAlbums(response.data.content);
       }
+    } catch (error) {
+      console.error("앨범 목록을 가져오는 중 오류가 발생했습니다.", error);
     }
-  }, [pageNumber, hasNext]);
+  };
+
+  useEffect(() => {
+    loadAlbums();
+  }, []);
 
   const handleEditClick = () => {
     navigate("/album/edit");
@@ -44,28 +44,21 @@ const Album = () => {
   const handleModalSuccess = () => {
     alert("앨범 생성에 성공했습니다!");
     setIsModalOpen(false);
-    window.location.reload();
+    loadAlbums();
   };
 
-  useEffect(() => {
-    loadAlbums();
-  }, [pageNumber, loadAlbums]);
+  const handlePrev = useCallback(
+    () => emblaApi && emblaApi.scrollPrev(),
+    [emblaApi]
+  );
 
-  const lastAlbumElementRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (observerRef.current) observerRef.current.disconnect();
-      observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasNext) {
-          setPageNumber((prevPageNumber) => prevPageNumber + 1);
-        }
-      });
-      if (node) observerRef.current.observe(node);
-    },
-    [hasNext]
+  const handleNext = useCallback(
+    () => emblaApi && emblaApi.scrollNext(),
+    [emblaApi]
   );
 
   return (
-    <div className="bg-[#F9F9F9] min-h-screen pt-16 pb-20">
+    <div className="bg-[#F9F9F9] min-h-screen pt-16 pb-20 overflow-hidden">
       <Header title="앨범 목록" />
       <div className="flex justify-between items-center mt-2 px-6">
         <div className="space-x-2">
@@ -83,24 +76,53 @@ const Album = () => {
           </button>
         </div>
         <img
-          src="/assets/carousel.png"
-          alt="Moon Icon"
+          src="/assets/squares.png"
+          alt="Squares Icon"
           className="w-12 h-12 cursor-pointer"
           onClick={() => navigate("/album2")}
         />
       </div>
-      <div className="grid grid-cols-2 gap-3 p-4">
-        {albums.map((album, index) => (
-          <AlbumItem
-            key={album.albumId}
-            id={album.albumId}
-            name={album.name}
-            color={album.colorCode}
-            isEditable={true}
-            ref={index === albums.length - 1 ? lastAlbumElementRef : null}
-          />
-        ))}
+
+      <div className="flex justify-center items-center h-[calc(90vh-160px)] relative">
+        {albums.length > 0 && (
+          <button
+            onClick={handlePrev}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full z-10"
+          >
+            {"<"}
+          </button>
+        )}
+
+        <div className="embla" ref={emblaRef}>
+          <div className="embla__container flex">
+            {albums.map((album) => (
+              <div
+                className="embla__slide flex-shrink-0 w-full max-w-lg flex justify-center items-center px-4"
+                key={album.albumId}
+              >
+                <div className="w-full flex justify-center items-center">
+                  <AlbumItem
+                    id={album.albumId}
+                    name={album.name}
+                    color={album.colorCode}
+                    isEditable={true}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {albums.length > 0 && (
+          <button
+            onClick={handleNext}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full z-10"
+          >
+            {">"}
+          </button>
+        )}
       </div>
+
       <Footer />
 
       <CreateAlbumModal

@@ -19,6 +19,7 @@ import { onMessageListener } from "./firebaseConfig";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import RedirectIfAuthenticated from "./auth/RedirectIfAuthenticated";
+import Album2 from "./pages/Album/Album2";
 
 function App() {
   useEffect(() => {
@@ -63,6 +64,14 @@ function App() {
         element={
           <ProtectedRoute>
             <Album />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/album2"
+        element={
+          <ProtectedRoute>
+            <Album2 />
           </ProtectedRoute>
         }
       />
