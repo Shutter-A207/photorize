@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { searchAlbums } from "../../api/AlbumAPI";
@@ -24,12 +24,30 @@ const SearchAlbum: React.FC<SearchAlbumProps> = ({
 }) => {
   const [keyword, setKeyword] = useState<string>("");
   const [albums, setAlbums] = useState<Album[]>([]);
-  const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(externalSelectedAlbum);
+  const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(
+    externalSelectedAlbum
+  );
   const [loading, setLoading] = useState<boolean>(false);
-  const [isResultsVisible, setIsResultsVisible] = useState<boolean>(false);
-  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const [isSearchVisible, setIsSearchVisible] = useState<boolean>(false);
+  const [shake, setShake] = useState<boolean>(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Sync external selectedAlbum with local state
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   useEffect(() => {
     setSelectedAlbum(externalSelectedAlbum);
   }, [externalSelectedAlbum]);
@@ -49,7 +67,9 @@ const SearchAlbum: React.FC<SearchAlbumProps> = ({
           })
         );
         setAlbums(albumData);
-        setIsResultsVisible(true);
+        if (albumData.length === 0) {
+          triggerShake();
+        }
       }
     } catch (error) {
       console.error("앨범을 검색하는 중 오류가 발생했습니다:", error);
@@ -58,67 +78,81 @@ const SearchAlbum: React.FC<SearchAlbumProps> = ({
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
+  const triggerShake = () => {
+    setShake(false);
+    setTimeout(() => setShake(true), 0);
+    setTimeout(() => setShake(false), 500);
   };
 
   const handleAlbumSelect = (album: Album) => {
     setSelectedAlbum(album);
-    setIsResultsVisible(false);
-    setKeyword("");
-    onChange(album); // 부모 컴포넌트로 선택된 앨범 전달
+    onChange(album);
+    setKeyword(""); // 검색어 초기화
+    setAlbums([]); // 검색 결과 초기화
+    setIsSearchVisible(false); // 검색창 닫기
+  };
+
+  const openSearch = () => {
+    if (!isSearchVisible) {
+      setIsSearchVisible(true);
+    }
+  };
+
+  const toggleSearch = () => {
+    if (isSearchVisible) {
+      setKeyword("");
+      setAlbums([]);
+    }
+    setIsSearchVisible(!isSearchVisible);
   };
 
   return (
-    <div className="relative w-full max-w-md">
-      <div className="p-fluid">
-        <div className="flex bg-white mb-4 rounded-lg pl-4 pr-4 pt-1 pb-1 w-full border border-[#B3B3B3]">
+    <div
+      className="relative w-full max-w-md"
+      ref={containerRef}
+      onClick={openSearch}
+    >
+      {/* Input Section */}
+      <div className="flex items-center bg-white border border-[#B3B3B3] rounded-lg px-4 py-3">
+        <img src={imageSrc} className="h-7 mr-2" alt="album icon" />
+        <div className="flex-1 flex items-center">
           {selectedAlbum ? (
             <div className="flex items-center flex-1">
-              <img src={imageSrc} className="h-5" alt="spot icon" />
-              <div className="pl-3 text-sm text-[#818181] ml-">
+              <span className="text-sm text-[#818181]">
                 {selectedAlbum.name}
-              </div>
-              <Button
-                icon="pi pi-times"
-                onClick={() => {
-                  setSelectedAlbum(null);
-                  setKeyword("");
-                  onChange({ id: null, name: null, members: null }); // 부모 상태 초기화
-                }}
-                className="p-button-text p-button-rounded ml-auto"
-              />
+              </span>
             </div>
           ) : (
-            <>
-              <div className="flex items-center">
-                <img src={imageSrc} className="h-5" alt="spot icon" />
-              </div>
-              <InputText
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                onKeyPress={handleKeyPress}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                placeholder={isFocused ? "" : placeholder}
-                className="pl-1 text-sm border-none text-[#818181] placeholder-[#BCBFC3] placeholder:font-medium ml-2"
-              />
-              <Button
-                icon="pi pi-search"
-                onClick={handleSearch}
-                disabled={loading}
-                className="p-button-text p-button-rounded"
-              />
-            </>
+            <span className="text-sm text-[#BCBFC3]">{placeholder}</span>
           )}
         </div>
+        <Button
+          icon={isSearchVisible ? "pi pi-chevron-up" : "pi pi-chevron-down"}
+          onClick={toggleSearch}
+          className="p-button-text p-button-rounded"
+        />
       </div>
 
-      {isResultsVisible && keyword && (
+      {/* Search Results Dropdown */}
+      {isSearchVisible && (
         <div className="absolute w-full z-50 bg-white border border-[#B3B3B3] rounded-lg shadow-lg">
-          <div className="max-h-60 overflow-y-auto">
+          <div className="flex items-center p-2">
+            <InputText
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+              placeholder="앨범명 및 닉네임을 검색해 주세요"
+              className="flex-1 outline-none text-sm placeholder-[#BCBFC3] placeholder:font-medium"
+            />
+            <Button
+              icon="pi pi-search"
+              onClick={handleSearch}
+              disabled={loading}
+              className="p-button-text p-button-rounded"
+            />
+          </div>
+
+          <div className="max-h-60 scrollbar-hidden">
             {albums.length > 0 ? (
               albums.map((album) => (
                 <div
@@ -126,18 +160,22 @@ const SearchAlbum: React.FC<SearchAlbumProps> = ({
                   className="flex items-center p-3 hover:bg-gray-100 cursor-pointer"
                   onClick={() => handleAlbumSelect(album)}
                 >
-                  <div className="text-sm text-[#818181]">
+                  <span className="text-sm text-[#818181]">
                     {album.name}
                     {album.members && album.members.length > 0 && (
                       <span className="ml-2 text-xs text-[#818181]">
                         ({album.members.join(", ")})
                       </span>
                     )}
-                  </div>
+                  </span>
                 </div>
               ))
             ) : (
-              <div className="p-3 text-sm text-[#818181] text-center">
+              <div
+                className={`p-3 text-sm text-[#818181] text-center ${
+                  shake ? "shake" : ""
+                }`}
+              >
                 검색 결과가 없습니다
               </div>
             )}

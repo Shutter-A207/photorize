@@ -236,7 +236,7 @@ const Memory: React.FC = () => {
 
   return (
     <div className="bg-[#F9F9F9] min-h-screen pt-14 pb-20">
-      <Header title="추억 기록" />
+      <Header title="추억" />
       <div className="p-4">
         {/* Carousel */}
         <div

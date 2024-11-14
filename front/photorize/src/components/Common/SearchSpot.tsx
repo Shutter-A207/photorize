@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { fetchSpots } from "../../api/SpotAPI";
@@ -20,21 +20,36 @@ const SearchSpot: React.FC<SearchSpotProps> = ({
   placeholder,
   onChange,
 }) => {
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [keyword, setKeyword] = useState<string>("");
   const [spots, setSpots] = useState<Spot[]>([]);
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [isResultsVisible, setIsResultsVisible] = useState<boolean>(false);
-  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const [isSearchVisible, setIsSearchVisible] = useState<boolean>(false);
+  const [shake, setShake] = useState<boolean>(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSearch = async () => {
-    if (!searchTerm.trim()) return;
-
+    if (!keyword.trim()) return;
     setLoading(true);
     try {
-      const response = await fetchSpots(searchTerm);
+      const response = await fetchSpots(keyword);
       if (response) {
-        console.log(response);
         const spotData = response.map(
           (data: { spotId: number; spotName: string }) => ({
             id: data.spotId,
@@ -42,7 +57,9 @@ const SearchSpot: React.FC<SearchSpotProps> = ({
           })
         );
         setSpots(spotData);
-        setIsResultsVisible(true);
+        if (spotData.length === 0) {
+          triggerShake();
+        }
       }
     } catch (error) {
       console.error("스팟을 검색하는 중 오류가 발생했습니다:", error);
@@ -51,66 +68,80 @@ const SearchSpot: React.FC<SearchSpotProps> = ({
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
+  const triggerShake = () => {
+    setShake(false);
+    setTimeout(() => setShake(true), 0);
+    setTimeout(() => setShake(false), 500);
   };
 
   const handleSpotSelect = (spot: Spot) => {
     setSelectedSpot(spot);
-    setIsResultsVisible(false);
-    setSearchTerm("");
     onChange(spot);
+    setKeyword("");
+    setIsSearchVisible(false);
+    setSpots([]);
+  };
+
+  const openSearch = () => {
+    if (!isSearchVisible) {
+      setIsSearchVisible(true);
+    }
+  };
+
+  const toggleSearch = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (isSearchVisible) {
+      setKeyword("");
+      setSpots([]);
+    }
+    setIsSearchVisible((prev) => !prev);
   };
 
   return (
-    <div className="relative w-full max-w-md">
-      <div className="p-fluid">
-        <div className="flex bg-white mb-4 rounded-lg px-4 py-1 w-full border border-[#B3B3B3]">
+    <div
+      className="relative w-full max-w-md"
+      ref={containerRef}
+      onClick={openSearch}
+    >
+      <div className="flex items-center bg-white border border-[#B3B3B3] rounded-lg px-4 py-3">
+        <img src={imageSrc} className="h-5 mr-2" alt="spot icon" />
+        <div className="flex-1 flex items-center">
           {selectedSpot ? (
-            <div className="flex items-center flex-1">
-              <img src={imageSrc} className="h-5" alt="spot icon" />
-              <div className="pl-3 text-sm text-[#818181]">
+            <div className="flex items-center border-nene flex-1">
+              <span className="text-sm text-[#818181]">
                 {selectedSpot.name}
-              </div>
-              <Button
-                icon="pi pi-times"
-                onClick={() => {
-                  setSelectedSpot(null);
-                  setSearchTerm("");
-                }}
-                className="p-button-text p-button-rounded ml-auto"
-              />
+              </span>
             </div>
           ) : (
-            <>
-              <div className="flex items-center">
-                <img src={imageSrc} className="h-5 w-6" alt="spot icon" />
-              </div>
-              <InputText
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={handleKeyPress}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                placeholder={isFocused ? "" : placeholder}
-                className="pl-1 text-sm border-none text-[#818181] placeholder-[#BCBFC3] placeholder:font-medium ml-2"
-              />
-              <Button
-                icon="pi pi-search"
-                onClick={handleSearch}
-                disabled={loading}
-                className="p-button-text p-button-rounded"
-              />
-            </>
+            <span className="text-sm text-[#BCBFC3]">{placeholder}</span>
           )}
         </div>
+        <Button
+          icon={isSearchVisible ? "pi pi-chevron-up" : "pi pi-chevron-down"}
+          onClick={toggleSearch}
+          className="p-button-text p-button-rounded"
+        />
       </div>
 
-      {isResultsVisible && searchTerm && (
+      {isSearchVisible && (
         <div className="absolute w-full z-50 bg-white border border-[#B3B3B3] rounded-lg shadow-lg">
-          <div className="max-h-60 overflow-y-auto">
+          <div className="flex items-center p-2">
+            <InputText
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+              placeholder="지점명을 검색해 주세요"
+              className="flex-1 outline-none text-sm placeholder-[#BCBFC3] placeholder:font-medium"
+            />
+            <Button
+              icon="pi pi-search"
+              onClick={handleSearch}
+              disabled={loading}
+              className="p-button-text p-button-rounded"
+            />
+          </div>
+
+          <div className="max-h-60 scrollbar-hidden">
             {spots.length > 0 ? (
               spots.map((spot) => (
                 <div
@@ -122,7 +153,11 @@ const SearchSpot: React.FC<SearchSpotProps> = ({
                 </div>
               ))
             ) : (
-              <div className="p-3 text-sm text-[#818181] text-center">
+              <div
+                className={`p-3 text-sm text-[#818181] text-center ${
+                  shake ? "shake" : ""
+                }`}
+              >
                 검색 결과가 없습니다
               </div>
             )}

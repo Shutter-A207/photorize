@@ -78,7 +78,7 @@ const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
           className="h-4"
         />
         <span className="pl-1 text-[#BCBFC3] text-xs font-medium ml-1">
-          {type === "photo" ? "사진" : "동영상"}
+          {type === "photo" ? "사진(필수)" : "동영상(선택)"}
         </span>
       </div>
 

@@ -16,8 +16,8 @@ const DatePicker: React.FC<CustomDatepickerProps> = ({ value, onChange }) => {
         maxDate={new Date()}
         value={value}
         onChange={onChange}
-        inputClassName="pl-1 ml-2 w-full bg-transparent text-sm text-[#818181] placeholder-[#BCBFC3] placeholder:font-medium outline-none"
-        placeholder="날짜"
+        inputClassName="pl-1 ml-2 w-full bg-transparent text-sm text-[#818181] placeholder-[#BCBFC3] placeholder:font-md outline-none"
+        placeholder="추억 날짜"
         displayFormat="YYYY-MM-DD"
         readOnly={true}
         toggleClassName="hidden"

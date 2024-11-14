@@ -35,7 +35,7 @@ const ShareSelectionToggle: React.FC<ShareSelectionToggleProps> = ({
     </div>
     <p className="text-[#818181] mb-4 text-sm">
       {shareSelection === "내 앨범"
-        ? "소중한 순간을 당신의 앨범에 간직해 보세요"
+        ? "소중한 순간을 내 앨범에 간직해 보세요"
         : "함께라서 더욱 특별했던 순간을 함께 간직해 보세요"}
     </p>
   </>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { fetchUsers } from "../../api/UserAPI";
@@ -21,13 +21,32 @@ const SearchTag: React.FC<SearchTagProps> = ({
   onChange,
 }) => {
   const [keyword, setKeyword] = useState<string>("");
-  const [spots, setSpots] = useState<User[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isSearchVisible, setIsSearchVisible] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [startX, setStartX] = useState<number>(0);
   const [scrollLeft, setScrollLeft] = useState<number>(0);
+  const [shake, setShake] = useState<boolean>(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node) &&
+        selectedUsers.length === 0
+      ) {
+        setIsSearchVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSearch = async () => {
     if (!keyword.trim()) return;
@@ -47,7 +66,10 @@ const SearchTag: React.FC<SearchTagProps> = ({
             privateAlbumId: data.privateAlbumId,
           })
         );
-        setSpots(userData);
+        setUsers(userData);
+        if (userData.length === 0) {
+          triggerShake();
+        }
       }
     } catch (error) {
       console.error("유저를 검색하는 중 오류가 발생했습니다:", error);
@@ -71,8 +93,24 @@ const SearchTag: React.FC<SearchTagProps> = ({
     onChange(updateUsers);
   };
 
-  const handleTagClick = () => {
-    setIsSearchVisible(true);
+  const openSearch = () => {
+    if (!isSearchVisible) {
+      setIsSearchVisible(true);
+    }
+  };
+
+  const toggleSearch = () => {
+    if (isSearchVisible) {
+      setKeyword("");
+      setUsers([]);
+    }
+    setIsSearchVisible(!isSearchVisible);
+  };
+
+  const triggerShake = () => {
+    setShake(false);
+    setTimeout(() => setShake(true), 0);
+    setTimeout(() => setShake(false), 500);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -93,14 +131,15 @@ const SearchTag: React.FC<SearchTagProps> = ({
   };
 
   return (
-    <div className="relative w-full max-w-md">
-      <div
-        className="flex items-center bg-white border border-[#B3B3B3] rounded-lg px-4 py-3 cursor-pointer"
-        onClick={handleTagClick}
-      >
+    <div
+      className="relative w-full max-w-md"
+      ref={containerRef}
+      onClick={openSearch}
+    >
+      <div className="flex items-center bg-white border border-[#B3B3B3] rounded-lg px-4 py-3">
         <img src={imageSrc} className="h-5 mr-2" alt="spot icon" />
         <div
-          className="flex-1 flex items-center space-x-2 overflow-x-hidden whitespace-nowrap scrollbar-hide"
+          className="flex-1 flex items-center space-x-2 scrollbar-hidden whitespace-nowrap"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -127,21 +166,21 @@ const SearchTag: React.FC<SearchTagProps> = ({
           )}
         </div>
         <Button
-          icon="pi pi-chevron-down"
+          icon={isSearchVisible ? "pi pi-chevron-up" : "pi pi-chevron-down"}
+          onClick={toggleSearch}
           className="p-button-text p-button-rounded"
         />
       </div>
 
-      {/* 검색 폼과 결과 리스트 */}
       {isSearchVisible && (
-        <div className="absolute w-full z-50 bg-white border border-[#B3B3B3] rounded-lg shadow-lg mt-1">
+        <div className="absolute w-full z-50 bg-white border border-[#B3B3B3] rounded-lg shadow-lg">
           <div className="flex items-center p-2">
             <InputText
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleSearch()}
               placeholder="닉네임을 검색해 주세요"
-              className="flex-1 outline-none text-sm"
+              className="flex-1 outline-none text-sm placeholder-[#BCBFC3] placeholder:font-medium"
             />
             <Button
               icon="pi pi-search"
@@ -149,27 +188,25 @@ const SearchTag: React.FC<SearchTagProps> = ({
               disabled={loading}
               className="p-button-text p-button-rounded"
             />
-            <Button
-              icon="pi pi-times"
-              onClick={() => setIsSearchVisible(false)}
-              className="p-button-text p-button-rounded"
-            />
           </div>
 
-          {/* 검색 결과 리스트 */}
-          <div className="max-h-60 overflow-y-auto">
-            {spots.length > 0 ? (
-              spots.map((spot) => (
+          <div className="max-h-60 scrollbar-hidden">
+            {users.length > 0 ? (
+              users.map((user) => (
                 <div
-                  key={spot.id}
+                  key={user.id}
                   className="flex items-center p-3 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleUserSelect(spot)}
+                  onClick={() => handleUserSelect(user)}
                 >
-                  <div className="text-sm text-[#818181]">{spot.name}</div>
+                  <div className="text-sm text-[#818181]">{user.name}</div>
                 </div>
               ))
             ) : (
-              <div className="p-3 text-sm text-[#818181] text-center">
+              <div
+                className={`p-3 text-sm text-[#818181] text-center ${
+                  shake ? "shake" : ""
+                }`}
+              >
                 검색 결과가 없습니다
               </div>
             )}
