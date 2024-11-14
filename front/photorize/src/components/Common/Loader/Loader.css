@@ -1,17 +1,17 @@
 .loader-container {
     display: flex;
-    flex-direction: column; /* 위아래로 정렬 */
+    flex-direction: column;
     justify-content: center;
-    align-items: center; /* 중앙 정렬 */
-    height: 100vh; /* 전체 화면 중앙에 위치하도록 설정 */
+    align-items: center;
+    height: 100vh;
   }
   
   .text {
-    margin-bottom: 20px; /* 텍스트와 로더 사이 간격 더 넓힘 */
-    font-size: 18px; /* 텍스트 크기 */
-    color: #ff93a5; /* 텍스트 색상 */
-    font-weight: bold; /* 텍스트 굵게 */
-    animation: text-bounce 1.5s infinite ease-in-out; /* 애니메이션 효과 추가 */
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #ff93a5;
+    font-weight: bold;
+    animation: text-bounce 1.5s infinite ease-in-out;
   }
   
   @keyframes text-bounce {
