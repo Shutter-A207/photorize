@@ -40,7 +40,9 @@ const EditNicknameModal: React.FC<EditNicknameModalProps> = ({
             : "이미 사용 중인 닉네임입니다."
         );
       } catch (error) {
-        setDuplicateMessage("닉네임 중복 체크 중 오류가 발생했습니다.");
+        setDuplicateMessage(
+          "닉네임의 형식이 올바르지 않습니다. (영어, 한글, 숫자 조합만 가능)"
+        );
       }
     } else {
       setDuplicateMessage("닉네임은 2자 이상 8자 이하여야 합니다.");
@@ -104,7 +106,9 @@ const EditNicknameModal: React.FC<EditNicknameModalProps> = ({
           {duplicateMessage && (
             <p
               className={`text-xs font-bold mt-1 ${
-                isDuplicate || duplicateMessage.includes("오류")
+                isDuplicate ||
+                duplicateMessage.includes("오류") ||
+                duplicateMessage.includes("올바르지")
                   ? "text-red-400"
                   : "text-blue-400"
               }`}

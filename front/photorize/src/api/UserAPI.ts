@@ -49,32 +49,15 @@ export const loginUser = async (data: LoginData) => {
     formData.append("password", data.password);
 
     const response = await axios.post("/auth/login", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
     const token = response.headers["authorization"];
     if (token) {
       const jwtToken = token.replace("Bearer ", "");
       localStorage.setItem("token", jwtToken);
 
-      // 로그인 후 FCM 토큰 발급 및 서버에 저장
-      await requestFcmToken(async (fcmToken) => {
-        if (fcmToken) {
-          console.log("FCM 토큰 발급 성공:", fcmToken);
-
-          // 서버에 FCM 토큰 저장 요청 (POST 방식, body에 token 포함)
-          await axios.post(
-            "/fcm",
-            { token: fcmToken },
-            {
-              headers: {
-                Authorization: `Bearer ${jwtToken}`,
-              },
-            }
-          );
-        }
-      });
+      // 로그인 후 바로 홈으로 이동하게 하고, FCM 토큰 발급은 비동기로 처리
+      setTimeout(() => issueAndSaveFcmToken(jwtToken), 0); // 비동기 처리
 
       return jwtToken;
     } else {
@@ -83,6 +66,34 @@ export const loginUser = async (data: LoginData) => {
   } catch (error) {
     console.error("로그인 중 오류 발생:", error);
     throw error;
+  }
+};
+
+// FCM 토큰 발급 및 서버 저장 함수
+const issueAndSaveFcmToken = async (jwtToken: string) => {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      const fcmToken = await requestFcmToken();
+      if (fcmToken) {
+        console.log("FCM 토큰 발급 성공:", fcmToken);
+        localStorage.setItem("fcmToken", fcmToken);
+        await axios.post(
+          "/fcm",
+          { token: fcmToken },
+          {
+            headers: { Authorization: `Bearer ${jwtToken}` },
+          }
+        );
+      } else {
+        console.error("FCM 토큰 발급 실패");
+        console.log(fcmToken);
+      }
+    } else {
+      console.log("알림 권한이 거부되었습니다.");
+    }
+  } catch (error) {
+    console.error("FCM 토큰 발급 및 저장 중 오류:", error);
   }
 };
 
@@ -175,6 +186,29 @@ export const verifyAuthCode = async (data: VerifyCodeData) => {
     }
   } catch (error) {
     console.error("인증번호 검증 중 오류 발생:", error);
+    throw error;
+  }
+};
+
+export const deleteFcmToken = async () => {
+  try {
+    const fcmToken = localStorage.getItem("fcmToken");
+    if (!fcmToken) {
+      console.error("FCM 토큰이 없습니다.");
+      return false;
+    }
+
+    const response = await axios.delete("/fcm", {
+      data: { token: fcmToken }, // FCM 토큰을 body로 전달
+    });
+
+    if (response.status === 200) {
+      console.log("FCM 토큰이 삭제되었습니다.");
+      localStorage.removeItem("fcmToken"); // 로컬스토리지에서 FCM 토큰 삭제
+      return true;
+    }
+  } catch (error) {
+    console.error("FCM 토큰 삭제 중 오류 발생:", error);
     throw error;
   }
 };

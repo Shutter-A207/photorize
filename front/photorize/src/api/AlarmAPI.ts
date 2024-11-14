@@ -29,3 +29,17 @@ export const updateAlarmStatus = async (alarmId: number, accepted: boolean) => {
     throw error;
   }
 };
+
+export const fetchAlarmDetail = async (alarmId: number) => {
+  try {
+    const response = await axios.get(`/alarms/${alarmId}/detail`);
+
+    if (response.status === 200) {
+      console.log(response.data.data);
+      return response.data.data; // 알람 상세 정보 반환
+    }
+  } catch (error) {
+    console.error("알람 상세 조회 중 오류 발생:", error);
+    throw error;
+  }
+};

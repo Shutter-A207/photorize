@@ -17,6 +17,8 @@ import Home2 from "./pages/Home2";
 import ModifyMemory from "./pages/Album/ModifyMemory";
 import { onMessageListener } from "./firebaseConfig";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./auth/ProtectedRoute";
+import RedirectIfAuthenticated from "./auth/RedirectIfAuthenticated";
 
 function App() {
   useEffect(() => {
@@ -28,31 +30,129 @@ function App() {
       );
     });
   }, []);
+
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<Loading />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/home2" element={<Home2 />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <Routes>
+      {/* 비로그인 사용자는 접근할 수 없는 보호된 경로 */}
+      <Route
+        path="/home"
+        element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/home2"
+        element={
+          <ProtectedRoute>
+            <Home2 />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <Alarm />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/album"
+        element={
+          <ProtectedRoute>
+            <Album />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/album/:id"
+        element={
+          <ProtectedRoute>
+            <AlbumDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/album/edit"
+        element={
+          <ProtectedRoute>
+            <AlbumEdit />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/memory/:id"
+        element={
+          <ProtectedRoute>
+            <Memory />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/modify-memory/:id"
+        element={
+          <ProtectedRoute>
+            <ModifyMemory />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/record"
+        element={
+          <ProtectedRoute>
+            <Record />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/pose"
+        element={
+          <ProtectedRoute>
+            <Pose />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/spot"
+        element={
+          <ProtectedRoute>
+            <Spot />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/spot/:id"
+        element={
+          <ProtectedRoute>
+            <SpotDetail />
+          </ProtectedRoute>
+        }
+      />
 
-        <Route path="/notifications" element={<Alarm />} />
+      {/* 로그인된 사용자가 접근할 수 없는 경로 */}
+      <Route
+        path="/login"
+        element={
+          <RedirectIfAuthenticated>
+            <Login />
+          </RedirectIfAuthenticated>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <RedirectIfAuthenticated>
+            <Register />
+          </RedirectIfAuthenticated>
+        }
+      />
 
-        <Route path="/album" element={<Album />} />
-        <Route path="/album/:id" element={<AlbumDetail />} />
-        <Route path="/album/edit" element={<AlbumEdit />} />
-        <Route path="/memory/:id" element={<Memory />} />
-        <Route path="/modify-memory/:id" element={<ModifyMemory />} />
-        <Route path="/record" element={<Record />} />
-
-        <Route path="/pose" element={<Pose />} />
-
-        <Route path="/spot" element={<Spot />} />
-        <Route path="/spot/:id" element={<SpotDetail />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </>
+      {/* 공용 경로 */}
+      <Route path="/" element={<Loading />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 

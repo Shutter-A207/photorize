@@ -16,18 +16,20 @@ const app = initializeApp(firebaseConfig);
 export const messaging = getMessaging(app);
 
 // FCM 토큰 요청
-export const requestFcmToken = async (setToken: (token: string) => void) => {
+export const requestFcmToken = async (): Promise<string | null> => {
   try {
     const currentToken = await getToken(messaging, {
       vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
     });
     if (currentToken) {
-      setToken(currentToken);
+      return currentToken;
     } else {
       console.log("No registration token available.");
+      return null;
     }
   } catch (err) {
     console.error("An error occurred while retrieving token.", err);
+    return null;
   }
 };
 

@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Common/Header";
 import Footer from "../components/Common/Footer";
-import { getUserInfo } from "../api/UserAPI";
+import { getUserInfo, deleteFcmToken } from "../api/UserAPI";
 import { fetchMainPageMemories } from "../api/MemoryAPI";
 import EditNicknameModal from "../components/EditNicknameModal";
 import EditProfileModal from "../components/EditProfileModal";
@@ -24,12 +25,12 @@ const Home = () => {
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [memories, setMemories] = useState<Memory[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isEditNicknameModalOpen, setIsEditNicknameModalOpen] = useState(false);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
-  const carouselRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -57,27 +58,14 @@ const Home = () => {
     fetchMemories(); // 메모리 데이터 가져오기 호출
   }, []);
 
-  useEffect(() => {
-    if (carouselRef.current) {
-      const itemWidth = carouselRef.current.clientWidth;
-      carouselRef.current.scrollTo({
-        left: currentIndex * itemWidth,
-        behavior: "smooth",
-      });
-    }
-  }, [currentIndex]);
-
-  const handlePrev = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? memories.length - 1 : prevIndex - 1
-    );
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === memories.length - 1 ? 0 : prevIndex + 1
-    );
-  };
+  const handlePrev = useCallback(
+    () => emblaApi && emblaApi.scrollPrev(),
+    [emblaApi]
+  );
+  const handleNext = useCallback(
+    () => emblaApi && emblaApi.scrollNext(),
+    [emblaApi]
+  );
 
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
@@ -113,6 +101,16 @@ const Home = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await deleteFcmToken();
+      localStorage.removeItem("token");
+      navigate("/login");
+    } catch (error) {
+      console.error("로그아웃 중 오류 발생:", error);
+    }
+  };
+
   return (
     <>
       <Header title="" />
@@ -133,7 +131,7 @@ const Home = () => {
                 />
               </div>
             </div>
-            <p className="ml-3 text-lg font-black text-[#343434]">
+            <p className="ml-3 text-lg font-black text-gray-600">
               {userProfile
                 ? `${userProfile.nickname}님의 소중한 추억들`
                 : "로딩 중..."}
@@ -147,7 +145,7 @@ const Home = () => {
                   className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
                   onClick={() => setIsEditProfileModalOpen(true)}
                 >
-                  프로필 편집
+                  프로필 수정
                 </button>
                 <button
                   className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
@@ -157,6 +155,12 @@ const Home = () => {
                   }}
                 >
                   닉네임 수정
+                </button>
+                <button
+                  className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                  onClick={handleLogout}
+                >
+                  로그아웃
                 </button>
               </div>
             )}
@@ -170,44 +174,51 @@ const Home = () => {
         </div>
 
         <div className="flex justify-center items-center h-[calc(90vh-160px)] relative">
-          <button
-            onClick={handlePrev}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full z-10"
-          >
-            {"<"}
-          </button>
+          {memories.length > 0 && (
+            <button
+              onClick={handlePrev}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full z-10"
+            >
+              {"<"}
+            </button>
+          )}
 
-          <div
-            ref={carouselRef}
-            className="relative flex overflow-x-auto snap-x snap-mandatory w-full px-1 scrollbar-hidden"
-          >
-            {memories.map((memory) => (
-              <div
-                key={memory.memoryId}
-                className="snap-center w-full flex-shrink-0 flex justify-center items-center px-4"
-                style={{ minWidth: "100%" }}
-              >
-                <div className="relative w-full max-w-lg">
-                  <img
-                    src={memory.url}
-                    alt={`Memory ${memory.memoryId}`}
-                    className="w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
-                  />
-                  <div className="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white p-2 rounded">
-                    <p className="text-sm">{memory.date.split(" ")[0]}</p>
-                    <p className="text-lg font-semibold">#{memory.albumName}</p>
+          <div className="embla" ref={emblaRef}>
+            <div className="embla__container flex">
+              {memories.map((memory) => (
+                <div
+                  className="embla__slide flex-shrink-0 w-full max-w-lg flex justify-center items-center px-4"
+                  key={memory.memoryId}
+                >
+                  <div
+                    className="relative w-full flex justify-center items-center"
+                    onClick={() => navigate(`/memory/${memory.memoryId}`)}
+                  >
+                    <img
+                      src={memory.url}
+                      alt={`Memory ${memory.memoryId}`}
+                      className="w-full max-h-[70vh] object-contain rounded-lg"
+                    />
+                    <div className="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white p-2 rounded">
+                      <p className="text-sm">{memory.date.split(" ")[0]}</p>
+                      <p className="text-lg font-semibold">
+                        #{memory.albumName}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
-          <button
-            onClick={handleNext}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full z-10"
-          >
-            {">"}
-          </button>
+          {memories.length > 0 && (
+            <button
+              onClick={handleNext}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full z-10"
+            >
+              {">"}
+            </button>
+          )}
         </div>
       </div>
       <Footer />

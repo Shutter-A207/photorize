@@ -93,7 +93,10 @@ const Footer: React.FC = () => {
         {/* Spot */}
         <div
           className="flex flex-col items-center"
-          onClick={() => navigate("/spot")}
+          onClick={() => {
+            sessionStorage.clear(); // Session 초기화
+            navigate("/spot");
+          }}
         >
           <img
             src={getIconSrc("/spot", "spot-icon")}

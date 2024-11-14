@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
-import AlarmItem from "../../components/AlarmItem"; // AlarmItem 컴포넌트를 불러옵니다
+import AlarmItem from "../../components/AlarmItem";
+import SuccessAlert from "../../components/Common/SuccessAlert";
+import FailAlert from "../../components/Common/FailAlert";
 import { fetchAlarms } from "../../api/AlarmAPI";
 
-// Alarm 인터페이스 정의
 interface Alarm {
   alarmId: number;
   profileImage: string;
@@ -17,15 +18,15 @@ interface Alarm {
 }
 
 const Alarm: React.FC = () => {
-  const [alarmData, setAlarmData] = useState<Alarm[]>([]); // alarmData 타입 지정
+  const [alarmData, setAlarmData] = useState<Alarm[]>([]);
+  const [isSuccessAlertOpen, setIsSuccessAlertOpen] = useState(false);
+  const [isFailAlertOpen, setIsFailAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   useEffect(() => {
     const loadAlarms = async () => {
       try {
-        const data = await fetchAlarms(0); // 첫 페이지의 알람 데이터를 불러옵니다.
-        console.log(data);
-
-        // data가 존재하고 content가 배열인지 확인 후 설정
+        const data = await fetchAlarms(0);
         setAlarmData(data.content || []);
       } catch (error) {
         console.error("알람 데이터를 불러오는 중 오류 발생:", error);
@@ -41,6 +42,16 @@ const Alarm: React.FC = () => {
     );
   };
 
+  const showSuccessAlert = (message: string) => {
+    setAlertMessage(message);
+    setIsSuccessAlertOpen(true);
+  };
+
+  const showFailAlert = (message: string) => {
+    setAlertMessage(message);
+    setIsFailAlertOpen(true);
+  };
+
   return (
     <>
       <Header title="알림" />
@@ -50,15 +61,17 @@ const Alarm: React.FC = () => {
             <AlarmItem
               key={item.alarmId}
               alarmId={item.alarmId}
-              profileImage={item.url} // 프로필 이미지 (예시)
-              type={item.type === "PRIVATE" ? "일기" : "초대장"} // 타입을 텍스트로 변환
+              profileImage={item.url}
+              type={item.type === "PRIVATE" ? "추억" : "앨범 초대장"}
               inviter={item.type === "PUBLIC" ? item.inviter : undefined}
               inviteAlbum={item.type === "PUBLIC" ? item.albumName : undefined}
               sender={item.type === "PRIVATE" ? item.sender : undefined}
               diaryDate={
                 item.type === "PRIVATE" ? item.date?.split("T")[0] : undefined
-              } // 날짜 포맷 변환
+              }
               onStatusChange={() => handleStatusChange(item.alarmId)}
+              onShowSuccessAlert={showSuccessAlert}
+              onShowFailAlert={showFailAlert}
             />
           ))
         ) : (
@@ -73,6 +86,26 @@ const Alarm: React.FC = () => {
         )}
       </div>
       <Footer />
+
+      {/* 성공 알림 */}
+      {isSuccessAlertOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <SuccessAlert
+            message={alertMessage}
+            onClose={() => setIsSuccessAlertOpen(false)}
+          />
+        </div>
+      )}
+
+      {/* 실패 알림 */}
+      {isFailAlertOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <FailAlert
+            message={alertMessage}
+            onClose={() => setIsFailAlertOpen(false)}
+          />
+        </div>
+      )}
     </>
   );
 };

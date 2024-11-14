@@ -13,10 +13,11 @@ const KakaoMap = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [showSearchButton, setShowSearchButton] = useState(false);
-  const [showMarkers, setShowMarkers] = useState(true); // 마커 표시 여부
+  const [showMarkers, setShowMarkers] = useState(true);
   const [mapInstance, setMapInstance] = useState<any>(null);
   const [spots, setSpots] = useState([]);
-  const [markers, setMarkers] = useState<any[]>([]); // 마커와 오버레이 상태 저장
+  const [markers, setMarkers] = useState<any[]>([]);
+  const [userMarker, setUserMarker] = useState<any>(null); // 사용자 위치 마커 상태
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -28,12 +29,47 @@ const KakaoMap = () => {
     script.onload = () => {
       window.kakao.maps.load(() => {
         const container = document.getElementById("map");
+
+        // 마지막으로 저장된 위치 정보 가져오기
+        const lastCenter = sessionStorage.getItem("lastCenter");
+        const lastLevel = sessionStorage.getItem("lastLevel");
+
         const options = {
-          center: new window.kakao.maps.LatLng(37.5665, 126.978),
-          level: 3,
+          center: lastCenter
+            ? new window.kakao.maps.LatLng(
+                JSON.parse(lastCenter).lat,
+                JSON.parse(lastCenter).lng
+              )
+            : new window.kakao.maps.LatLng(37.5665, 126.978), // 기본 위치
+          level: lastLevel ? parseInt(lastLevel, 10) : 3,
         };
+
         const map = new window.kakao.maps.Map(container, options);
         setMapInstance(map);
+
+        if (!lastCenter && navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((position) => {
+            const { latitude, longitude } = position.coords;
+            const userLocation = new window.kakao.maps.LatLng(
+              latitude,
+              longitude
+            );
+            map.setCenter(userLocation);
+            addUserMarker(userLocation, map); // 사용자 위치에 마커 추가
+          });
+        }
+
+        // 지도 이동, 확대 변경 시 마지막 위치 저장
+        window.kakao.maps.event.addListener(map, "center_changed", () => {
+          const center = map.getCenter();
+          sessionStorage.setItem(
+            "lastCenter",
+            JSON.stringify({ lat: center.getLat(), lng: center.getLng() })
+          );
+        });
+        window.kakao.maps.event.addListener(map, "zoom_changed", () => {
+          sessionStorage.setItem("lastLevel", map.getLevel().toString());
+        });
 
         window.kakao.maps.event.addListener(map, "dragend", () => {
           setShowSearchButton(true);
@@ -41,20 +77,25 @@ const KakaoMap = () => {
 
         window.kakao.maps.event.addListener(map, "zoom_changed", () => {
           const currentLevel = map.getLevel();
+          setShowMarkers(currentLevel <= 5);
           if (currentLevel > 5) {
-            setShowMarkers(false); // 지도 레벨이 6 이상일 때 마커 숨기기
             showToast("지도를 확대해야 검색할 수 있어요!", "warning");
-          } else {
-            setShowMarkers(true); // 지도 레벨이 5 이하일 때 마커 표시
           }
         });
 
+        // 현재 사용자 위치로 마커 설정 (초기 1회만)
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition((position) => {
             const { latitude, longitude } = position.coords;
-            map.setCenter(new window.kakao.maps.LatLng(latitude, longitude));
-            searchSpotsWithinBounds(map); // 현재 위치에서 초기 스팟 검색
+            const userLocation = new window.kakao.maps.LatLng(
+              latitude,
+              longitude
+            );
+            addUserMarker(userLocation, map);
+            searchSpotsWithinBounds(map);
           });
+        } else {
+          searchSpotsWithinBounds(map); // 지도 초기 로드 시 스팟 검색
         }
       });
     };
@@ -66,7 +107,25 @@ const KakaoMap = () => {
     };
   }, [navigate]);
 
-  // 마커 및 오버레이 초기화 함수
+  // 사용자 위치 마커 추가 함수
+  const addUserMarker = (position, map) => {
+    if (userMarker) {
+      userMarker.setMap(null);
+    }
+
+    const imageSrc = "/assets/usermarkerIcon.png";
+    const imageSize = new window.kakao.maps.Size(16, 16);
+    const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize);
+
+    const marker = new window.kakao.maps.Marker({
+      position,
+      image: markerImage,
+    });
+    marker.setMap(map);
+    setUserMarker(marker);
+  };
+
+  // 마커 초기화 함수
   const clearMarkers = () => {
     markers.forEach(({ marker, overlay }) => {
       marker.setMap(null);
@@ -81,11 +140,14 @@ const KakaoMap = () => {
       marker.setMap(show ? mapInstance : null);
       overlay.setMap(show ? mapInstance : null);
     });
+    if (userMarker) {
+      userMarker.setMap(mapInstance);
+    }
   };
 
-  // 버튼 클릭 시 현재 지도 경계 내 스팟 검색
+  // 지도 경계 내 스팟 검색
   const searchSpotsWithinBounds = async (map) => {
-    clearMarkers(); // 기존 마커 및 오버레이 삭제
+    clearMarkers();
     const bounds = map.getBounds();
     const topLeftLat = bounds.getNorthEast().getLat();
     const topLeftLng = bounds.getSouthWest().getLng();
@@ -100,6 +162,13 @@ const KakaoMap = () => {
     );
     const spotsData = response.data;
 
+    if (spotsData.length === 0) {
+      showToast(
+        "주변에 매장이 없어요! \n지도를 움직여 검색해보세요.",
+        "warning"
+      );
+    }
+
     setSpots(spotsData);
     setShowSearchButton(false);
 
@@ -109,7 +178,10 @@ const KakaoMap = () => {
         spot.longitude
       );
 
-      const imageSrc = "/assets/markerIcon2.png";
+      const imageSrc =
+        spot.memoryCount > 0
+          ? "/assets/markerIcon2.png"
+          : "/assets/markerIcon4.png";
       const imageSize = new window.kakao.maps.Size(36, 46);
       const markerImage = new window.kakao.maps.MarkerImage(
         imageSrc,
@@ -120,11 +192,13 @@ const KakaoMap = () => {
         position: markerPosition,
         image: markerImage,
       });
-      marker.setMap(showMarkers ? map : null); // showMarkers에 따라 표시
+      marker.setMap(showMarkers ? map : null);
 
-      window.kakao.maps.event.addListener(marker, "click", () => {
-        navigate(`/spot/${spot.spotId}`);
-      });
+      if (spot.memoryCount > 0) {
+        window.kakao.maps.event.addListener(marker, "click", () => {
+          navigate(`/spot/${spot.spotId}`);
+        });
+      }
 
       const memoryCountText =
         spot.memoryCount > 0 ? ` (${spot.memoryCount})` : "";
@@ -142,7 +216,7 @@ const KakaoMap = () => {
         content: content,
         yAnchor: 1,
       });
-      customOverlay.setMap(showMarkers ? map : null); // showMarkers에 따라 표시
+      customOverlay.setMap(showMarkers ? map : null);
 
       return { marker, overlay: customOverlay };
     });
@@ -150,7 +224,6 @@ const KakaoMap = () => {
     setMarkers(newMarkers);
   };
 
-  // showMarkers 변경 시 마커 표시/숨김 업데이트
   useEffect(() => {
     if (mapInstance) {
       toggleMarkers(showMarkers);
@@ -167,17 +240,17 @@ const KakaoMap = () => {
         }}
       ></div>
 
-      {/* 이 지역 재검색 버튼 */}
       {showSearchButton && showMarkers && (
         <div
           onClick={() => searchSpotsWithinBounds(mapInstance)}
-          className="fixed bottom-20 right-5 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md cursor-pointer z-50"
+          className="fixed top-16 left-1/2 transform -translate-x-1/2 w-44 h-10 bg-white rounded-full flex items-center justify-center shadow-md cursor-pointer z-50"
         >
           <img
             src="/assets/resetIcon.png"
             alt="이 지역 재검색"
-            className="w-6 h-6"
+            className="w-5 h-5 mr-2"
           />
+          <p className="text-[#FF93A5] font-semibold">현 위치에서 재검색</p>
         </div>
       )}
     </div>

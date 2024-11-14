@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { fetchAlarms } from "../../api/AlarmAPI";
 
 interface HeaderProps {
   title: string;
@@ -8,6 +9,19 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ title }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [hasUnreadAlarms, setHasUnreadAlarms] = useState(false);
+
+  useEffect(() => {
+    const checkAlarms = async () => {
+      try {
+        const alarms = await fetchAlarms();
+        setHasUnreadAlarms(alarms?.content?.length > 0); // 알람이 있으면 빨간 점 표시
+      } catch (error) {
+        console.error("알람 조회 오류:", error);
+      }
+    };
+    checkAlarms();
+  }, []);
 
   const handleBackClick = () => {
     navigate(-1);
@@ -36,12 +50,18 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
       </h1>
       {location.pathname !== "/notifications" &&
         location.pathname !== "/register" && (
-          <img
-            src="/assets/notification-icon.png"
-            alt="Notification Icon"
-            onClick={handleNotificationClick}
-            className="h-6"
-          />
+          <div className="relative">
+            <img
+              src="/assets/notification-icon.png"
+              alt="Notification Icon"
+              onClick={handleNotificationClick}
+              className="h-6 cursor-pointer"
+            />
+            {/* 알람이 있는 경우 빨간 점 표시 */}
+            {hasUnreadAlarms && (
+              <span className="absolute bottom-4 left-[13px] h-[12px] w-[12px] bg-red-500 rounded-full" />
+            )}
+          </div>
         )}
     </header>
   );
