@@ -62,7 +62,14 @@ const Alarm: React.FC = () => {
             />
           ))
         ) : (
-          <div>알림이 없습니다.</div> // 알림 데이터가 없을 때 표시할 내용
+          <div className="flex flex-col items-center justify-center mt-32">
+            <img
+              src="/assets/no-notice.png"
+              alt="No alarm"
+              className="w-32 h-32 mb-4"
+            />
+            <p className="text-gray-500 text-base">새로운 알림이 없어요!</p>
+          </div>
         )}
       </div>
       <Footer />
