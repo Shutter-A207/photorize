@@ -371,7 +371,7 @@ const Memory: React.FC = () => {
           <div className="flex items-center justify-end">
             <div
               className={`text-xs font-bold mr-2 ${
-                newComment.length <= 0 || newComment.length >= 100
+                newComment.length <= 0 || newComment.length > 100
                   ? "text-red-500"
                   : "text-gray-500"
               }`}

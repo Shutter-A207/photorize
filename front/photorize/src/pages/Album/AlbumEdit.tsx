@@ -83,7 +83,7 @@ const AlbumEdit = () => {
       <Header title="앨범 수정" />
       <div className="flex justify-between mt-2 mr-4 space-x-2">
         <div className="ml-6 mt-1 text-sm font-bold text-[#818181]">
-          앨범을 눌러 이름과 색상을 수정해 보세요!
+          앨범을 눌러 이름과 색상을 수정, X를 눌러 앨범을 나갈 수 있어요
         </div>
         <button
           onClick={handleCompleteEdit}

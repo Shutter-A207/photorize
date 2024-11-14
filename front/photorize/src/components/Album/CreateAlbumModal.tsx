@@ -36,6 +36,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({
   });
   const [tags, setTags] = useState<User[]>([]);
   const [colors, setColors] = useState<Color[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const loadColors = async () => {
@@ -61,6 +62,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({
 
   const handleCreate = async () => {
     try {
+      setIsLoading(true);
       const response = await createAlbum(
         albumName,
         selectedColor.id,
@@ -77,6 +79,13 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({
       }
     } catch (error) {
       console.error("앨범 생성 중 오류가 발생했습니다:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const handleAlbumNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.length <= 12) {
+      setAlbumName(e.target.value);
     }
   };
 
@@ -100,20 +109,33 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({
           <h2 className="text-base text-[#818181] font-bold mb-4">
             새 앨범 만들기
           </h2>
-          <input
-            type="text"
-            placeholder="앨범 이름 입력"
-            value={albumName}
-            onChange={(e) => setAlbumName(e.target.value)}
-            className="w-full border border-[#B3B3B3] rounded-lg p-2 mb-4 text-sm text-[#818181] placeholder-[#BCBFC3] outline-none"
-          />
-          <p className="text-[#818181] mb-3 text-sm">함께 할 친구</p>
+          <div className="relative mb-4">
+            <input
+              type="text"
+              placeholder="앨범명을 입력해 주세요"
+              value={albumName}
+              onChange={handleAlbumNameChange}
+              className="w-full border border-[#B3B3B3] rounded-lg p-2 text-sm text-[#818181] placeholder-[#BCBFC3] outline-none"
+            />
+            <div
+              className={`absolute bottom-1 right-2 text-xs font-bold ${
+                albumName.length <= 0 || albumName.length > 12
+                  ? "text-red-500"
+                  : "text-gray-500"
+              }`}
+            >
+              {albumName.length}/12
+            </div>
+          </div>
+          <p className="text-[#818181] mb-3 text-sm">
+            함께 할 친구를 검색해 보세요
+          </p>
           <SearchTag
             imageSrc="/assets/tag-icon.png"
             placeholder="태그"
             onChange={setTags}
           />
-          <p className="text-[#818181] my-3 text-sm">앨범 색</p>
+          <p className="text-[#818181] my-3 text-sm">앨범색을 선택해 주세요</p>
           <div className="flex justify-around mb-4 mt-4">
             {colors.map((color) => (
               <div
@@ -128,17 +150,22 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({
               ></div>
             ))}
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-end items-center">
+            {!isFormValid && (
+              <p className="text-sm text-[#FF4D4F] mr-2">
+                모든 값을 입력해 주세요
+              </p>
+            )}
             <button
               onClick={handleCreate}
+              disabled={!isFormValid || isLoading}
               className={`${
-                isFormValid
+                isFormValid && !isLoading
                   ? "bg-[#FF93A5] text-white"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              } text-sm font-medium py-2 px-4 rounded-full w-1/4`}
-              disabled={!isFormValid}
+              } text-sm font-medium py-2 px-4 rounded-full w-24`}
             >
-              생성
+              {isLoading ? "생성 중..." : "생성"}
             </button>
           </div>
         </div>

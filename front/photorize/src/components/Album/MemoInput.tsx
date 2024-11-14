@@ -25,7 +25,7 @@ const MemoInput: React.FC<MemoInputProps> = ({ memo, onChange }) => {
         />
         <div
           className={`absolute bottom-5 right-4 text-xs font-bold ${
-            memo.length <= 0 || memo.length >= 300
+            memo.length <= 0 || memo.length > 300
               ? "text-red-500"
               : "text-gray-500"
           }`}

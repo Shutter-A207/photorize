@@ -45,13 +45,15 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({
   albumType,
   onSuccess,
 }) => {
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
+
   const handleUpdate = async () => {
+    setIsLoading(true); // 로딩 시작
     try {
       const selectedColorId = COLORS.find(
         (color) => color.code === selectedColor
       )?.id;
-      if (selectedColorId === undefined)
-        throw new Error("Invalid color selected");
+      if (!selectedColorId) throw new Error("Invalid color selected");
 
       await updateAlbum(albumId, albumName, selectedColorId);
 
@@ -63,8 +65,20 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({
         colorCode: selectedColor,
         type: albumType,
       });
-    } catch (error) {
+      onClose();
+    } catch {
       alert("앨범 수정 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false); // 로딩 종료
+    }
+  };
+
+  const isFormValid =
+    albumName.trim() !== "" && albumName.length <= 12 && selectedColor !== "";
+
+  const handleAlbumNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.length <= 12) {
+      onNameChange(e);
     }
   };
 
@@ -79,22 +93,26 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({
             <h2 className="text-base text-[#818181] font-bold">
               앨범 수정하기
             </h2>
-            <p className="text-xs text-[#BCBFC3] mt-1 mr-4">
-              앨범명은 최대 12자입니다.
-            </p>
           </div>
-          <input
-            type="text"
-            placeholder="앨범 이름 입력"
-            value={albumName}
-            onChange={(e) => {
-              if (e.target.value.length <= 12) {
-                onNameChange(e);
-              }
-            }}
-            className="w-full border border-[#B3B3B3] rounded-lg p-2 mb-4 text-sm text-[#818181] placeholder-[#BCBFC3] outline-none"
-          />
-          <p className="text-[#818181] mb-3 text-sm">앨범 색</p>
+          <p className="text-[#818181] mb-3 text-sm">앨범명을 입력해 주세요</p>
+          <div className="relative mb-4">
+            <input
+              type="text"
+              value={albumName}
+              onChange={handleAlbumNameChange}
+              className="w-full border border-[#B3B3B3] rounded-lg p-2 text-sm text-[#818181] outline-none"
+            />
+            <div
+              className={`absolute bottom-1 right-2 text-xs font-bold ${
+                albumName.length <= 0 || albumName.length > 12
+                  ? "text-red-500"
+                  : "text-gray-500"
+              }`}
+            >
+              {albumName.length}/12
+            </div>
+          </div>
+          <p className="text-[#818181] mb-3 text-sm">앨범색을 선택해 주세요</p>
           <div className="flex justify-around mb-4 mt-4">
             {COLORS.map((color) => (
               <div
@@ -109,12 +127,22 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({
               ></div>
             ))}
           </div>
-          <div className="flex justify-end">
+          <div className="flex items-center justify-end">
+            {!isFormValid && (
+              <p className="text-sm text-[#FF4D4F] mr-4">
+                모든 값을 입력해 주세요
+              </p>
+            )}
             <button
-              onClick={handleUpdate} // 업데이트 API 호출
-              className="bg-[#FF93A5] text-white text-sm font-medium py-2 px-4 rounded-full w-1/4"
+              onClick={handleUpdate}
+              disabled={!isFormValid || isLoading}
+              className={`${
+                isFormValid && !isLoading
+                  ? "bg-[#FF93A5] text-white"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              } text-sm font-medium py-2 px-4 rounded-full w-20`}
             >
-              수정
+              {isLoading ? "수정 중..." : "수정"}
             </button>
           </div>
         </div>

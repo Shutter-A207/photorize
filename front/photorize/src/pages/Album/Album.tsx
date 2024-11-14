@@ -67,19 +67,27 @@ const Album = () => {
   return (
     <div className="bg-[#F9F9F9] min-h-screen pt-16 pb-20">
       <Header title="앨범 목록" />
-      <div className="flex justify-end mt-2 mr-4 space-x-2">
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="px-4 py-1 text-white rounded bg-[#FF93A5]"
-        >
-          추가
-        </button>
-        <button
-          onClick={handleEditClick}
-          className="px-4 text-white rounded bg-[#8B8B8B]"
-        >
-          편집
-        </button>
+      <div className="flex justify-between items-center mt-2 px-6">
+        <div className="space-x-2">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-4 py-1 text-white rounded bg-[#FF93A5]"
+          >
+            추가
+          </button>
+          <button
+            onClick={handleEditClick}
+            className="px-4 py-1 text-white rounded bg-[#8B8B8B]"
+          >
+            편집
+          </button>
+        </div>
+        <img
+          src="/assets/carousel.png"
+          alt="Moon Icon"
+          className="w-12 h-12 cursor-pointer"
+          onClick={() => navigate("/album2")}
+        />
       </div>
       <div className="grid grid-cols-2 gap-3 p-4">
         {albums.map((album, index) => (
