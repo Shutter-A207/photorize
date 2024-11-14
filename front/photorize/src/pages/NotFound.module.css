@@ -1,13 +1,36 @@
 @keyframes rotatePineapple {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
+  0% {
+    transform: rotate(0deg);
   }
-  
-  .rotate {
-    animation: rotatePineapple 5s linear infinite;
+  100% {
+    transform: rotate(360deg);
   }
-  
+}
+
+.rotate {
+  animation: rotatePineapple 5s linear infinite;
+}
+
+@keyframes fallPineapple {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.fallingPineapple {
+  position: absolute;
+  top: -10%;
+  left: calc(var(--random-x) * 100%);
+  width: 30px;
+  height: 30px;
+  animation: fallPineapple var(--random-duration) linear infinite;
+  opacity: 0.7;
+}
