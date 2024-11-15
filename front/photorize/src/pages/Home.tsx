@@ -104,7 +104,7 @@ const Home = () => {
   const handleLogout = async () => {
     try {
       await deleteFcmToken();
-      localStorage.removeItem("token");
+      localStorage.removeItem("photorize-token");
       navigate("/login");
     } catch (error) {
       console.error("로그아웃 중 오류 발생:", error);
