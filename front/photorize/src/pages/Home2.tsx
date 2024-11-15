@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTexture,
   OrbitControls,
   Points,
   PointMaterial,
   Stars,
 } from "@react-three/drei";
-import { useNavigate } from "react-router-dom";
 import { Canvas, extend, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import Header from "../components/Common/Header";
 import Footer from "../components/Common/Footer";
 import { getUserInfo } from "../api/UserAPI";
 import { fetchMainPageMemories } from "../api/MemoryAPI";
-import { toBase64 } from "../utils/imageUtils";
 
 interface UserProfile {
   memberId: number;
@@ -26,30 +25,29 @@ interface Memory {
   albumName: string;
 }
 
+const convertToCloudFrontUrl = (s3Url) => {
+  return s3Url.replace(
+    "https://photorize-upload.s3.ap-northeast-2.amazonaws.com",
+    "https://d2vjxybuzd3i4m.cloudfront.net"
+  );
+};
+
+
 // Extend Three.js objects
 extend({ BoxBufferGeometry: THREE.BoxGeometry });
 
 const Album = ({ texturePath, position, rotation }) => {
-  const [base64Texture, setBase64Texture] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchBase64Texture = async () => {
-      const base64 = await toBase64(texturePath);
-      setBase64Texture(base64);
-    };
-    fetchBase64Texture();
-  }, [texturePath]);
-
-  // 항상 호출되도록 빈 텍스처를 기본값으로 설정
-  const texture = useTexture(base64Texture || "/assets/Logo2.png");
+  const texture = useTexture(texturePath);
 
   return (
     <mesh position={position} rotation={rotation}>
+      <boxBufferGeometry args={[1, 1.4, 0.02]} /> {/* 앨범 크기 조절 */}
       <boxBufferGeometry args={[1, 1.4, 0.02]} />
       <meshStandardMaterial map={texture} />
     </mesh>
   );
 };
+
 
 
 const Particles = () => {
@@ -208,10 +206,11 @@ const Home2 = () => {
               const x = radius * Math.cos(angle);
               const z = radius * Math.sin(angle);
               const rotation = [0, -angle + 33, 0];
+              const cloudFrontUrl = convertToCloudFrontUrl(memory.url);
               return (
                 <Album
                   key={memory.memoryId}
-                  texturePath={memory.url}
+                  texturePath={cloudFrontUrl}
                   position={[x, 0, z]}
                   rotation={rotation}
                 />
