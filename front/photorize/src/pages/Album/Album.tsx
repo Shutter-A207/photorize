@@ -4,7 +4,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
 import AlbumItem from "../../components/Common/AlbumItem";
-import { fetchAlbums } from "../../api/AlbumAPI";
+import { fetchAllAlbums } from "../../api/AlbumAPI";
 import CreateAlbumModal from "../../components/Album/CreateAlbumModal";
 
 interface AlbumData {
@@ -24,9 +24,9 @@ const Album = () => {
 
   const loadAlbums = async () => {
     try {
-      const response = await fetchAlbums(0);
+      const response = await fetchAllAlbums();
       if (response && response.status === 200) {
-        setAlbums(response.data.content);
+        setAlbums(response.data);
       }
     } catch (error) {
       console.error("앨범 목록을 가져오는 중 오류가 발생했습니다.", error);

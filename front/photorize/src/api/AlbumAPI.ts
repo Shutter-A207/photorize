@@ -15,6 +15,20 @@ export const fetchAlbums = async (pageNumber = 0) => {
   }
 };
 
+export const fetchAllAlbums = async () => {
+  try {
+    const response = await axios.get("/albums/all");
+
+    if (response.status === 200) {
+      console.log(response.data)
+      return response.data;
+    }
+  } catch (error) {
+    console.error("Album 전체 조회 중 오류 발생:", error);
+    throw error;
+  }
+};
+
 export const fetchAlbumDetails = async (
   albumId: number,
   pageNumber: number
