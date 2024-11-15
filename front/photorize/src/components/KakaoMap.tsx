@@ -181,7 +181,7 @@ const KakaoMap = () => {
       const imageSrc =
         spot.memoryCount > 0
           ? "/assets/markerIcon2.png"
-          : "/assets/markerIcon4.png";
+          : "/assets/markerIcon5.png";
       const imageSize = new window.kakao.maps.Size(36, 46);
       const markerImage = new window.kakao.maps.MarkerImage(
         imageSrc,

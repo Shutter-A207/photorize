@@ -85,7 +85,7 @@ const Login = () => {
           로그인
         </button>
         <div
-          className="text-center text-[#686E74] mb-8 underline"
+          className="text-center text-[#686E74] mb-8 underline cursor-pointer"
           onClick={handleRegisterClick}
         >
           회원가입

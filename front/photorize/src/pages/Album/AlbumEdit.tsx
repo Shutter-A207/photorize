@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
-import AlbumItem from "../../components/Common/AlbumItem";
+import AlbumItem2 from "../../components/Common/AlbumItem2";
 import { fetchAlbums, deleteAlbum } from "../../api/AlbumAPI";
 import ConfirmationModal from "../../components/Common/ConfirmationModal"; // import the modal
 import EditAlbumModal from "../../components/Album/EditAlbumModal";
@@ -99,7 +99,7 @@ const AlbumEdit = () => {
             className="relative"
             onClick={() => handleEditAlbumClick(album)}
           >
-            <AlbumItem
+            <AlbumItem2
               id={album.albumId}
               name={album.name}
               color={album.colorCode}

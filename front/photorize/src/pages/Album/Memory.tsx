@@ -423,9 +423,22 @@ const Memory: React.FC = () => {
                   >
                     <p className="text-sm text-[#343434]">{comment.content}</p>
                   </div>
-                  <p className="text-[10px] text-[#A19791]">
+                  <div className="flex">
+                  <p className="text-[10px] text-[#A19791] mr-2">
                     {formatDate(comment.date)}
                   </p>
+                  {comment.nickname === nickname && (
+                    <button
+                      onClick={() => {
+                        setCommentToDelete(comment.commentId);
+                        setDeleteCommentModalOpen(true);
+                      }}
+                      className="text-red-500 text-[10px]"
+                    >
+                      삭제
+                    </button>
+                  )}
+                </div>
                 </div>
               </div>
             );

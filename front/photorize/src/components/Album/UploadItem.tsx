@@ -17,6 +17,16 @@ const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
     const selectedFile = event.target.files?.[0];
     if (!selectedFile) return;
 
+    const maxSizeInMB = type === "photo" ? 5 : 10;
+    const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+  
+    if (selectedFile.size > maxSizeInBytes) {
+      alert(
+        `${type === "photo" ? "사진" : "비디오"} 파일 크기가 너무 큽니다. 최대 ${maxSizeInMB}MB 이하의 파일만 업로드할 수 있습니다.`
+      );
+      return;
+    }
+
     const validExtensions = {
       photo: [
         "jpg",
@@ -78,7 +88,7 @@ const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
           className="h-4"
         />
         <span className="pl-1 text-[#BCBFC3] text-xs font-medium ml-1">
-          {type === "photo" ? "사진(필수)" : "동영상(선택)"}
+          {type === "photo" ? "사진(필수, 최대 5mb)" : "동영상(선택, 최대 10mb)"}
         </span>
       </div>
 
