@@ -69,6 +69,35 @@ export const loginUser = async (data: LoginData) => {
   }
 };
 
+export const loginWithKakao = async (): Promise<void> => {
+  try {
+    const axiosInstance = axios.create({
+      baseURL: "https://photorize.co.kr",
+    });
+    const response = await axiosInstance.get("/oauth2/authorize/kakao");
+
+    if (response.status === 200) {
+      console.log("카카오 로그인 요청 성공");
+
+      const cookies = document.cookie.split("; ");
+      const accessTokenCookie = cookies.find((cookie) =>
+        cookie.startsWith("access_token=")
+      );
+
+      if (accessTokenCookie) {
+        const accessToken = accessTokenCookie.split("=")[1];
+        localStorage.setItem("photorize-token", accessToken);
+        console.log("카카오 로그인 성공, 토큰 저장:", accessToken);
+      } else {
+        console.error("access_token 쿠키를 찾을 수 없습니다.");
+      }
+    }
+  } catch (error) {
+    console.error("카카오 로그인 요청 중 오류 발생:", error);
+    throw error;
+  }
+};
+
 // FCM 토큰 발급 및 서버 저장 함수
 const issueAndSaveFcmToken = async (jwtToken: string) => {
   try {

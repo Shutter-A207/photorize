@@ -326,12 +326,12 @@ const Memory: React.FC = () => {
                           ref={menuRef}
                           className="absolute right-0 mt-2 bg-white shadow-lg rounded-md w-32"
                         >
-                          <button
+                          {/* <button
                             className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
                             onClick={handleEditMemory}
                           >
                             추억 편집
-                          </button>
+                          </button> */}
                           <button
                             className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
                             onClick={() => setDeleteMemoryModalOpen(true)} // 모달 열기

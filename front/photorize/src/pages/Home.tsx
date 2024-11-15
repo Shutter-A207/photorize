@@ -115,23 +115,23 @@ const Home = () => {
     <>
       <Header title="" />
       <div className="bg-[#F9F9F9] min-h-screen pt-14 pb-24 overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-4">
+        <div className="flex items-center justify-between px-4 py-4 my-2">
           <div className="relative flex items-center">
-            <div className="relative" onClick={toggleMenu}>
+            <div className="relative cursor-pointer" onClick={toggleMenu}>
               <img
                 src={userProfile?.img}
                 alt="Profile"
-                className="w-12 h-12 rounded-full cursor-pointer"
+                className="w-14 h-14 rounded-full"
               />
-              <div className="absolute top-8 left-8 w-6 h-6 rounded-full">
+              <div className="absolute top-9 left-9 w-6 h-6 bg-[#F2F2F2] rounded-full flex items-center justify-center">
                 <img
-                  src="/assets/cameraIcon.png"
-                  alt="Camera Icon"
-                  className="w-4 h-4"
+                  src="/assets/listIcon2.png"
+                  alt="List Icon"
+                  className="w-6 mr-0.5"
                 />
               </div>
             </div>
-            <p className="ml-3 text-lg font-black text-gray-600">
+            <p className="ml-3 text-lg font-black text-gray-600 flex items-center">
               {userProfile
                 ? `${userProfile.nickname}님의 소중한 추억들`
                 : "로딩 중..."}

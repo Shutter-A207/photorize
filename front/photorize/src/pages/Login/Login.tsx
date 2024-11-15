@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../../api/UserAPI";
+import { loginUser, loginWithKakao } from "../../api/UserAPI";
 import { useToast } from "../../components/Common/ToastProvider";
 
 const Login = () => {
@@ -22,6 +22,16 @@ const Login = () => {
       }
     } catch (error) {
       setError("이메일 또는 비밀번호가 일치하지 않습니다.");
+    }
+  };
+
+  const handleKakaoLogin = async () => {
+    try {
+      await loginWithKakao();
+      showToast("카카오 로그인 성공!", "success");
+      navigate("/home");
+    } catch (error) {
+      showToast("카카오 로그인에 실패했습니다.", "error");
     }
   };
 
@@ -89,14 +99,15 @@ const Login = () => {
         >
           회원가입
         </div>
-        {/* <button className="relative mt-20 w-full h-[50px] font-bold text-[18px] p-3 bg-[#FEE500] rounded-2xl">
+        <button className="relative mt-20 w-full h-[50px] font-bold text-[18px] p-3 bg-[#FEE500] rounded-2xl"
+          onClick={handleKakaoLogin}>
           <img
             src="/assets/KakaoIcon.png"
             alt="카카오 아이콘"
             className="absolute left-[18px] top-1/2 transform -translate-y-1/2 w-7 h-6"
           />
           카카오로 로그인 하기
-        </button> */}
+        </button>
       </div>
     </div>
   );
