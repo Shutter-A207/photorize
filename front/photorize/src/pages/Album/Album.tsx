@@ -105,6 +105,7 @@ const Album = () => {
                     id={album.albumId}
                     name={album.name}
                     color={album.colorCode}
+                    type={album.type}
                     isEditable={true}
                   />
                 </div>

@@ -5,11 +5,12 @@ interface AlbumItemProps {
   id: number;
   name: string;
   color: string;
+  type: string;
   isEditable: boolean;
 }
 
 const AlbumItem = forwardRef<HTMLDivElement, AlbumItemProps>(
-  ({ id, name, color, isEditable = true }, ref) => {
+  ({ id, name, color, type, isEditable = true }, ref) => {
     const navigate = useNavigate();
 
     const handleClick = () => {
@@ -24,7 +25,15 @@ const AlbumItem = forwardRef<HTMLDivElement, AlbumItemProps>(
         ref={ref}
         onClick={handleClick}
       >
+
         <div className="relative w-60 h-80 cursor-pointer hover:scale-105 transition-transform duration-300">
+          {type === "PRIVATE" && (
+            <img
+              src="/assets/myAlbumIcon.png"
+              alt="My Album Icon"
+              className="absolute top-2 right-2 w-8 h-8"
+            />
+          )}
           <div className="absolute w-full h-full">
             {/* Front cover */}
             <div
@@ -37,7 +46,9 @@ const AlbumItem = forwardRef<HTMLDivElement, AlbumItemProps>(
                 className="absolute top-8 left-1/2 -translate-x-1/2 w-32 h-32 object-contain"
               />
               {/* Cover content */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 h-24 bg-white/30"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-4 h-24 bg-white/30 flex items-center justify-center text-[#5C5C5C] text-xl font-extrabold">
+                {type === "PRIVATE" ? "My Album" : ""}
+              </div>
 
               {/* Book spine shadow effect */}
               <div className="absolute top-0 bottom-0 left-[12px] w-[4px] bg-black/[0.1]" />

@@ -5,11 +5,12 @@ interface AlbumItemProps {
   id: number;
   name: string;
   color: string;
+  type: string;
   isEditable: boolean;
 }
 
 const AlbumItem = forwardRef<HTMLDivElement, AlbumItemProps>(
-  ({ id, name, color, isEditable = true }, ref) => {
+  ({ id, name, color, type, isEditable = true }, ref) => {
     // 기본값을 true로 설정
     const navigate = useNavigate();
 
@@ -34,7 +35,9 @@ const AlbumItem = forwardRef<HTMLDivElement, AlbumItemProps>(
                 className="absolute top-4 left-1/2 -translate-x-1/2 w-24 h-24 object-contain"
               />
               {/* Cover content */}
-              <div className="absolute bottom-0 left-0 right-0 p-8 h-12 bg-white/20"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-4 h-20 bg-white/30 flex items-center justify-center text-[#5C5C5C] text-base font-extrabold">
+                {type === "PRIVATE" ? "My Album" : ""}
+              </div>
 
               {/* Book spine shadow effect */}
               <div className="absolute top-0 bottom-0 left-[10px] w-[3px] bg-black/[0.06]" />
