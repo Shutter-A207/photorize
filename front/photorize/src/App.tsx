@@ -20,9 +20,22 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import RedirectIfAuthenticated from "./auth/RedirectIfAuthenticated";
 import Album2 from "./pages/Album/Album2";
+import { requestFcmToken } from "./firebaseConfig";
 
 function App() {
   useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/firebase-messaging-sw.js")
+        .then((registration) => {
+          console.log("Service Worker registered with scope:", registration.scope);
+          requestFcmToken();
+        })
+        .catch((error) => {
+          console.error("Service Worker registration failed:", error);
+        });
+    }
+
     // 메시지 수신 시 알림 표시
     onMessageListener((payload) => {
       console.log("포그라운드 메시지 수신 성공:", payload);

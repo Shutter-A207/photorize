@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Canvas, extend, useFrame } from "@react-three/fiber";
-import {
+import { useTexture,
   OrbitControls,
-  useTexture,
   Points,
   PointMaterial,
   Stars,
 } from "@react-three/drei";
+import { useNavigate } from "react-router-dom";
+import { Canvas, extend, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import Header from "../components/Common/Header";
 import Footer from "../components/Common/Footer";
 import { getUserInfo } from "../api/UserAPI";
 import { fetchMainPageMemories } from "../api/MemoryAPI";
+import { toBase64 } from "../utils/imageUtils";
 
 interface UserProfile {
   memberId: number;
@@ -30,15 +30,27 @@ interface Memory {
 extend({ BoxBufferGeometry: THREE.BoxGeometry });
 
 const Album = ({ texturePath, position, rotation }) => {
-  const texture = useTexture(texturePath);
+  const [base64Texture, setBase64Texture] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchBase64Texture = async () => {
+      const base64 = await toBase64(texturePath);
+      setBase64Texture(base64);
+    };
+    fetchBase64Texture();
+  }, [texturePath]);
+
+  // 항상 호출되도록 빈 텍스처를 기본값으로 설정
+  const texture = useTexture(base64Texture || "/assets/Logo2.png");
 
   return (
     <mesh position={position} rotation={rotation}>
-      <boxBufferGeometry args={[1, 1.4, 0.02]} /> {/* 앨범 크기 조절 */}
+      <boxBufferGeometry args={[1, 1.4, 0.02]} />
       <meshStandardMaterial map={texture} />
     </mesh>
   );
 };
+
 
 const Particles = () => {
   const points = new Float32Array(500).map(() =>
