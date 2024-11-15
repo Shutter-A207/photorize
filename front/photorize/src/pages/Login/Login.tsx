@@ -16,7 +16,6 @@ const Login = () => {
     try {
       const token = await loginUser({ email, password });
       if (token) {
-        localStorage.setItem("token", token);
         navigate("/home");
       } else {
         setError("이메일 또는 비밀번호가 일치하지 않습니다."); // 오류 메시지 설정

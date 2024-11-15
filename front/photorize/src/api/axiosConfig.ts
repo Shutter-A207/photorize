@@ -11,7 +11,7 @@ const tokenExceptionRoutes = [
 axios.interceptors.request.use(
   (config) => {
     // 로컬 스토리지에서 토큰을 가져옴
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("photorize-token");
 
     // 예외 경로가 아닌 경우에만 토큰 추가
     if (token && config.url && !tokenExceptionRoutes.includes(config.url)) {
