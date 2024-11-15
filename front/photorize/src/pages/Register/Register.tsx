@@ -22,7 +22,9 @@ const Register = () => {
   const [verificationMessage, setVerificationMessage] = useState("");
   const [nicknameMessage, setNicknameMessage] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
+  const [passwordCheckMessage, setPasswordCheckMessage] = useState("");
   const navigate = useNavigate();
+  const [isFormValid, setIsFormValid] = useState(false);
 
   // 이메일 정규식 유효성 검사
   const validateEmail = (email) => {
@@ -43,6 +45,24 @@ const Register = () => {
     return nicknameRegex.test(nickname);
   };
 
+  useEffect(() => {
+    const isValid =
+      validateEmail(email) &&
+      isCodeVerified &&
+      validateNickname(nickname) &&
+      isNicknameAvailable &&
+      validatePassword(password) &&
+      password === passwordCheck;
+    setIsFormValid(isValid);
+  }, [
+    email,
+    isCodeVerified,
+    nickname,
+    isNicknameAvailable,
+    password,
+    passwordCheck,
+  ]);
+
   // 타이머가 작동 중일 때 매 초마다 감소
   useEffect(() => {
     let interval;
@@ -56,8 +76,9 @@ const Register = () => {
 
   // 인증번호 생성 요청 및 타이머 시작
   const handleSendCode = async () => {
+    setVerificationCode("");
     if (!validateEmail(email)) {
-      setEmailMessage("유효하지 않은 형식입니다.");
+      setEmailMessage("유효하지 않은 이메일입니다.");
       return;
     }
     try {
@@ -101,7 +122,7 @@ const Register = () => {
   const handleCheckNickname = async () => {
     if (!validateNickname(nickname)) {
       setIsNicknameAvailable(false);
-      setNicknameMessage("닉네임은 2~8자로 설정해주세요.");
+      setNicknameMessage("닉네임은 영문, 숫자, 한글이 입력 가능합니다(2~6자)");
       return;
     }
     try {
@@ -125,17 +146,23 @@ const Register = () => {
         setPasswordMessage(
           "비밀번호는 8~20자, 영문, 숫자, 특수문자를 포함해야 합니다."
         );
-      } else {
-        setPasswordMessage(
-          password === passwordCheck
-            ? "비밀번호가 일치합니다."
-            : "비밀번호가 일치하지 않습니다."
-        );
       }
     } else {
       setPasswordMessage("");
     }
-  }, [password, passwordCheck]);
+  }, [password]);
+
+  useEffect(() => {
+    if (passwordCheck) {
+      if (password === passwordCheck) {
+        setPasswordCheckMessage("비밀번호가 일치합니다.");
+      } else {
+        setPasswordCheckMessage("비밀번호가 일치하지 않습니다.");
+      }
+    } else {
+      setPasswordCheckMessage("");
+    }
+  }, [passwordCheck])
 
   // 이메일 변경 시 인증 상태 초기화
   useEffect(() => {
@@ -165,7 +192,7 @@ const Register = () => {
       return;
     }
     if (password !== passwordCheck) {
-      setPasswordMessage("비밀번호가 일치하지 않습니다.");
+      setPasswordCheckMessage("비밀번호가 일치하지 않습니다.");
       return;
     }
     if (!isCodeVerified) {
@@ -203,26 +230,24 @@ const Register = () => {
           <div className="flex items-center border rounded-lg bg-white pl-2">
             <input
               type="email"
-              placeholder="이메일을 입력하세요"
+              placeholder="사용가능한 이메일을 입력하세요"
               className="w-full outline-none text-sm"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <button
               onClick={handleSendCode}
-              className={`${
-                isCodeSent ? "bg-gray-400 w-20" : "bg-[#FF93A5] w-16"
-              } text-white text-sm font-bold p-2 m-2 rounded `}
+              className={`${isCodeSent ? "bg-gray-400 w-32" : "bg-[#FF93A5] w-32"
+                } text-white text-sm font-bold p-2 m-2 rounded `}
               disabled={isCodeSent}
             >
-              {isCodeSent ? "전송완료" : "전송"}
+              {isCodeSent ? "번호 전송 완료" : "인증 번호 전송"}
             </button>
           </div>
           {emailMessage && (
             <p
-              className={`font-bold text-xs mt-1 ${
-                isCodeSent ? "text-blue-400" : "text-red-500"
-              }`}
+              className={`font-bold text-xs mt-1 ${isCodeSent ? "text-blue-400" : "text-red-500"
+                }`}
             >
               {emailMessage}
             </p>
@@ -230,42 +255,42 @@ const Register = () => {
         </div>
 
         {/* 인증번호 입력 및 인증 확인 */}
-        <div className="mb-4">
-          <label className="text-sm font-semibold mb-1 block">인증번호</label>
-          <div className="flex items-center border rounded-lg bg-white pl-2">
-            <input
-              type="text"
-              placeholder="인증번호를 입력하세요"
-              className="w-full outline-none text-sm bg-white"
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
-              disabled={isCodeVerified}
-            />
-            {timer > 0 && !isCodeVerified && (
-              <span className="text-red-500 text-xs mr-2">
-                {formatTime(timer)}
-              </span>
+        {isCodeSent && (
+          <div className="mb-4">
+            <label className="text-sm font-semibold mb-1 block">인증번호</label>
+            <div className="flex items-center border rounded-lg bg-white pl-2">
+              <input
+                type="text"
+                placeholder="이메일에 전송된 인증 번호를 입력하세요"
+                className="w-full outline-none text-sm bg-white"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                disabled={isCodeVerified}
+              />
+              {timer > 0 && !isCodeVerified && (
+                <span className="text-red-500 text-xs mr-2">
+                  {formatTime(timer)}
+                </span>
+              )}
+              <button
+                onClick={handleVerifyCode}
+                className={`${isCodeVerified ? "bg-gray-400 w-20" : "bg-[#FF93A5] w-16"
+                  } text-white text-sm font-bold p-2 rounded m-2`}
+                disabled={isCodeVerified}
+              >
+                {isCodeVerified ? "인증완료" : "인증"}
+              </button>
+            </div>
+            {verificationMessage && (
+              <p
+                className={`text-xs mt-1 font-bold ${isCodeVerified ? "text-blue-400" : "text-red-500"
+                  }`}
+              >
+                {verificationMessage}
+              </p>
             )}
-            <button
-              onClick={handleVerifyCode}
-              className={`${
-                isCodeVerified ? "bg-gray-400 w-20" : "bg-[#FF93A5] w-16"
-              } text-white text-sm font-bold p-2 rounded m-2`}
-              disabled={isCodeVerified}
-            >
-              {isCodeVerified ? "인증완료" : "인증"}
-            </button>
           </div>
-          {verificationMessage && (
-            <p
-              className={`text-xs mt-1 font-bold ${
-                isCodeVerified ? "text-blue-400" : "text-red-500"
-              }`}
-            >
-              {verificationMessage}
-            </p>
-          )}
-        </div>
+        )}
 
         {/* 닉네임 입력 및 중복 확인 */}
         <div className="mb-6">
@@ -273,7 +298,7 @@ const Register = () => {
           <div className="flex items-center border rounded-lg bg-white pl-2">
             <input
               type="text"
-              placeholder="닉네임을 입력하세요"
+              placeholder="닉네임은 영문, 숫자, 한글이 입력 가능합니다(2~6자)"
               className="w-full outline-none text-sm"
               maxLength={8}
               value={nickname}
@@ -288,9 +313,8 @@ const Register = () => {
           </div>
           {nicknameMessage && (
             <p
-              className={`text-xs mt-1 font-bold ${
-                isNicknameAvailable ? "text-blue-400" : "text-red-500"
-              }`}
+              className={`text-xs mt-1 font-bold ${isNicknameAvailable ? "text-blue-400" : "text-red-500"
+                }`}
             >
               {nicknameMessage}
             </p>
@@ -303,13 +327,23 @@ const Register = () => {
           <div className="flex items-center border rounded-lg bg-white pl-2 pr-2">
             <input
               type="password"
-              placeholder="비밀번호를 입력하세요"
+              placeholder="비밀번호는 8~20자, 영문, 숫자, 특수문자를 포함해야 합니다."
               className="w-full outline-none text-sm pt-4 pb-4"
               maxLength={20}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+          {passwordMessage && (
+            <p
+              className={`text-xs mt-1 font-bold ${validatePassword(password)
+                ? "text-blue-400"
+                : "text-red-500"
+                }`}
+            >
+              {passwordMessage}
+            </p>
+          )}
         </div>
 
         <div className="mb-4">
@@ -326,15 +360,14 @@ const Register = () => {
               onChange={(e) => setPasswordCheck(e.target.value)}
             />
           </div>
-          {passwordMessage && (
+          {passwordCheckMessage && (
             <p
-              className={`text-xs mt-1 font-bold ${
-                validatePassword(password) && password === passwordCheck
-                  ? "text-blue-400"
-                  : "text-red-500"
-              }`}
+              className={`text-xs mt-1 font-bold ${validatePassword(password) && password === passwordCheck
+                ? "text-blue-400"
+                : "text-red-500"
+                }`}
             >
-              {passwordMessage}
+              {passwordCheckMessage}
             </p>
           )}
         </div>
@@ -342,9 +375,11 @@ const Register = () => {
         {/* 완료 버튼 */}
         <button
           onClick={handleRegister}
-          className="bg-[#FF93A5] text-white w-[90%] max-w-md py-3 fixed bottom-8 left-1/2 transform -translate-x-1/2 rounded-lg font-bold text-lg"
+          className={`w-[90%] max-w-md py-3 fixed bottom-8 left-1/2 transform -translate-x-1/2 rounded-lg font-bold text-lg ${isFormValid ? "bg-[#FF93A5]" : "bg-gray-400"
+            } text-white`}
+          disabled={!isFormValid}
         >
-          완료
+          회원 가입
         </button>
       </div>
     </div>
