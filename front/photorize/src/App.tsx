@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import RedirectIfAuthenticated from "./auth/RedirectIfAuthenticated";
 import Album2 from "./pages/Album/Album2";
+import GuidePage from "./pages/GuidePage";
 import { requestFcmToken } from "./firebaseConfig";
 import { useToast } from "./components/Common/ToastProvider";
 
@@ -155,6 +156,15 @@ function App() {
         element={
           <ProtectedRoute>
             <SpotDetail />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/test"
+        element={
+          <ProtectedRoute>
+            <GuidePage />
           </ProtectedRoute>
         }
       />
