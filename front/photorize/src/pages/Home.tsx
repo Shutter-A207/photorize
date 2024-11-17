@@ -174,52 +174,74 @@ const Home = () => {
         </div>
 
         <div className="flex justify-center items-center h-[calc(90vh-160px)] relative">
-          {memories.length > 0 && (
-            <button
-              onClick={handlePrev}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full z-10"
-            >
-              {"<"}
-            </button>
-          )}
+          {memories.length > 0 ? (
+            <>
+              <button
+                onClick={handlePrev}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full z-10"
+              >
+                {"<"}
+              </button>
 
-          <div className="embla" ref={emblaRef}>
-            <div className="embla__container flex">
-              {memories.map((memory) => (
-                <div
-                  className="embla__slide flex-shrink-0 w-full max-w-lg flex justify-center items-center px-4"
-                  key={memory.memoryId}
-                >
-                  <div
-                    className="relative w-full flex justify-center items-center"
-                    onClick={() => navigate(`/memory/${memory.memoryId}`)}
-                  >
-                    <img
-                      src={memory.url}
-                      alt={`Memory ${memory.memoryId}`}
-                      className="w-full max-h-[70vh] object-contain rounded-lg"
-                    />
-                    <div className="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white p-2 rounded">
-                      <p className="text-sm">{memory.date.split(" ")[0]}</p>
-                      <p className="text-lg font-semibold">
-                        #{memory.albumName}
-                      </p>
+              <div className="embla" ref={emblaRef}>
+                <div className="embla__container flex">
+                  {memories.map((memory) => (
+                    <div
+                      className="embla__slide flex-shrink-0 w-full max-w-lg flex justify-center items-center px-4"
+                      key={memory.memoryId}
+                    >
+                      <div
+                        className="relative w-full flex justify-center items-center"
+                        onClick={() => navigate(`/memory/${memory.memoryId}`)}
+                      >
+                        <img
+                          src={memory.url}
+                          alt={`Memory ${memory.memoryId}`}
+                          className="w-full max-h-[70vh] object-contain rounded-lg"
+                        />
+                        <div className="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white p-2 rounded">
+                          <p className="text-sm">{memory.date.split(" ")[0]}</p>
+                          <p className="text-lg font-semibold">
+                            #{memory.albumName}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          {memories.length > 0 && (
-            <button
-              onClick={handleNext}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full z-10"
-            >
-              {">"}
-            </button>
+              <button
+                onClick={handleNext}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full z-10"
+              >
+                {">"}
+              </button>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center bg-white p-6 rounded-lg shadow-md w-11/12 max-w-4xl aspect-[3/1] mx-4">
+              <h2 className="text-xl font-semi-bold text-gray-700 mb-4">
+                아직 추억이 없네요!
+              </h2>
+              <img
+                src="/assets/no-memories-main.png"
+                alt="No memories available"
+                className="w-36 h-36 mb-6"
+              />
+              <p className="text-gray-500 text-sm mb-6 text-center leading-relaxed">
+                새로운 추억을 만들어보세요.<br />사진을 업로드하면 이곳에서 확인할 수 있어요.
+              </p>
+              <button
+                className="bg-[#FF93A5] text-white px-6 py-3 rounded-2xl text-base font-semibold transition-all"
+                onClick={() => navigate("/record")}
+              >
+                사진 업로드하기
+              </button>
+            </div>
+
           )}
         </div>
+
       </div>
       <Footer />
 
