@@ -114,7 +114,7 @@ export const updateNickname = async (nickname: string) => {
   try {
     const response = await axios.post("/members/updateNickname", { nickname });
     if (response.status === 200) {
-      return response.data.dat;
+      return response.data.data;
     }
   } catch (error) {
     console.error("닉네임 업데이트 중 오류 발생:", error);

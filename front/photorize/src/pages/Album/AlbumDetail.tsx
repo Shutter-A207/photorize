@@ -44,9 +44,7 @@ const AlbumDetail: React.FC = () => {
   useEffect(() => {
     const loadAlbumDetail = async () => {
       if (id && hasNext) {
-        if (pageNumber === 0) {
-          setIsLoading(true);
-        }
+        setIsLoading(true);
         try {
           const response = await fetchAlbumDetails(Number(id), pageNumber);
           if (response && response.status === 200) {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { updateNickname, checkNicknameAvailability } from "../api/UserAPI";
+import { useToast } from "./Common/ToastProvider";
 
 interface EditNicknameModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ const EditNicknameModal: React.FC<EditNicknameModalProps> = ({
   currentNickname,
   onNicknameChange,
 }) => {
+  const { showToast } = useToast();
   const [nickname, setNickname] = useState(currentNickname);
   const [isDuplicateChecked, setIsDuplicateChecked] = useState(false);
   const [isDuplicate, setIsDuplicate] = useState(false);
@@ -60,8 +62,11 @@ const EditNicknameModal: React.FC<EditNicknameModalProps> = ({
         const updatedUserInfo = await updateNickname(nickname);
         onNicknameChange(updatedUserInfo.nickname);
         onClose();
-      } catch (error) {
-        setDuplicateMessage("닉네임 수정 중 오류가 발생했습니다.");
+      } catch (error: any) {
+        const errorMessage =
+          error?.response?.data?.message ||
+          "닉네임 수정 중 중 오류가 발생했습니다.";
+        showToast(errorMessage, "error");
       }
     } else {
       setDuplicateMessage("닉네임 중복 체크를 해주세요.");

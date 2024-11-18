@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface LoadingContextType {
   isLoading: boolean;
@@ -11,6 +11,14 @@ export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isLoading) {
+      document.body.style.overflow = "hidden"; // 스크롤 비활성화
+    } else {
+      document.body.style.overflow = ""; // 스크롤 활성화
+    }
+  }, [isLoading]);
 
   return (
     <LoadingContext.Provider value={{ isLoading, setIsLoading }}>
