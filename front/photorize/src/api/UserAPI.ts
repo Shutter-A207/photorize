@@ -55,10 +55,6 @@ export const loginUser = async (data: LoginData) => {
     if (token) {
       const jwtToken = token.replace("Bearer ", "");
       localStorage.setItem("photorize-token", jwtToken);
-
-      // 로그인 후 바로 홈으로 이동하게 하고, FCM 토큰 발급은 비동기로 처리
-      setTimeout(() => issueAndSaveFcmToken(jwtToken), 0); // 비동기 처리
-
       return jwtToken;
     } else {
       return null;
