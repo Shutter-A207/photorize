@@ -4,6 +4,7 @@ interface ToastProps {
   message: string;
   type?: "success" | "error" | "warning" | "info";
   duration?: number;
+  zIndex?: number;
   onClose: () => void;
 }
 
@@ -11,6 +12,7 @@ export const Toast: React.FC<ToastProps> = ({
   message,
   type = "success",
   duration = 3000,
+  zIndex = 10,
   onClose,
 }) => {
   useEffect(() => {
@@ -59,7 +61,12 @@ export const Toast: React.FC<ToastProps> = ({
       onClick={onClose}
       role="alert"
     >
-      <div className="flex items-center gap-2">
+      <div
+        className="flex items-center gap-2"
+        style={{
+          zIndex,
+        }}
+      >
         {type === "success" && <span>✓</span>}
         {type === "error" && <span>✕</span>}
         {type === "warning" && <span>⚠</span>}

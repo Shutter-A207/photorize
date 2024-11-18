@@ -45,7 +45,50 @@ const KakaoMap = () => {
         };
 
         const map = new window.kakao.maps.Map(container, options);
+
+        // 대한민국 영역으로 제한하기
+        const southWest = new window.kakao.maps.LatLng(33.0, 124.5);
+        const northEast = new window.kakao.maps.LatLng(40, 131.0);
+        const bounds = new window.kakao.maps.LatLngBounds(southWest, northEast);
+        map.setMaxLevel(13);
+
+        const defaultCenter = new window.kakao.maps.LatLng(37.5665, 126.978);
+        // 지도 이동 제한 설정
+        const limitDrag = () => {
+          const currentBounds = map.getBounds();
+          const currentCenter = map.getCenter();
+
+          if (!bounds.contain(currentCenter)) {
+            map.setCenter(defaultCenter);
+            showToast("이동 가능한 범위를 벗어났습니다.", "warning");
+          }
+        };
+
+        // 드래그 이벤트에 제한 기능 추가
+        window.kakao.maps.event.addListener(map, "dragend", limitDrag);
+
+        // 줌 변경 이벤트에도 제한 기능 추가
+        window.kakao.maps.event.addListener(map, "zoom_changed", limitDrag);
+
         setMapInstance(map);
+
+        if (!lastCenter && navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((position) => {
+            const { latitude, longitude } = position.coords;
+            const userLocation = new window.kakao.maps.LatLng(
+              latitude,
+              longitude
+            );
+
+            // 사용자 위치가 제한 범위 내에 있는지 확인
+            if (bounds.contain(userLocation)) {
+              map.setCenter(userLocation);
+              addUserMarker(userLocation, map);
+            } else {
+              showToast("현재 위치가 서비스 지역을 벗어났습니다.", "warning");
+            }
+          });
+        }
 
         if (!lastCenter && navigator.geolocation) {
           navigator.geolocation.getCurrentPosition((position) => {

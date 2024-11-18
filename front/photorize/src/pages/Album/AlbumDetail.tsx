@@ -6,6 +6,7 @@ import ConfirmationModal from "../../components/Common/ConfirmationModal";
 import { fetchAlbumDetails } from "../../api/AlbumAPI";
 import { resendAlarm } from "../../api/AlarmAPI"; // 재전송 API 추가
 import { useToast } from "../../components/Common/ToastProvider";
+import { useLoading } from "../../components/Common/Loader/LoadingContext";
 
 interface ImageData {
   memoryId: number;
@@ -38,10 +39,14 @@ const AlbumDetail: React.FC = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<MemberData | null>(null);
+  const { setIsLoading } = useLoading();
 
   useEffect(() => {
     const loadAlbumDetail = async () => {
       if (id && hasNext) {
+        if (pageNumber === 0) {
+          setIsLoading(true);
+        }
         try {
           const response = await fetchAlbumDetails(Number(id), pageNumber);
           if (response && response.status === 200) {
@@ -56,8 +61,13 @@ const AlbumDetail: React.FC = () => {
             });
             setHasNext(response.data.hasNext);
           }
-        } catch {
-          showToast("추억 리스트 조회 중 오류 발생", "warning");
+        } catch (error: any) {
+          const errorMessage =
+            error?.response?.data?.message ||
+            "추억 리스트 조회 중 오류가 발생했습니다.";
+          showToast(errorMessage, "error");
+        } finally {
+          setIsLoading(false);
         }
       }
     };

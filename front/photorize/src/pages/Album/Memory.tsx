@@ -8,6 +8,8 @@ import { fetchMemory, deleteMemory } from "../../api/MemoryAPI";
 import { createComment, deleteComment } from "../../api/CommentAPI";
 import ConfirmationModal from "../../components/Common/ConfirmationModal";
 import { useToast } from "../../components/Common/ToastProvider";
+import { useLoading } from "../../components/Common/Loader/LoadingContext";
+import Spinner from "../../components/Common/Loader/Spinner";
 
 interface CarouselItem {
   // id: number;
@@ -44,7 +46,6 @@ const Memory: React.FC = () => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleteMemoryModalOpen, setDeleteMemoryModalOpen] = useState(false);
   const [deleteCommentModalOpen, setDeleteCommentModalOpen] = useState(false);
@@ -55,12 +56,13 @@ const Memory: React.FC = () => {
   const [pageNumber, setPageNumber] = useState(0);
   const [hasNext, setHasNext] = useState(true);
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSpinning, setIsSpinnig] = useState(false);
+  const { setIsLoading } = useLoading();
 
   useEffect(() => {
     const loadMemory = async () => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         if (id) {
           const response = await fetchMemory(Number(id));
 
@@ -86,7 +88,7 @@ const Memory: React.FC = () => {
         setError("추억 데이터를 불러오는 중 오류가 발생했습니다.");
         console.error(err);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -129,7 +131,7 @@ const Memory: React.FC = () => {
   const handleAddComment = async () => {
     if (newComment.trim() && id) {
       try {
-        setIsLoading(true);
+        setIsSpinnig(true);
         const commentResponse = await createComment(Number(id), newComment);
         const newCommentData: Comment = {
           commentId: commentResponse.commentId,
@@ -146,7 +148,7 @@ const Memory: React.FC = () => {
       } catch (error) {
         console.error("댓글 등록 중 오류 발생:", error);
       } finally {
-        setIsLoading(false);
+        setIsSpinnig(false);
       }
     }
   };
@@ -221,17 +223,17 @@ const Memory: React.FC = () => {
     setMenuOpen(!menuOpen);
   };
 
-  const handleEditMemory = () => {
-    navigate(`/modify-memory/${id}`, { state: memoryDetail });
-  };
+  // const handleEditMemory = () => {
+  //   navigate(`/modify-memory/${id}`, { state: memoryDetail });
+  // };
 
-  if (loading) {
-    return <div>로딩 중...</div>;
-  }
+  // if (loading) {
+  //   return <div>로딩 중...</div>;
+  // }
 
-  if (error) {
-    return <div>{error}</div>;
-  }
+  // if (error) {
+  //   return <div>{error}</div>;
+  // }
 
   return (
     <div className="bg-[#F9F9F9] min-h-screen pt-14 pb-20">
@@ -380,19 +382,19 @@ const Memory: React.FC = () => {
             <button
               onClick={handleAddComment}
               className={`rounded-full px-4 py-2 text-white text-sm font-bold ${
-                isLoading ||
+                isSpinning ||
                 newComment.trim().length < 1 ||
                 newComment.length > 100
                   ? "bg-[#CCCCCC]"
                   : "bg-[#FF93A5]"
               }`}
               disabled={
-                isLoading ||
+                isSpinning ||
                 newComment.trim().length < 1 ||
                 newComment.length > 100
               }
             >
-              {isLoading ? "등록 중..." : "등록"}
+              {isSpinning ? <Spinner /> : "등록"}
             </button>
           </div>
         </div>

@@ -13,6 +13,7 @@ import SearchTag from "../../components/Common/SearchTag";
 import SearchAlbum from "../../components/Common/SearchAlbum";
 import { sendMemoryData } from "../../api/MemoryAPI";
 import { useToast } from "../../components/Common/ToastProvider";
+import Spinner from "../../components/Common/Loader/Spinner";
 
 interface Spot {
   id: number | null;
@@ -105,10 +106,10 @@ const Record: React.FC = () => {
         shareSelection === "내 앨범"
           ? []
           : selectedAlbum === "personal"
-            ? selectedPrivateAlbumIds
-            : album
-              ? [album.id!]
-              : [],
+          ? selectedPrivateAlbumIds
+          : album
+          ? [album.id!]
+          : [],
       type:
         shareSelection !== "내 앨범" && selectedAlbum === "album"
           ? "PUBLIC"
@@ -225,7 +226,7 @@ const Record: React.FC = () => {
             disabled={!isButtonEnabled || isLoading}
             onClick={handleRegister}
           >
-            {isLoading ? "등록 중..." : "등록"}
+            {isLoading ? <Spinner /> : "등록"}
           </button>
         </div>
 

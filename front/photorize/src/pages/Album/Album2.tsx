@@ -6,6 +6,7 @@ import AlbumItem2 from "../../components/Common/AlbumItem2";
 import { fetchAlbums } from "../../api/AlbumAPI";
 import CreateAlbumModal from "../../components/Album/CreateAlbumModal";
 import { useToast } from "../../components/Common/ToastProvider";
+import { useLoading } from "../../components/Common/Loader/LoadingContext";
 
 interface AlbumData {
   albumId: number;
@@ -22,10 +23,14 @@ const Album = () => {
   const [hasNext, setHasNext] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const { setIsLoading } = useLoading();
 
   const navigate = useNavigate();
 
   const loadAlbums = useCallback(async () => {
+    if (pageNumber === 0) {
+      setIsLoading(true);
+    }
     if (hasNext) {
       try {
         const response = await fetchAlbums(pageNumber);
@@ -35,6 +40,8 @@ const Album = () => {
         }
       } catch (error) {
         console.error("앨범 목록을 가져오는 중 오류가 발생했습니다.", error);
+      } finally {
+        setIsLoading(false);
       }
     }
   }, [pageNumber, hasNext]);

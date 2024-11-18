@@ -217,8 +217,10 @@ const Register = () => {
         showToast("회원가입이 완료되었습니다!", "success");
         navigate("/login");
       }
-    } catch (error) {
-      setEmailMessage("회원가입에 실패했습니다.");
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || "회원가입에 실패했습니다";
+      showToast(errorMessage, "error");
     }
   };
 

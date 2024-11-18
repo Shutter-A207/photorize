@@ -5,7 +5,8 @@ interface ToastContextType {
   showToast: (
     message: string,
     type?: "success" | "error" | "warning" | "info",
-    duration?: number
+    duration?: number,
+    zIndex?: number // z-index 추가
   ) => void;
 }
 
@@ -18,15 +19,17 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
     message: string;
     type: "success" | "error" | "warning" | "info";
     duration: number;
+    zIndex?: number;
   } | null>(null);
 
   const showToast = useCallback(
     (
       message: string,
       type: "success" | "error" | "warning" | "info" = "success",
-      duration: number = 2000
+      duration: number = 2000,
+      zIndex: number = 10
     ) => {
-      setToast({ message, type, duration });
+      setToast({ message, type, duration, zIndex });
     },
     []
   );
@@ -39,6 +42,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
           message={toast.message}
           type={toast.type}
           duration={toast.duration}
+          zIndex={toast.zIndex}
           onClose={() => setToast(null)}
         />
       )}

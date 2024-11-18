@@ -7,6 +7,7 @@ import AlbumItem from "../../components/Common/AlbumItem";
 import { fetchAllAlbums } from "../../api/AlbumAPI";
 import CreateAlbumModal from "../../components/Album/CreateAlbumModal";
 import { useToast } from "../../components/Common/ToastProvider";
+import { useLoading } from "../../components/Common/Loader/LoadingContext";
 
 interface AlbumData {
   albumId: number;
@@ -23,8 +24,10 @@ const Album = () => {
   const navigate = useNavigate();
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const { setIsLoading } = useLoading();
 
   const loadAlbums = async () => {
+    setIsLoading(true);
     try {
       const response = await fetchAllAlbums();
       if (response && response.status === 200) {
@@ -32,6 +35,8 @@ const Album = () => {
       }
     } catch (error) {
       console.error("앨범 목록을 가져오는 중 오류가 발생했습니다.", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 

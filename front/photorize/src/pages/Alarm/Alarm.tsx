@@ -5,6 +5,7 @@ import AlarmItem from "../../components/AlarmItem";
 import SuccessAlert from "../../components/Common/SuccessAlert";
 import FailAlert from "../../components/Common/FailAlert";
 import { fetchAlarms } from "../../api/AlarmAPI";
+import { useLoading } from "../../components/Common/Loader/LoadingContext";
 
 interface Alarm {
   alarmId: number;
@@ -22,14 +23,18 @@ const Alarm: React.FC = () => {
   const [isSuccessAlertOpen, setIsSuccessAlertOpen] = useState(false);
   const [isFailAlertOpen, setIsFailAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const { setIsLoading } = useLoading();
 
   useEffect(() => {
     const loadAlarms = async () => {
+      setIsLoading(true);
       try {
         const data = await fetchAlarms(0);
         setAlarmData(data.content || []);
       } catch (error) {
         console.error("알람 데이터를 불러오는 중 오류 발생:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 

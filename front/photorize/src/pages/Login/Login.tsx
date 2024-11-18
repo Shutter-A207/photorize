@@ -12,7 +12,6 @@ const Login = () => {
   const [showCarousel, setShowCarousel] = useState(true); // Carousel 표시 상태
 
   const navigate = useNavigate();
-  const { showToast } = useToast();
 
   const handleLogin = async () => {
     setError(""); // 로그인 시도 전에 오류 메시지 초기화

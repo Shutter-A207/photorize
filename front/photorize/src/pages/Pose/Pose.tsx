@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getAllPoses, likePose, unlikePose } from "../../api/PoseAPI";
 import Header from "../../components/Common/Header";
 import Footer from "../../components/Common/Footer";
+import { useLoading } from "../../components/Common/Loader/LoadingContext";
 
 interface PoseData {
   poseId: number;
@@ -16,10 +17,11 @@ const Pose: React.FC = () => {
   const [showLikedOnly, setShowLikedOnly] = useState(false);
   const [poseData, setPoseData] = useState<PoseData[]>([]);
   const [page, setPage] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImage, setModalImage] = useState("");
+  const { setIsLoading } = useLoading();
 
   useEffect(() => {
     setPage(0);
@@ -33,7 +35,7 @@ const Pose: React.FC = () => {
       if (
         window.innerHeight + document.documentElement.scrollTop + 100 >=
           document.documentElement.scrollHeight &&
-        !isLoading &&
+        !isFetching &&
         hasMore
       ) {
         fetchPoses(page, convertPeopleToAPIFormat(selectedPeople));
@@ -42,10 +44,13 @@ const Pose: React.FC = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isLoading, hasMore, page, selectedPeople]);
+  }, [isFetching, hasMore, page, selectedPeople]);
 
   const fetchPoses = async (page: number, people: string | undefined) => {
-    setIsLoading(true);
+    if (page === 0) {
+      setIsLoading(true);
+    }
+    setIsFetching(true);
     try {
       const response = await getAllPoses(page, people);
       const newPoses = response.data.content;
@@ -55,6 +60,7 @@ const Pose: React.FC = () => {
     } catch (error) {
       console.error("포즈 데이터를 가져오는 중 오류 발생:", error);
     } finally {
+      setIsFetching(false);
       setIsLoading(false);
     }
   };
