@@ -52,21 +52,7 @@ const Home = () => {
       }
     };
 
-<<<<<<< HEAD
-    const fetchMemories = async () => {
-      try {
-        const data = await fetchMainPageMemories(); // 8개의 랜덤 추억을 가져오는 API 호출
-        setMemories(data.data); // API 응답에서 memories 데이터 설정
-      } catch (error) {
-        console.error("메인 페이지 앨범 조회 중 오류 발생:", error);
-      }
-    };
-
-    fetchUserProfile();
-    fetchMemories(); // 메모리 데이터 가져오기 호출
-=======
     fetchData();
->>>>>>> 5e9b780 (Fix : App.tsx 충돌 처리)
   }, []);
 
   const handlePrev = useCallback(
