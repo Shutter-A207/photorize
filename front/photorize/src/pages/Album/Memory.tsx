@@ -57,12 +57,13 @@ const Memory: React.FC = () => {
   const [hasNext, setHasNext] = useState(true);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const [isSpinning, setIsSpinnig] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const { setIsLoading } = useLoading();
 
   useEffect(() => {
     const loadMemory = async () => {
       try {
-        setIsLoading(true);
+        if (isInitialLoading) setIsLoading(true);
         if (id) {
           const response = await fetchMemory(Number(id));
 
@@ -89,6 +90,7 @@ const Memory: React.FC = () => {
         console.error(err);
       } finally {
         setIsLoading(false);
+        setIsInitialLoading(false);
       }
     };
 

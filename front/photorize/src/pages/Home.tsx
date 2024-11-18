@@ -114,11 +114,13 @@ const Home = () => {
         <div className="flex items-center justify-between px-4 py-4 my-2">
           <div className="relative flex items-center">
             <div className="relative cursor-pointer" onClick={toggleMenu}>
-              <img
-                src={userProfile?.img}
-                alt="Profile"
-                className="w-12 h-12 rounded-full"
-              />
+              <div className="w-12 h-12 rounded-full overflow-hidden">
+                <img
+                  src={userProfile?.img}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <div className="absolute top-8 left-8 w-6 h-6 bg-[#F2F2F2] rounded-full flex items-center justify-center">
                 <img
                   src="/assets/listIcon2.png"

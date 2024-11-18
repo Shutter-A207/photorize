@@ -24,13 +24,12 @@ const Album = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const { setIsLoading } = useLoading();
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const navigate = useNavigate();
 
   const loadAlbums = useCallback(async () => {
-    if (pageNumber === 0) {
-      setIsLoading(true);
-    }
+    if (isInitialLoading) setIsLoading(true);
     if (hasNext) {
       try {
         const response = await fetchAlbums(pageNumber);
@@ -42,6 +41,7 @@ const Album = () => {
         console.error("앨범 목록을 가져오는 중 오류가 발생했습니다.", error);
       } finally {
         setIsLoading(false);
+        setIsInitialLoading(false);
       }
     }
   }, [pageNumber, hasNext]);

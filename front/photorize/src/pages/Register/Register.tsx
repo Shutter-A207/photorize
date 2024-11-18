@@ -242,7 +242,7 @@ const Register = () => {
             <button
               onClick={handleSendCode}
               className={`${
-                isCodeSent ? "bg-gray-400 w-32" : "bg-[#FF93A5] w-32"
+                isCodeSent ? "bg-gray-400 w-44" : "bg-[#FF93A5] w-44"
               } text-white text-sm font-bold p-2 m-2 rounded `}
               disabled={isCodeSent}
             >

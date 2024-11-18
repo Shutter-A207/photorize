@@ -39,12 +39,13 @@ const AlbumDetail: React.FC = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<MemberData | null>(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const { setIsLoading } = useLoading();
 
   useEffect(() => {
     const loadAlbumDetail = async () => {
       if (id && hasNext) {
-        setIsLoading(true);
+        if (isInitialLoading) setIsLoading(true);
         try {
           const response = await fetchAlbumDetails(Number(id), pageNumber);
           if (response && response.status === 200) {
@@ -66,6 +67,7 @@ const AlbumDetail: React.FC = () => {
           showToast(errorMessage, "error");
         } finally {
           setIsLoading(false);
+          setIsInitialLoading(false);
         }
       }
     };

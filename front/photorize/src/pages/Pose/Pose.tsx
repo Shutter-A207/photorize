@@ -21,6 +21,7 @@ const Pose: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImage, setModalImage] = useState("");
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const { setIsLoading } = useLoading();
 
   useEffect(() => {
@@ -47,9 +48,7 @@ const Pose: React.FC = () => {
   }, [isFetching, hasMore, page, selectedPeople]);
 
   const fetchPoses = async (page: number, people: string | undefined) => {
-    if (page === 0) {
-      setIsLoading(true);
-    }
+    if (isInitialLoading) setIsLoading(true);
     setIsFetching(true);
     try {
       const response = await getAllPoses(page, people);
@@ -60,8 +59,9 @@ const Pose: React.FC = () => {
     } catch (error) {
       console.error("포즈 데이터를 가져오는 중 오류 발생:", error);
     } finally {
-      setIsFetching(false);
       setIsLoading(false);
+      setIsInitialLoading(false);
+      setIsFetching(false);
     }
   };
 
