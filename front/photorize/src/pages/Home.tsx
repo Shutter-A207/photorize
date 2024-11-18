@@ -229,7 +229,9 @@ const Home = () => {
                 className="w-36 h-36 mb-6"
               />
               <p className="text-gray-500 text-sm mb-6 text-center leading-relaxed">
-                새로운 추억을 만들어보세요.<br />사진을 업로드하면 이곳에서 확인할 수 있어요.
+                새로운 추억을 만들어보세요.
+                <br />
+                사진을 업로드하면 이곳에서 확인할 수 있어요.
               </p>
               <button
                 className="bg-[#FF93A5] text-white px-6 py-3 rounded-2xl text-base font-semibold transition-all"
@@ -238,10 +240,8 @@ const Home = () => {
                 사진 업로드하기
               </button>
             </div>
-
           )}
         </div>
-
       </div>
       <Footer />
 

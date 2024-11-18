@@ -26,13 +26,7 @@ const Login = () => {
   };
 
   const handleKakaoLogin = async () => {
-    try {
-      await loginWithKakao();
-      showToast("카카오 로그인 성공!", "success");
-      navigate("/home");
-    } catch (error) {
-      showToast("카카오 로그인에 실패했습니다.", "error");
-    }
+    loginWithKakao();
   };
 
   const handleRegisterClick = () => {
@@ -99,8 +93,10 @@ const Login = () => {
         >
           회원가입
         </div>
-        <button className="relative mt-20 w-full h-[50px] font-bold text-[18px] p-3 bg-[#FEE500] rounded-2xl"
-          onClick={handleKakaoLogin}>
+        <button
+          className="relative mt-20 w-full h-[50px] font-bold text-[18px] p-3 bg-[#FEE500] rounded-2xl"
+          onClick={handleKakaoLogin}
+        >
           <img
             src="/assets/KakaoIcon.png"
             alt="카카오 아이콘"

@@ -69,32 +69,14 @@ export const loginUser = async (data: LoginData) => {
   }
 };
 
-export const loginWithKakao = async (): Promise<void> => {
+export const loginWithKakao = (): void => {
   try {
-    const axiosInstance = axios.create({
-      baseURL: "https://photorize.co.kr",
-    });
-    const response = await axiosInstance.get("/oauth2/authorize/kakao");
+    const backendLoginUrl = "https://photorize.co.kr/oauth2/authorize/kakao";
+    window.location.href = backendLoginUrl;
 
-    if (response.status === 200) {
-      console.log("카카오 로그인 요청 성공");
-
-      const cookies = document.cookie.split("; ");
-      const accessTokenCookie = cookies.find((cookie) =>
-        cookie.startsWith("access_token=")
-      );
-
-      if (accessTokenCookie) {
-        const accessToken = accessTokenCookie.split("=")[1];
-        localStorage.setItem("photorize-token", accessToken);
-        console.log("카카오 로그인 성공, 토큰 저장:", accessToken);
-      } else {
-        console.error("access_token 쿠키를 찾을 수 없습니다.");
-      }
-    }
+    console.log("백엔드 로그인 요청 URL로 리다이렉트:", backendLoginUrl);
   } catch (error) {
-    console.error("카카오 로그인 요청 중 오류 발생:", error);
-    throw error;
+    console.error("로그인 요청 중 오류 발생:", error);
   }
 };
 
