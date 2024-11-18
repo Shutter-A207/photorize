@@ -139,28 +139,35 @@ const AlbumDetail: React.FC = () => {
       <div className="p-4">
         {/* 유저 리스트 */}
         {albumDetail.members.length > 1 && (
-          <div className="flex overflow-x-auto space-x-4">
-            {albumDetail.members.map((member) => (
-              <div
-                key={member.memberId}
-                className={`flex flex-col items-center ${
-                  !member.status ? "opacity-40" : ""
-                }`}
-                onClick={() => handleMemberClick(member)} // 이미지 클릭 이벤트 추가
-              >
-                <img
-                  src={member.img}
-                  alt={member.nickname}
-                  className="w-12 h-12 rounded-full object-cover cursor-pointer"
-                />
-                <p className="text-sm mt-1 font-bold text-[#343434]">
-                  {member.nickname}
-                </p>
-              </div>
-            ))}
+          <div
+            className="flex overflow-x-auto scrollbar-hide"
+            style={{
+              maxWidth: "100%", // 화면 너비를 초과하지 않도록 설정
+              paddingBottom: "8px", // 스크롤바 영역 확보
+            }}
+          >
+            <div className="flex space-x-4">
+              {albumDetail.members.map((member) => (
+                <div
+                  key={member.memberId}
+                  className={`flex flex-col items-center w-[60px] flex-shrink-0 ${
+                    !member.status ? "opacity-40" : ""
+                  }`}
+                  onClick={() => handleMemberClick(member)} // 이미지 클릭 이벤트 추가
+                >
+                  <img
+                    src={member.img}
+                    alt={member.nickname}
+                    className="w-12 h-12 rounded-full object-cover cursor-pointer"
+                  />
+                  <p className="text-sm mt-1 font-bold text-[#343434] text-center truncate">
+                    {member.nickname}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
-
         {albumDetail.members.length > 1 && (
           <div className="border-t border-gray-200 mt-2 mb-6"></div>
         )}
