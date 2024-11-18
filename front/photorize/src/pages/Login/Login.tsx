@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser, loginWithKakao } from "../../api/UserAPI";
 import { useToast } from "../../components/Common/ToastProvider";
-import CardCarousel from "../../components/GuideCard/CardCarousel"; // CardCarousel 임포트
-import { guide } from "../../components/GuideCard/Guide"; // 카드 데이터 임포트 (적절한 위치에 cardData 정의 필요)
+import CardCarousel from "../../components/GuideCard/CardCarousel";
+import { guide } from "../../components/GuideCard/Guide";
 
 const Login = () => {
   const [email, setEmail] = useState("");
