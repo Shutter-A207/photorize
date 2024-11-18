@@ -5,8 +5,8 @@ const Card: React.FC<CardProps> = ({ imgSrc, imgAlt, title, description }) => {
   return (
     <div className="flex flex-col items-center flex-grow">
       {/* 상단 배경과 이미지 */}
-      <div className="w-full bg-[#FFC0CE] flex justify-center items-center p-10 rounded-t-2xl">
-        <img src={imgSrc} alt={imgAlt} className="w-24 h-24 object-contain" />
+      <div className="w-full bg-[#FFC0CE] flex justify-center items-center p-8 rounded-t-2xl">
+        <img src={imgSrc} alt={imgAlt} className="h-32 object-contain" />
       </div>
 
       {/* 카드 내용 */}

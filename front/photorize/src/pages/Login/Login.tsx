@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser, loginWithKakao } from "../../api/UserAPI";
 import { useToast } from "../../components/Common/ToastProvider";
+import CardCarousel from "../../components/GuideCard/CardCarousel"; // CardCarousel 임포트
+import { guide } from "../../components/GuideCard/Guide"; // 카드 데이터 임포트 (적절한 위치에 cardData 정의 필요)
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(""); // 오류 메시지 상태
+  const [showCarousel, setShowCarousel] = useState(true); // Carousel 표시 상태
 
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -39,11 +42,22 @@ const Login = () => {
     }
   };
 
+  // CardCarousel 내리기 핸들러
+  const handleCarouselFinish = () => {
+    setShowCarousel(false);
+  };
+
   return (
     <div
-      className="min-h-screen flex flex-col justify-center items-center"
+      className="min-h-screen flex flex-col justify-center items-center relative"
       onKeyDown={handleKeyDown}
     >
+      {showCarousel && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-10">
+          <CardCarousel cards={guide} onFinish={handleCarouselFinish} />
+        </div>
+      )}
+
       <img src="/assets/Logo1.png" alt="로고" className="w-[65%] mb-24" />
       <div className="w-[80%] max-w-md mx-auto">
         <div className="relative mb-3">
@@ -75,7 +89,6 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        {/* 오류 메시지 표시 */}
         {error && (
           <p className="text-red-400 font-bold text-sm mb-3 text-center">
             {error}
