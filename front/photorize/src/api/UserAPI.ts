@@ -79,7 +79,7 @@ export const loginWithKakao = (): void => {
 };
 
 // FCM 토큰 발급 및 서버 저장 함수
-const issueAndSaveFcmToken = async (jwtToken: string) => {
+export const issueAndSaveFcmToken = async (jwtToken: string) => {
   try {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
