@@ -87,7 +87,7 @@ const AlbumEdit = () => {
         </div>
         <button
           onClick={handleCompleteEdit}
-          className="px-4 py-1 text-white rounded bg-[#8B8B8B]"
+          className="px-4 py-1 text-white rounded bg-[#8B8B8B] whitespace-nowrap"
         >
           완료
         </button>

@@ -24,7 +24,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
     (
       message: string,
       type: "success" | "error" | "warning" | "info" = "success",
-      duration: number = 3000
+      duration: number = 2000
     ) => {
       setToast({ message, type, duration });
     },

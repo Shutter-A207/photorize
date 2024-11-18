@@ -48,9 +48,10 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         const updatedImageUrl = await updateProfileImage(selectedImage);
         onProfileUpdate(updatedImageUrl);
         handleClose();
-      } catch (error) {
-        console.error("프로필 이미지 업데이트 중 오류 발생:", error);
-        alert("프로필 이미지를 업데이트하는 중에 오류가 발생했습니다.");
+      } catch (error: any) {
+        const errorMessage =
+          error?.response?.data?.message || "오류가 발생했습니다.";
+        showToast(errorMessage, "error");
       }
     }
   };

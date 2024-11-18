@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { updateAlbum } from "../../api/AlbumAPI";
+import { useToast } from "../../components/Common/ToastProvider";
 
 export interface AlbumData {
   albumId: number;
@@ -45,6 +46,7 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({
   albumType,
   onSuccess,
 }) => {
+  const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
 
   const handleUpdate = async () => {
@@ -66,15 +68,20 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({
         type: albumType,
       });
       onClose();
-    } catch {
-      alert("앨범 수정 중 오류가 발생했습니다.");
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || "오류가 발생했습니다.";
+      showToast(errorMessage, "error");
     } finally {
       setIsLoading(false); // 로딩 종료
     }
   };
 
   const isFormValid =
-    albumName.trim() !== "" && albumName.length <= 12 && selectedColor !== "";
+    albumName.trim() !== "" &&
+    albumName.length >= 2 &&
+    albumName.length <= 12 &&
+    selectedColor !== "";
 
   const handleAlbumNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.length <= 12) {
@@ -104,7 +111,7 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({
             />
             <div
               className={`absolute bottom-1 right-2 text-xs font-bold ${
-                albumName.length <= 0 || albumName.length > 12
+                albumName.length <= 1 || albumName.length > 12
                   ? "text-red-500"
                   : "text-gray-500"
               }`}

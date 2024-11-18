@@ -7,6 +7,7 @@ import { fetchReviews } from "../../api/MemoryAPI";
 import { fetchMemory, deleteMemory } from "../../api/MemoryAPI";
 import { createComment, deleteComment } from "../../api/CommentAPI";
 import ConfirmationModal from "../../components/Common/ConfirmationModal";
+import { useToast } from "../../components/Common/ToastProvider";
 
 interface CarouselItem {
   // id: number;
@@ -32,6 +33,7 @@ interface Comment {
 }
 
 const Memory: React.FC = () => {
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
@@ -156,11 +158,11 @@ const Memory: React.FC = () => {
     if (id) {
       try {
         await deleteMemory(Number(id));
-        alert("추억이 성공적으로 삭제되었습니다.");
+        showToast("추억이 삭제되었습니다.", "success");
         navigate(`/album/${albumId}`);
       } catch (error) {
         console.error("추억 삭제 중 오류 발생:", error);
-        alert("추억 삭제에 실패했습니다.");
+        showToast("추억 삭제에 실패했습니다.", "error");
       } finally {
         setDeleteMemoryModalOpen(false);
       }
@@ -174,10 +176,10 @@ const Memory: React.FC = () => {
         setComments((prev) =>
           prev.filter((comment) => comment.commentId !== commentToDelete)
         );
-        alert("댓글이 삭제되었습니다.");
+        showToast("댓글이 삭제되었습니다.", "success");
       } catch (error) {
         console.error("댓글 삭제 중 오류 발생:", error);
-        alert("댓글 삭제에 실패했습니다.");
+        showToast("댓글 삭제에 실패했습니다.", "error");
       } finally {
         setCommentToDelete(null);
         setDeleteCommentModalOpen(false);
@@ -424,21 +426,21 @@ const Memory: React.FC = () => {
                     <p className="text-sm text-[#343434]">{comment.content}</p>
                   </div>
                   <div className="flex">
-                  <p className="text-[10px] text-[#A19791] mr-2">
-                    {formatDate(comment.date)}
-                  </p>
-                  {comment.nickname === nickname && (
-                    <button
-                      onClick={() => {
-                        setCommentToDelete(comment.commentId);
-                        setDeleteCommentModalOpen(true);
-                      }}
-                      className="text-red-500 text-[10px]"
-                    >
-                      삭제
-                    </button>
-                  )}
-                </div>
+                    <p className="text-[10px] text-[#A19791] mr-2">
+                      {formatDate(comment.date)}
+                    </p>
+                    {comment.nickname === nickname && (
+                      <button
+                        onClick={() => {
+                          setCommentToDelete(comment.commentId);
+                          setDeleteCommentModalOpen(true);
+                        }}
+                        className="text-red-500 text-[10px]"
+                      >
+                        삭제
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );

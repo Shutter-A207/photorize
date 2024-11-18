@@ -21,14 +21,20 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 import RedirectIfAuthenticated from "./auth/RedirectIfAuthenticated";
 import Album2 from "./pages/Album/Album2";
 import { requestFcmToken } from "./firebaseConfig";
+import { useToast } from "./components/Common/ToastProvider";
 
 function App() {
+  const { showToast } = useToast();
+
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/firebase-messaging-sw.js")
         .then((registration) => {
-          console.log("Service Worker registered with scope:", registration.scope);
+          console.log(
+            "Service Worker registered with scope:",
+            registration.scope
+          );
           requestFcmToken();
         })
         .catch((error) => {
@@ -38,12 +44,12 @@ function App() {
 
     // 메시지 수신 시 알림 표시
     onMessageListener((payload) => {
-      console.log("포그라운드 메시지 수신 성공:", payload);
-      alert(
-        `알림 제목: ${payload.notification?.title}, 메시지: ${payload.notification?.body}`
+      showToast(
+        `${payload.notification?.title || "알림"} 알림함에서 확인해보세요.`,
+        "info" // 토스트 유형 설정 (info, success, warning, error)
       );
     });
-  }, []);
+  }, [showToast]);
 
   return (
     <Routes>

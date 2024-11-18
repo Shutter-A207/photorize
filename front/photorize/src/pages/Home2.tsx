@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTexture,
+import {
+  useTexture,
   OrbitControls,
   Points,
   PointMaterial,
@@ -32,23 +33,20 @@ const convertToCloudFrontUrl = (s3Url) => {
   );
 };
 
-
 // Extend Three.js objects
 extend({ BoxBufferGeometry: THREE.BoxGeometry });
 
-const Album = ({ texturePath, position, rotation }) => {
+const Album = ({ texturePath, position, rotation, onClick }) => {
   const texture = useTexture(texturePath);
 
   return (
-    <mesh position={position} rotation={rotation}>
+    <mesh position={position} rotation={rotation} onClick={onClick}>
       <boxBufferGeometry args={[1, 1.4, 0.02]} /> {/* 앨범 크기 조절 */}
       <boxBufferGeometry args={[1, 1.4, 0.02]} />
       <meshStandardMaterial map={texture} />
     </mesh>
   );
 };
-
-
 
 const Particles = () => {
   const points = new Float32Array(500).map(() =>
@@ -213,6 +211,7 @@ const Home2 = () => {
                   texturePath={cloudFrontUrl}
                   position={[x, 0, z]}
                   rotation={rotation}
+                  onClick={() => navigate(`/memory/${memory.memoryId}`)}
                 />
               );
             })}

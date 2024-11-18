@@ -6,6 +6,7 @@ import Footer from "../../components/Common/Footer";
 import AlbumItem from "../../components/Common/AlbumItem";
 import { fetchAllAlbums } from "../../api/AlbumAPI";
 import CreateAlbumModal from "../../components/Album/CreateAlbumModal";
+import { useToast } from "../../components/Common/ToastProvider";
 
 interface AlbumData {
   albumId: number;
@@ -16,6 +17,7 @@ interface AlbumData {
 }
 
 const Album = () => {
+  const { showToast } = useToast();
   const [albums, setAlbums] = useState<AlbumData[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -42,7 +44,7 @@ const Album = () => {
   };
 
   const handleModalSuccess = () => {
-    alert("앨범 생성에 성공했습니다!");
+    showToast("앨범 생성에 성공했습니다!", "success");
     setIsModalOpen(false);
     loadAlbums();
   };

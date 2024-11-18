@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Common/Header";
+import { useToast } from "../../components/Common/ToastProvider";
 import {
   registerUser,
   generateAuthCode,
@@ -9,6 +10,7 @@ import {
 } from "../../api/UserAPI";
 
 const Register = () => {
+  const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
@@ -162,7 +164,7 @@ const Register = () => {
     } else {
       setPasswordCheckMessage("");
     }
-  }, [passwordCheck])
+  }, [passwordCheck]);
 
   // 이메일 변경 시 인증 상태 초기화
   useEffect(() => {
@@ -212,7 +214,7 @@ const Register = () => {
         passwordCheck,
       });
       if (response) {
-        alert("회원가입이 완료되었습니다.");
+        showToast("회원가입이 완료되었습니다!", "success");
         navigate("/login");
       }
     } catch (error) {
@@ -237,8 +239,9 @@ const Register = () => {
             />
             <button
               onClick={handleSendCode}
-              className={`${isCodeSent ? "bg-gray-400 w-32" : "bg-[#FF93A5] w-32"
-                } text-white text-sm font-bold p-2 m-2 rounded `}
+              className={`${
+                isCodeSent ? "bg-gray-400 w-32" : "bg-[#FF93A5] w-32"
+              } text-white text-sm font-bold p-2 m-2 rounded `}
               disabled={isCodeSent}
             >
               {isCodeSent ? "번호 전송 완료" : "인증 번호 전송"}
@@ -246,8 +249,9 @@ const Register = () => {
           </div>
           {emailMessage && (
             <p
-              className={`font-bold text-xs mt-1 ${isCodeSent ? "text-blue-400" : "text-red-500"
-                }`}
+              className={`font-bold text-xs mt-1 ${
+                isCodeSent ? "text-blue-400" : "text-red-500"
+              }`}
             >
               {emailMessage}
             </p>
@@ -274,8 +278,9 @@ const Register = () => {
               )}
               <button
                 onClick={handleVerifyCode}
-                className={`${isCodeVerified ? "bg-gray-400 w-20" : "bg-[#FF93A5] w-16"
-                  } text-white text-sm font-bold p-2 rounded m-2`}
+                className={`${
+                  isCodeVerified ? "bg-gray-400 w-20" : "bg-[#FF93A5] w-16"
+                } text-white text-sm font-bold p-2 rounded m-2`}
                 disabled={isCodeVerified}
               >
                 {isCodeVerified ? "인증완료" : "인증"}
@@ -283,8 +288,9 @@ const Register = () => {
             </div>
             {verificationMessage && (
               <p
-                className={`text-xs mt-1 font-bold ${isCodeVerified ? "text-blue-400" : "text-red-500"
-                  }`}
+                className={`text-xs mt-1 font-bold ${
+                  isCodeVerified ? "text-blue-400" : "text-red-500"
+                }`}
               >
                 {verificationMessage}
               </p>
@@ -313,8 +319,9 @@ const Register = () => {
           </div>
           {nicknameMessage && (
             <p
-              className={`text-xs mt-1 font-bold ${isNicknameAvailable ? "text-blue-400" : "text-red-500"
-                }`}
+              className={`text-xs mt-1 font-bold ${
+                isNicknameAvailable ? "text-blue-400" : "text-red-500"
+              }`}
             >
               {nicknameMessage}
             </p>
@@ -336,10 +343,9 @@ const Register = () => {
           </div>
           {passwordMessage && (
             <p
-              className={`text-xs mt-1 font-bold ${validatePassword(password)
-                ? "text-blue-400"
-                : "text-red-500"
-                }`}
+              className={`text-xs mt-1 font-bold ${
+                validatePassword(password) ? "text-blue-400" : "text-red-500"
+              }`}
             >
               {passwordMessage}
             </p>
@@ -362,10 +368,11 @@ const Register = () => {
           </div>
           {passwordCheckMessage && (
             <p
-              className={`text-xs mt-1 font-bold ${validatePassword(password) && password === passwordCheck
-                ? "text-blue-400"
-                : "text-red-500"
-                }`}
+              className={`text-xs mt-1 font-bold ${
+                validatePassword(password) && password === passwordCheck
+                  ? "text-blue-400"
+                  : "text-red-500"
+              }`}
             >
               {passwordCheckMessage}
             </p>
@@ -375,8 +382,9 @@ const Register = () => {
         {/* 완료 버튼 */}
         <button
           onClick={handleRegister}
-          className={`w-[90%] max-w-md py-3 fixed bottom-8 left-1/2 transform -translate-x-1/2 rounded-lg font-bold text-lg ${isFormValid ? "bg-[#FF93A5]" : "bg-gray-400"
-            } text-white`}
+          className={`w-[90%] max-w-md py-3 fixed bottom-8 left-1/2 transform -translate-x-1/2 rounded-lg font-bold text-lg ${
+            isFormValid ? "bg-[#FF93A5]" : "bg-gray-400"
+          } text-white`}
           disabled={!isFormValid}
         >
           회원 가입

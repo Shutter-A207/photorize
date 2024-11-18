@@ -12,6 +12,7 @@ import CreateAlbumModal from "../../components/Album/CreateAlbumModal";
 import SearchTag from "../../components/Common/SearchTag";
 import SearchAlbum from "../../components/Common/SearchAlbum";
 import { sendMemoryData } from "../../api/MemoryAPI";
+import { useToast } from "../../components/Common/ToastProvider";
 
 interface Spot {
   id: number | null;
@@ -31,6 +32,7 @@ interface Album {
 }
 
 const Record: React.FC = () => {
+  const { showToast } = useToast();
   const [shareSelection, setShareSelection] = useState<string>("내 앨범");
   const [date, setDate] = useState<DateValueType>({
     startDate: null,
@@ -84,7 +86,7 @@ const Record: React.FC = () => {
   }, [tags]);
 
   const handleModalSuccess = (newAlbum: Album) => {
-    alert("앨범 생성에 성공했습니다!");
+    showToast("앨범 생성에 성공했습니다!", "success");
     setAlbum(newAlbum);
     setSelectedAlbum("album");
     setIsAlbumModalOpen(false);
@@ -103,10 +105,10 @@ const Record: React.FC = () => {
         shareSelection === "내 앨범"
           ? []
           : selectedAlbum === "personal"
-          ? selectedPrivateAlbumIds
-          : album
-          ? [album.id!]
-          : [],
+            ? selectedPrivateAlbumIds
+            : album
+              ? [album.id!]
+              : [],
       type:
         shareSelection !== "내 앨범" && selectedAlbum === "album"
           ? "PUBLIC"
@@ -125,11 +127,12 @@ const Record: React.FC = () => {
 
     try {
       await sendMemoryData(formData);
-      alert("추억이 성공적으로 등록되었습니다!");
+      showToast("추억이 성공적으로 등록되었습니다!", "success");
       navigate("/home");
-    } catch (error) {
-      alert("추억 등록 중 오류가 발생했습니다. 다시 시도해주세요.");
-      console.error(error);
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || "추억 등록 중 오류가 발생했습니다.";
+      showToast(errorMessage, "error");
     } finally {
       setIsLoading(false);
     }
@@ -140,7 +143,7 @@ const Record: React.FC = () => {
       <Header title="추억 기록" />
       <div className="bg-[#F9F9F9] min-h-screen pt-20 pb-20 pl-6 pr-6 flex flex-col items-center">
         <DatePicker value={date} onChange={(newValue) => setDate(newValue)} />
-        <div className="ml-4 mb-4 w-full">
+        <div className="md:ml-4 mb-4 w-full">
           <SearchSpot
             imageSrc="/assets/map-icon.png"
             placeholder="네컷 스팟"
@@ -188,7 +191,7 @@ const Record: React.FC = () => {
                 </button>
               )}
             </div>
-            <div className="ml-4 mb-4 w-full">
+            <div className="md:ml-4 mb-4 w-full">
               {selectedAlbum === "personal" ? (
                 <SearchTag
                   imageSrc="/assets/tag-icon.png"

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { photoState, videoState } from "../../recoil/fileAtoms";
+import { useToast } from "../Common/ToastProvider";
 
 interface UploadItemProps {
   type: "photo" | "video";
@@ -8,6 +9,7 @@ interface UploadItemProps {
 }
 
 const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
+  const { showToast } = useToast();
   const [file, setFile] = useRecoilState(
     type === "photo" ? photoState : videoState
   );
@@ -19,10 +21,11 @@ const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
 
     const maxSizeInMB = type === "photo" ? 5 : 10;
     const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
-  
+
     if (selectedFile.size > maxSizeInBytes) {
-      alert(
-        `${type === "photo" ? "사진" : "비디오"} 파일 크기가 너무 큽니다. 최대 ${maxSizeInMB}MB 이하의 파일만 업로드할 수 있습니다.`
+      showToast(
+        `${type === "photo" ? "사진" : "비디오"} 파일 크기가 너무 큽니다. 최대 ${maxSizeInMB}MB 이하의 파일만 업로드할 수 있습니다.`,
+        "error"
       );
       return;
     }
@@ -44,7 +47,10 @@ const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
 
     const fileExtension = selectedFile.name.split(".").pop()?.toLowerCase();
     if (!fileExtension || !validExtensions[type].includes(fileExtension)) {
-      alert(`유효한 ${type} 파일을 업로드해 주세요.`);
+      showToast(
+        `유효한 ${type === "photo" ? "사진" : "비디오"} 파일을 업로드해 주세요.`,
+        "error"
+      );
       return;
     }
 
@@ -88,7 +94,9 @@ const UploadItem: React.FC<UploadItemProps> = ({ type, onUpload }) => {
           className="h-4"
         />
         <span className="pl-1 text-[#BCBFC3] text-xs font-medium ml-1">
-          {type === "photo" ? "사진(필수, 최대 5mb)" : "동영상(선택, 최대 10mb)"}
+          {type === "photo"
+            ? "사진(필수, 최대 5mb)"
+            : "동영상(선택, 최대 10mb)"}
         </span>
       </div>
 
