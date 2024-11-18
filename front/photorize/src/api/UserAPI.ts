@@ -73,8 +73,6 @@ export const loginWithKakao = (): void => {
   try {
     const backendLoginUrl = "https://photorize.co.kr/oauth2/authorize/kakao";
     window.location.href = backendLoginUrl;
-
-    console.log("백엔드 로그인 요청 URL로 리다이렉트:", backendLoginUrl);
   } catch (error) {
     console.error("로그인 요청 중 오류 발생:", error);
   }
@@ -87,7 +85,6 @@ const issueAndSaveFcmToken = async (jwtToken: string) => {
     if (permission === "granted") {
       const fcmToken = await requestFcmToken();
       if (fcmToken) {
-        console.log("FCM 토큰 발급 성공:", fcmToken);
         localStorage.setItem("fcmToken", fcmToken);
         await axios.post(
           "/fcm",
@@ -98,7 +95,6 @@ const issueAndSaveFcmToken = async (jwtToken: string) => {
         );
       } else {
         console.error("FCM 토큰 발급 실패");
-        console.log(fcmToken);
       }
     } else {
       console.log("알림 권한이 거부되었습니다.");
@@ -146,8 +142,6 @@ export const fetchUsers = async (keyword: string) => {
     const response = await axios.get("/members/search", {
       params: { keyword },
     });
-
-    console.log(response.data);
     if (response.status === 200) {
       return response.data;
     }
@@ -214,7 +208,6 @@ export const deleteFcmToken = async () => {
     });
 
     if (response.status === 200) {
-      console.log("FCM 토큰이 삭제되었습니다.");
       localStorage.removeItem("fcmToken"); // 로컬스토리지에서 FCM 토큰 삭제
       return true;
     }

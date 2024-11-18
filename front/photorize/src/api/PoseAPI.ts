@@ -11,7 +11,6 @@ export const getAllPoses = async (
         headcount: headcount || undefined, // headcount가 없으면 파라미터 생략
       },
     });
-    console.log(response);
     return response.data;
   } catch (error) {
     console.error("포즈 전체 조회 중 오류 발생:", error);

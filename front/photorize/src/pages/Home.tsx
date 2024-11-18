@@ -47,7 +47,6 @@ const Home = () => {
     const fetchMemories = async () => {
       try {
         const data = await fetchMainPageMemories(); // 8개의 랜덤 추억을 가져오는 API 호출
-        console.log(data);
         setMemories(data.data); // API 응답에서 memories 데이터 설정
       } catch (error) {
         console.error("메인 페이지 앨범 조회 중 오류 발생:", error);
@@ -96,7 +95,6 @@ const Home = () => {
 
   const handleProfileUpdate = (newProfileImg: string) => {
     if (userProfile) {
-      console.log(newProfileImg);
       setUserProfile({ ...userProfile, img: newProfileImg });
     }
   };

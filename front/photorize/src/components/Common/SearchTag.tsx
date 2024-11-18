@@ -55,7 +55,6 @@ const SearchTag: React.FC<SearchTagProps> = ({
     try {
       const response = await fetchUsers(keyword);
       if (response) {
-        console.log(response);
         const userData = response.data.map(
           (data: {
             memberId: number;

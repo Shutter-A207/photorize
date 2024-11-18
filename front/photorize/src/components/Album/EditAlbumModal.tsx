@@ -79,8 +79,8 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({
 
   const isFormValid =
     albumName.trim() !== "" &&
-    albumName.length >= 2 &&
-    albumName.length <= 12 &&
+    albumName.trim().length >= 2 &&
+    albumName.trim().length <= 12 &&
     selectedColor !== "";
 
   const handleAlbumNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,7 +111,7 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({
             />
             <div
               className={`absolute bottom-1 right-2 text-xs font-bold ${
-                albumName.length <= 1 || albumName.length > 12
+                albumName.trim().length <= 1 || albumName.trim().length > 12
                   ? "text-red-500"
                   : "text-gray-500"
               }`}

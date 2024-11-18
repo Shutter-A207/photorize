@@ -11,8 +11,6 @@ const ProtectedRoute = ({ children }) => {
       .find((row) => row.startsWith("access_token"))
       ?.split("=")[1];
 
-    console.log(tempToken);
-
     if (tempToken) {
       localStorage.setItem("photorize-token", tempToken); // 토큰 저장
       return children; // 보호된 페이지 렌더링

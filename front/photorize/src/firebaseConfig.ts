@@ -24,7 +24,6 @@ export const requestFcmToken = async (): Promise<string | null> => {
     if (currentToken) {
       return currentToken;
     } else {
-      console.log("No registration token available.");
       return null;
     }
   } catch (err) {
@@ -36,7 +35,6 @@ export const requestFcmToken = async (): Promise<string | null> => {
 // 알림 수신 시 처리
 export const onMessageListener = (callback: (payload: any) => void) => {
   onMessage(messaging, (payload) => {
-    console.log("포그라운드에서 메시지 수신:", payload); // 로그 추가
     callback(payload); // 콜백으로 전달
   });
 };

@@ -108,7 +108,8 @@ const EditNicknameModal: React.FC<EditNicknameModalProps> = ({
               className={`text-xs font-bold mt-1 ${
                 isDuplicate ||
                 duplicateMessage.includes("오류") ||
-                duplicateMessage.includes("올바르지")
+                duplicateMessage.includes("올바르지") ||
+                duplicateMessage.includes("2자")
                   ? "text-red-400"
                   : "text-blue-400"
               }`}

@@ -35,7 +35,6 @@ export const fetchAlarmDetail = async (alarmId: number) => {
     const response = await axios.get(`/alarms/${alarmId}/detail`);
 
     if (response.status === 200) {
-      console.log(response.data.data);
       return response.data.data; // 알람 상세 정보 반환
     }
   } catch (error) {
@@ -52,7 +51,6 @@ export const resendAlarm = async (albumId: number, memberId: number) => {
     });
 
     if (response.status === 201) {
-      console.log("알람 재전송 성공:", response.data);
       return response.data; // 재전송 결과 반환
     }
   } catch (error) {

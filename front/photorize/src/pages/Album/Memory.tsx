@@ -64,7 +64,6 @@ const Memory: React.FC = () => {
         if (id) {
           const response = await fetchMemory(Number(id));
 
-          console.log(response);
           if (response) {
             setMemoryDetail({
               writerId: response.writerId,
@@ -141,8 +140,6 @@ const Memory: React.FC = () => {
             .toLocaleString("en-CA", { hour12: false })
             .slice(0, 19),
         };
-
-        console.log(newCommentData.date);
 
         setComments((prevComments) => [newCommentData, ...prevComments]);
         setNewComment("");
