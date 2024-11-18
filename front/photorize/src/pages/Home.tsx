@@ -7,6 +7,7 @@ import { getUserInfo, deleteFcmToken } from "../api/UserAPI";
 import { fetchMainPageMemories } from "../api/MemoryAPI";
 import EditNicknameModal from "../components/EditNicknameModal";
 import EditProfileModal from "../components/EditProfileModal";
+import { useLoading } from "../components/Common/Loader/LoadingContext";
 
 interface Memory {
   memoryId: number;
@@ -31,19 +32,27 @@ const Home = () => {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const { setIsLoading } = useLoading();
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchData = async () => {
+      setIsLoading(true);
       try {
         const userData = await getUserInfo();
         localStorage.setItem("nickname", userData.nickname);
         localStorage.setItem("img", userData.img);
         setUserProfile(userData);
+
+        const memoryData = await fetchMainPageMemories();
+        setMemories(memoryData.data);
       } catch (error) {
-        console.error("유저 정보 가져오기 중 오류 발생:", error);
+        console.error("데이터 로드 중 오류 발생:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
+<<<<<<< HEAD
     const fetchMemories = async () => {
       try {
         const data = await fetchMainPageMemories(); // 8개의 랜덤 추억을 가져오는 API 호출
@@ -55,6 +64,9 @@ const Home = () => {
 
     fetchUserProfile();
     fetchMemories(); // 메모리 데이터 가져오기 호출
+=======
+    fetchData();
+>>>>>>> 5e9b780 (Fix : App.tsx 충돌 처리)
   }, []);
 
   const handlePrev = useCallback(
@@ -119,13 +131,13 @@ const Home = () => {
               <img
                 src={userProfile?.img}
                 alt="Profile"
-                className="w-14 h-14 rounded-full"
+                className="w-12 h-12 rounded-full"
               />
-              <div className="absolute top-9 left-9 w-6 h-6 bg-[#F2F2F2] rounded-full flex items-center justify-center">
+              <div className="absolute top-8 left-8 w-6 h-6 bg-[#F2F2F2] rounded-full flex items-center justify-center">
                 <img
                   src="/assets/listIcon2.png"
                   alt="List Icon"
-                  className="w-6 mr-0.5"
+                  className="w-4 mr-0.5"
                 />
               </div>
             </div>

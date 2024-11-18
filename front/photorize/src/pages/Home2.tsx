@@ -13,6 +13,7 @@ import Header from "../components/Common/Header";
 import Footer from "../components/Common/Footer";
 import { getUserInfo } from "../api/UserAPI";
 import { fetchMainPageMemories } from "../api/MemoryAPI";
+import { useLoading } from "../components/Common/Loader/LoadingContext";
 
 interface UserProfile {
   memberId: number;
@@ -88,29 +89,27 @@ const Home2 = () => {
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [memories, setMemories] = useState<Memory[]>([]);
+  const { setIsLoading } = useLoading();
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchData = async () => {
+      setIsLoading(true);
       try {
         const userData = await getUserInfo();
         setUserProfile(userData);
+
+        const data = await fetchMainPageMemories();
+        setMemories(data.data);
       } catch (error) {
         console.error("유저 정보 가져오기 중 오류 발생:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    const fetchMemories = async () => {
-      try {
-        const data = await fetchMainPageMemories(); // 8개의 랜덤 추억을 가져오는 API 호출
-        setMemories(data.data); // API 응답에서 memories 데이터 설정
-      } catch (error) {
-        console.error("추억 데이터 가져오기 중 오류 발생:", error);
-      }
-    };
-
-    fetchUserProfile();
-    fetchMemories();
+    fetchData();
   }, []);
+
   const radius = 3; // 원형 배치의 반지름
   const angleStep = memories.length ? (2 * Math.PI) / memories.length : 0;
 
