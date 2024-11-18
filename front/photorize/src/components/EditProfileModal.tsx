@@ -78,7 +78,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 : currentProfileImg
             }
             alt="Current Profile"
-            className="w-full h-full rounded-full"
+            className="w-full h-full rounded-full object-cover"
           />
           <img
             src="/assets/cameraIcon.png"

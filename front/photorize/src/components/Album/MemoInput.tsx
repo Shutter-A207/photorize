@@ -7,8 +7,8 @@ interface MemoInputProps {
 
 const MemoInput: React.FC<MemoInputProps> = ({ memo, onChange }) => {
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    // 300자 제한
-    if (e.target.value.length <= 300) {
+    // 200자 제한
+    if (e.target.value.length <= 200) {
       onChange(e);
     }
   };
@@ -25,12 +25,12 @@ const MemoInput: React.FC<MemoInputProps> = ({ memo, onChange }) => {
         />
         <div
           className={`absolute bottom-5 right-4 text-xs font-bold ${
-            memo.length <= 0 || memo.length > 300
+            memo.length <= 0 || memo.length > 200
               ? "text-red-500"
               : "text-gray-500"
           }`}
         >
-          {memo.length}/300
+          {memo.length}/200
         </div>
       </div>
     </div>

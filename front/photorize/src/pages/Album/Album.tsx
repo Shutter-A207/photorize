@@ -104,7 +104,7 @@ const Album = () => {
           <div className="embla__container flex">
             {albums.map((album) => (
               <div
-                className="embla__slide flex-shrink-0 w-full max-w-lg flex justify-center items-center px-4"
+                className="embla__slide flex-shrink-0 w-full max-w-lg flex justify-center items-center px-2"
                 key={album.albumId}
               >
                 <div className="w-full flex justify-center items-center">

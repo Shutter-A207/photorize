@@ -39,11 +39,21 @@ extend({ BoxBufferGeometry: THREE.BoxGeometry });
 
 const Album = ({ texturePath, position, rotation, onClick }) => {
   const texture = useTexture(texturePath);
+  const [height, setHeight] = useState(1.4); // 기본 높이
+
+  useEffect(() => {
+    if (texture?.image) {
+      const { width, height: imageHeight } = texture.image;
+      if (width && imageHeight) {
+        const aspectRatio = imageHeight / width;
+        setHeight(aspectRatio); // 높이를 가로 비율에 맞게 설정
+      }
+    }
+  }, [texture]);
 
   return (
     <mesh position={position} rotation={rotation} onClick={onClick}>
-      <boxBufferGeometry args={[1, 1.4, 0.02]} /> {/* 앨범 크기 조절 */}
-      <boxBufferGeometry args={[1, 1.4, 0.02]} />
+      <boxBufferGeometry args={[1, height, 0.02]} /> {/* 가로 1, 높이는 비율 기반 */}
       <meshStandardMaterial map={texture} />
     </mesh>
   );

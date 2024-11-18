@@ -124,7 +124,7 @@ const Register = () => {
   const handleCheckNickname = async () => {
     if (!validateNickname(nickname)) {
       setIsNicknameAvailable(false);
-      setNicknameMessage("닉네임은 영문, 숫자, 한글이 입력 가능합니다(2~6자)");
+      setNicknameMessage("닉네임은 영문, 숫자, 한글이 입력 가능합니다(2~8자)");
       return;
     }
     try {
@@ -225,7 +225,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] flex flex-col items-center pt-16">
+    <div className="min-h-screen bg-[#F9F9F9] flex flex-col items-center pt-16 pb-24 scrollbar-hidden">
       <Header title="회원가입" />
       <div className="w-[90%] max-w-md">
         {/* 이메일 입력 및 인증번호 전송 */}
@@ -306,7 +306,7 @@ const Register = () => {
           <div className="flex items-center border rounded-lg bg-white pl-2">
             <input
               type="text"
-              placeholder="닉네임은 영문, 숫자, 한글이 입력 가능합니다(2~6자)"
+              placeholder="닉네임은 최소 2자, 최대 8자 입니다."
               className="w-full outline-none text-sm"
               maxLength={8}
               value={nickname}
@@ -379,7 +379,7 @@ const Register = () => {
               {passwordCheckMessage}
             </p>
           )}
-        </div>
+        </div> 
 
         {/* 완료 버튼 */}
         <button

@@ -110,7 +110,7 @@ const Home = () => {
   return (
     <>
       <Header title="" />
-      <div className="bg-[#F9F9F9] min-h-screen pt-14 pb-24 overflow-hidden">
+      <div className="bg-[#F9F9F9] min-h-screen pt-11 pb-24 overflow-hidden">
         <div className="flex items-center justify-between px-4 py-4 my-2">
           <div className="relative flex items-center">
             <div className="relative cursor-pointer" onClick={toggleMenu}>
