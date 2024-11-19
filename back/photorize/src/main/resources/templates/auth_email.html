@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이메일 인증</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif;">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" style="min-width: 100%; background-color: #f4f4f4;">
+    <tr>
+        <td align="center" style="padding: 40px 20px;">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0"
+                   style="max-width: 600px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                <tr>
+                    <td style="padding: 48px; border-radius: 12px;">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td style="border-top: 4px solid #FF93A5; margin-bottom: 16px;"></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <h4 style="font-size: 20px; color: #1a202c; margin: 16px 0; font-weight: 700;">
+                                        Photorize</h4>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border-bottom: 1px solid #E2E8F0; padding-bottom: 24px; margin-bottom: 32px;">
+                                    <h2 style="font-size: 26px; color: #1a202c; margin: 0; font-weight: 700; line-height: 1.4;">
+                                        {{type}}을 위한 이메일 인증번호</h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 32px 0;">
+                                    <p style="margin: 0 0 20px 0; color: #718096; font-size: 16px; line-height: 1.8;">
+                                        안녕하세요. <span style="color: #FF93A5; font-weight: 600;">Photorize</span>입니다.</p>
+                                    <p style="margin: 0 0 20px 0; color: #718096; font-size: 16px; line-height: 1.8;">아래
+                                        인증번호를 입력 후 인증확인을 눌러주세요.</p>
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                        <tr>
+                                            <td align="center"
+                                                style="padding: 20px; background-color: #F7FAFC; border: 1px solid #E2E8F0; border-radius: 12px;">
+                                                <div style="font-family: Courier, monospace; font-size: 32px; font-weight: 700; color: #FF93A5; letter-spacing: 4px;">
+                                                    {{authCode}}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-top: 32px; border-top: 1px solid #E2E8F0;">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0"
+                                           style="background-color: #F7FAFC; border-radius: 12px;">
+                                        <tr>
+                                            <td style="padding: 16px;">
+                                                <p style="margin: 0; font-size: 14px; color: #718096; line-height: 1.6;">
+                                                    위 인증번호는 <span style="color: #FF93A5; font-weight: 600;">5분</span>간
+                                                    유효합니다.<br>
+                                                    해당 시간이 경과된 후에는 재요청을 눌러주세요.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
