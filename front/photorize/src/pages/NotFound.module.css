@@ -1,0 +1,39 @@
+@keyframes rotatePineapple {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.rotate {
+  animation: rotatePineapple 5s linear infinite;
+  z-index: 15;
+}
+
+@keyframes fallPineapple {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.fallingPineapple {
+  position: absolute;
+  top: -10%;
+  left: calc(var(--random-x) * 100%);
+  width: 30px;
+  height: 30px;
+  animation: fallPineapple var(--random-duration) linear infinite;
+  opacity: 0.7;
+  z-index: 10; /* 항상 클릭 가능하도록 상위 레이어로 배치 */
+  cursor: pointer; /* 클릭 시 포인터 변경 */
+}

@@ -1,0 +1,56 @@
+@layer tailwind-base, primereact, tailwind-utilities;
+
+@import "primereact/resources/themes/lara-light-pink/theme.css";
+
+/* PrimeReact 핵심 CSS */
+@import "primereact/resources/primereact.min.css";
+
+/* PrimeIcons CSS */
+@import "primeicons/primeicons.css";
+
+@layer tailwind-base {
+  @tailwind base;
+}
+
+@layer tailwind-utilities {
+  @tailwind components;
+  @tailwind utilities;
+  #root {
+    @apply max-w-lg mx-auto;
+  }
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.scrollbar-hidden {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-5px);
+  }
+}
+
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+body {
+  font-family: "SUITE", sans-serif;
+}
