@@ -46,7 +46,7 @@ const AlarmDetailModal: React.FC<AlarmDetailModalProps> = ({
             <img
               src={member.img}
               alt={member.nickname}
-              className="w-10 h-10 rounded-full"
+              className="w-10 h-10 rounded-full object-cover"
             />
             <p className="ml-2">{member.nickname}</p>
             {member.status ? (
