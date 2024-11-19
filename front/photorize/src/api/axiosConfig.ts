@@ -30,6 +30,17 @@ axios.interceptors.response.use(
   },
   (error) => {
     console.error("API 호출 중 오류 발생:", error);
+    if (error.response && error.response.status === 401) {
+      console.warn("토큰 만료로 인한 로그아웃 처리");
+
+      if (localStorage.getItem("photorize-token")) {
+        localStorage.removeItem("photorize-token");
+      }
+
+      if (!tokenExceptionRoutes.includes(window.location.pathname)) {
+        window.location.href = "/login";
+      }
+    }
     return Promise.reject(error);
   }
 );
