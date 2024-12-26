@@ -1,11 +1,10 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
-const RedirectIfAuthenticated = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useAuth();
+const RedirectIfAuthenticated: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const token = localStorage.getItem('photorize-token');
 
-  if (isAuthenticated) {
+  if (token) {
     return <Navigate to="/home" replace />;
   }
 

@@ -12,5 +12,5 @@ export const useAuth = (): boolean => {
     }
   }, [token, fcmToken]);
 
-  return !!token; // 인증 상태 반환
+  return !!token;
 };
