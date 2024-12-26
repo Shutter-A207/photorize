@@ -1,16 +1,15 @@
-// RedirectIfAuthenticated.js
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
-const RedirectIfAuthenticated = ({ children }) => {
-  const token = localStorage.getItem("photorize-token");
+const RedirectIfAuthenticated = ({ children }: { children: React.ReactNode }) => {
+  const isAuthenticated = useAuth();
 
-  // 로그인된 상태에서 로그인 페이지로 이동하려고 하면 홈으로 리다이렉트
-  if (token) {
+  if (isAuthenticated) {
     return <Navigate to="/home" replace />;
   }
 
-  return children; // 로그인되지 않은 경우 로그인 페이지로 접근 허용
+  return <>{children}</>;
 };
 
 export default RedirectIfAuthenticated;
