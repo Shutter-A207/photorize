@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/Common/Header";
-import Footer from "../components/Common/Footer";
-import { getUserInfo, deleteFcmToken } from "../api/UserAPI";
-import { fetchMainPageMemories } from "../api/MemoryAPI";
-import EditNicknameModal from "../components/EditNicknameModal";
-import EditProfileModal from "../components/EditProfileModal";
-import { useLoading } from "../components/Common/Loader/LoadingContext";
+import Header from "../../components/Common/Header";
+import Footer from "../../components/Common/Footer";
+import { getUserInfo, deleteFcmToken } from "../../api/UserAPI";
+import { fetchMainPageMemories } from "../../api/MemoryAPI";
+import EditNicknameModal from "../../components/EditNicknameModal";
+import EditProfileModal from "../../components/EditProfileModal";
+import { useLoading } from "../../components/Common/Loader/LoadingContext";
 
 interface Memory {
   memoryId: number;

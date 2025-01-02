@@ -103,6 +103,7 @@ const AlbumEdit = () => {
               id={album.albumId}
               name={album.name}
               color={album.colorCode}
+              type={album.type}
               isEditable={false}
               ref={index === albums.length - 1 ? lastAlbumElementRef : null}
             />

@@ -1,16 +1,16 @@
-import Home from "../pages/Home";
+import Home from "../pages/Home/Home";
 import Home2 from "../pages/Home2";
 import Alarm from "../pages/Alarm/Alarm";
 import Album from "../pages/Album/Album";
-import Album2 from "../pages/Album/Album2";
+import Album2 from "../pages/Album2/Album2";
 import Pose from "../pages/Pose/Pose";
 import Spot from "../pages/Spot/Spot";
-import AlbumDetail from "../pages/Album/AlbumDetail";
-import Memory from "../pages/Album/Memory";
-import Record from "../pages/Album/Record";
-import SpotDetail from "../pages/Spot/SpotDetail";
-import AlbumEdit from "../pages/Album/AlbumEdit";
-import ModifyMemory from "../pages/Album/ModifyMemory";
+import AlbumDetail from "../pages/AlbumDetail/AlbumDetail";
+import Memory from "../pages/Memory/Memory";
+import Record from "../pages/Record/Record";
+import SpotDetail from "../pages/SpotDetail/SpotDetail";
+import AlbumEdit from "../pages/AlbumEdit/AlbumEdit";
+import ModifyMemory from "../pages/ModifyMemory/ModifyMemory";
 
 
 export const protectedRoutes = [
