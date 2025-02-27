@@ -87,5 +87,5 @@
     -   **조수연**: 서버 배포 및 자동화
 
 ## 🧱 아키텍쳐
-![image](https://github.com/user-attachments/assets/15266ec1-8416-4869-9dc0-e73ccc7f3521)
+![image](https://github.com/user-attachments/assets/15266ec1-8416-4869-9dc0-e73ccc7f3521) 
 
